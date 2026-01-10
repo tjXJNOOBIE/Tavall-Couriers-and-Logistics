@@ -25,7 +25,9 @@ public class Gemini3ImageClient extends Client.Builder{
     public Gemini3ImageClient(Client client) {
         this.client = client;
     }
-
+    public Client getClient() {
+        return this.client;
+    }
 
     public void buildGemini3ImageClient() {
 
