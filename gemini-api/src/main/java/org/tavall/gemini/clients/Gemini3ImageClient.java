@@ -16,7 +16,6 @@ public class Gemini3ImageClient extends Client.Builder{
 
     private final double TEMPERATURE = 0.1;
     private List<GeminiModel> AVAILABLE_MODELS = new ArrayList<>();
-    private List<Schemas> AVAILABLE_SCHEMAS = new ArrayList<>();
     private List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
     public Gemini3ImageClient() {
         AVAILABLE_MODELS.add(GeminiModel.GEMINI_3_FLASH);
@@ -48,9 +47,7 @@ public class Gemini3ImageClient extends Client.Builder{
 
         return AVAILABLE_MODELS.contains(geminiModel);
     }
-    public boolean hasAvailableSchema(Schemas schemas) {
-        return AVAILABLE_SCHEMAS.contains(schemas);
-    }
+
     public boolean hasAvailableAPIVersion(GeminiAPIVersion geminiAPIVersion) {
         return AVAILABLE_API_VERSIONS.contains(geminiAPIVersion);
     }
