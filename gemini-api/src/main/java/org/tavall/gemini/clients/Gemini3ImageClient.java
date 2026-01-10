@@ -7,6 +7,9 @@ import org.tavall.gemini.enums.GeminiAPIVersion;
 import org.tavall.gemini.enums.GeminiModel;
 import org.tavall.gemini.generate.Schemas;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Gemini3ImageClient extends Client.Builder{
 
     private Client client;
@@ -39,9 +42,16 @@ public class Gemini3ImageClient extends Client.Builder{
                 .build();
     }
 
-    public Client getClient() {
-        return this.client;
+
+    //TODO: Move below methods to abstract model class
+    public boolean hasAvailableModel(GeminiModel geminiModel) {
+
+        return AVAILABLE_MODELS.contains(geminiModel);
     }
-
-
+    public boolean hasAvailableSchema(Schemas schemas) {
+        return AVAILABLE_SCHEMAS.contains(schemas);
+    }
+    public boolean hasAvailableAPIVersion(GeminiAPIVersion geminiAPIVersion) {
+        return AVAILABLE_API_VERSIONS.contains(geminiAPIVersion);
+    }
 }
