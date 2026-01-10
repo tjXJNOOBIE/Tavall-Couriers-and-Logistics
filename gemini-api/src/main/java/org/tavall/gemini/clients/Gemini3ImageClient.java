@@ -13,7 +13,7 @@ import java.util.List;
 public class Gemini3ImageClient extends Client.Builder{
 
     private Client client;
-
+    // Leave the temperature 0.1 for image resolving
     private final double TEMPERATURE = 0.1;
     private List<GeminiModel> AVAILABLE_MODELS = new ArrayList<>();
     private List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
