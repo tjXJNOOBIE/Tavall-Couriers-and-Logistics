@@ -16,7 +16,9 @@ public class Gemini3ImageClient extends Client.Builder{
     private List<Schemas> AVAILABLE_SCHEMAS = new ArrayList<>();
     private List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
     public Gemini3ImageClient() {
-
+        AVAILABLE_MODELS.add(GeminiModel.GEMINI_3_FLASH);
+        AVAILABLE_MODELS.add(GeminiModel.GEMINI_3_PRO);
+        AVAILABLE_API_VERSIONS.add(GeminiAPIVersion.V1);
         buildGemini3ImageClient();
     }
 
