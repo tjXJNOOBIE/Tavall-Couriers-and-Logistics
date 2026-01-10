@@ -12,9 +12,9 @@ public class Gemini3ImageClient extends Client.Builder{
     private Client client;
 
     private final double TEMPERATURE = 0.1;
-    private GeminiModel geminiModel;
-    private GeminiAPIVersion geminiAPIVersion;
-    private Schemas schemas;
+    private List<GeminiModel> AVAILABLE_MODELS = new ArrayList<>();
+    private List<Schemas> AVAILABLE_SCHEMAS = new ArrayList<>();
+    private List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
     public Gemini3ImageClient() {
 
         buildGemini3ImageClient();
