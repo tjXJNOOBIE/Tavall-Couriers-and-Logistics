@@ -23,7 +23,8 @@ public class Gemini3ImageClient extends Client.Builder{
         AVAILABLE_API_VERSIONS.add(GeminiAPIVersion.V1);
         buildGemini3ImageClient();
     }
-
+    //TODO: Add checks in methods to check our model and API versions
+    // Probaby in a abstract class
     public Gemini3ImageClient(Client client) {
         this.client = client;
     }
