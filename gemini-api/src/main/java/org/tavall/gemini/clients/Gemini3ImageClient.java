@@ -3,33 +3,23 @@ package org.tavall.gemini.clients;
 
 import com.google.genai.Client;
 import com.google.genai.types.HttpOptions;
+import org.tavall.gemini.clients.abstracts.AbstractGemini3Client;
 import org.tavall.gemini.enums.GeminiAPIVersion;
 import org.tavall.gemini.enums.GeminiModel;
-import org.tavall.gemini.generate.Schemas;
 
-import java.util.ArrayList;
-import java.util.List;
 
-public class Gemini3ImageClient extends Client.Builder{
+public class Gemini3ImageClient extends AbstractGemini3Client {
 
-    private Client client;
     // Leave the temperature 0.1 for image resolving
-    private final double TEMPERATURE = 0.1;
-    private List<GeminiModel> AVAILABLE_MODELS = new ArrayList<>();
-    private List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
     public Gemini3ImageClient() {
         AVAILABLE_MODELS.add(GeminiModel.GEMINI_3_FLASH);
         AVAILABLE_MODELS.add(GeminiModel.GEMINI_3_PRO);
         AVAILABLE_API_VERSIONS.add(GeminiAPIVersion.V1);
         buildGemini3ImageClient();
     }
-    //TODO: Add checks in methods to check our model and API versions
-    // Probaby in a abstract class
+
     public Gemini3ImageClient(Client client) {
-        this.client = client;
-    }
-    public Client getClient() {
-        return this.client;
+        super(client);
     }
 
     public void buildGemini3ImageClient() {
@@ -42,14 +32,8 @@ public class Gemini3ImageClient extends Client.Builder{
                 .build();
     }
 
-
-    //TODO: Move below methods to abstract model class
-    public boolean hasAvailableModel(GeminiModel geminiModel) {
-
-        return AVAILABLE_MODELS.contains(geminiModel);
-    }
-
-    public boolean hasAvailableAPIVersion(GeminiAPIVersion geminiAPIVersion) {
-        return AVAILABLE_API_VERSIONS.contains(geminiAPIVersion);
+    @Override
+    public void buildClient() {
+        buildGemini3ImageClient();
     }
 }
