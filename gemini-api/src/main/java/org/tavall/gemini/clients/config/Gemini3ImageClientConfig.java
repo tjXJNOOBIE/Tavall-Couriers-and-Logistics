@@ -1,18 +1,19 @@
 package org.tavall.gemini.clients.config;
 
 
+import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerationConfig;
+import org.tavall.gemini.clients.config.abstracts.AbstractGemini3Config;
 
-public class Gemini3ImageClientConfig {
+public class Gemini3ImageClientConfig extends AbstractGemini3Config {
 
-    GenerationConfig config;
 
 
     public Gemini3ImageClientConfig() {
-//       getConfig().toBuilder().temperature()
+    super();
     }
 
-    public GenerationConfig getConfig() {
+    public static GenerateContentConfig getConfig() {
         return config;
     }
 
