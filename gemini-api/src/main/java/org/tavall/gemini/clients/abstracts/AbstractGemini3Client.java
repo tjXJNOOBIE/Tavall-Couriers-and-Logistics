@@ -11,7 +11,6 @@ import java.util.List;
 public abstract class AbstractGemini3Client extends Client.Builder {
 
     protected Client client;
-    protected final double TEMPERATURE = 0.1;
     protected List<GeminiModel> AVAILABLE_MODELS = new ArrayList<>();
     protected List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
 
