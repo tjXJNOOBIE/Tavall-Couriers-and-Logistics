@@ -2,6 +2,7 @@ package org.tavall.gemini.clients;
 
 
 import com.google.genai.Client;
+import com.google.genai.types.GenerationConfig;
 import com.google.genai.types.HttpOptions;
 import org.tavall.gemini.clients.abstracts.AbstractGemini3Client;
 import org.tavall.gemini.enums.GeminiAPIVersion;
