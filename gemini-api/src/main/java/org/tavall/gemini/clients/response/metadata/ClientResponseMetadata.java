@@ -6,7 +6,7 @@ import org.tavall.gemini.enums.GeminiModel;
 
 import java.time.Duration;
 
-public record ResponseResponseMetadata(
+public record ClientResponseMetadata(
         GeminiModel modelUsed,
         int totalTokenCount,
         Duration latency,
