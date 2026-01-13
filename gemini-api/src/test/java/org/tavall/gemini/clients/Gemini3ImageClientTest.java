@@ -37,7 +37,7 @@ class Gemini3ImageClientTest {
         log("Testing constructor with provided Client instance");
 
         Client mockClient = Client.builder()
-                .apiKey("test-key")
+                .apiKey(System.getenv("GEMINI_API_KEY"))
                 .build();
         Gemini3ImageClient customClient = new Gemini3ImageClient(mockClient);
 
