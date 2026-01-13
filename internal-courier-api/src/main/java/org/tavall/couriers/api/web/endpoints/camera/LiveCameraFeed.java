@@ -14,7 +14,6 @@ public class LiveCameraFeed {
 
 
     public static String render(AppEndpoint streamEndpoint, boolean useScreenCapture) {
-        // Prepare the JS method name based on the boolean
         String captureMethod = useScreenCapture ? "getDisplayMedia" : "getUserMedia";
 
         return """
@@ -24,9 +23,11 @@ public class LiveCameraFeed {
                 </video>
                 
                 <div id="ai-overlay" style="position: absolute; bottom: 20px; left: 20px; right: 20px;
-                                            color: #aaa; font-family: monospace; font-weight: bold; 
-                                            background: rgba(0,0,0,0.8); padding: 10px; border-radius: 4px;">
-                    System Status: IDLE (Waiting for Stream...)
+                                            font-family: 'Courier New', monospace; font-weight: bold; 
+                                            background: rgba(0, 0, 0, 0.85); padding: 15px; border-radius: 8px;
+                                            border-left: 5px solid #444; backdrop-filter: blur(4px);">
+                    <div id="status-line" style="color: #aaa; margin-bottom: 5px;">SYSTEM STATUS: OFFLINE</div>
+                    <div id="data-display" style="color: #fff; font-size: 14px; line-height: 1.4;">Waiting for stream...</div>
                 </div>
                 
                 <canvas id="frame-buffer" style="display:none;"></canvas>
@@ -35,103 +36,96 @@ public class LiveCameraFeed {
             <script>
                 (function() {
                     const video = document.getElementById('live-feed');
-                    const status = document.getElementById('ai-overlay');
+                    const statusLine = document.getElementById('status-line');
+                    const dataDisplay = document.getElementById('data-display');
+                    const overlay = document.getElementById('ai-overlay');
                     
-                    // 1. Inject Java Variables into JS
-                    const useScreen = %s; // Injected Boolean (true/false)
-                    const endpoint = "%s"; // Injected URL String
-                    
-                    // State Tracking
                     let consecutiveMisses = 0;
 
-                    // A. Start Camera/Screen
                     async function startStream() {
                         try {
-                            const constraints = useScreen 
+                            const constraints = %s 
                                 ? { video: { cursor: "always" }, audio: false }
                                 : { video: { facingMode: "environment", width: { ideal: 1920 } }, audio: false };
 
-                            // Dynamic Method Call: getDisplayMedia or getUserMedia
                             const stream = await navigator.mediaDevices.%s(constraints);
                             video.srcObject = stream;
-                            
                             startGeminiLoop();
-                            
                         } catch (err) {
-                            status.innerText = "Error: " + err.message;
-                            status.style.color = "red";
+                            statusLine.innerText = "ERROR: CAMERA ACCESS DENIED";
+                            statusLine.style.color = "red";
                         }
                     }
 
-                    // B. The Gemini Loop (Variable Speed)
                     function startGeminiLoop() {
                         const loop = () => {
-                            // Wait for video to be ready
                             if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-                                setTimeout(loop, 500); 
-                                return;
+                                setTimeout(loop, 500); return;
                             }
 
-                            // Power Save Logic: If 5 misses, slow down to 5s. If found, speed up to 1s.
+                            // Dynamic Polling: Slow down if we keep seeing nothing
                             const isIdle = consecutiveMisses >= 5;
-                            const currentInterval = isIdle ? 5000 : 1000; 
+                            const interval = isIdle ? 4000 : 1000; 
 
                             if (isIdle) {
-                                status.innerText = "Status: LOW POWER MODE (Scanning every 5s)";
-                                status.style.color = "#777";
+                                statusLine.innerText = "STATUS: LOW POWER SCANNING...";
+                                statusLine.style.color = "#888";
+                                overlay.style.borderLeftColor = "#888";
+                            } else {
+                                statusLine.innerText = "STATUS: ANALYZING...";
+                                statusLine.style.color = "yellow";
+                                overlay.style.borderLeftColor = "yellow";
                             }
 
                             window.getCurrentFrameBlob(blob => {
                                 const formData = new FormData();
-                                formData.append('image', blob, 'live_frame.png');
+                                formData.append('image', blob, 'frame.png');
 
-                                if (!isIdle) {
-                                    status.innerText = "Status: GEMINI ANALYZING...";
-                                    status.style.color = "yellow";
-                                }
-
-                                fetch(endpoint, { method: 'POST', body: formData })
+                                fetch('%s', { method: 'POST', body: formData })
                                 .then(r => r.json())
                                 .then(data => {
                                     if (data.status === "SEARCHING" || data.status === "ERROR") {
                                         consecutiveMisses++;
+                                        if (!isIdle) dataDisplay.innerHTML = "No package detected.";
                                     } else {
-                                        // FOUND IT! Reset timeout
-                                        consecutiveMisses = 0; 
-                                        status.innerHTML = `UUID: ${data.uuid} <br/> ${data.description}`;
-                                        status.style.color = "#00ccff";
+                                        // FOUND TARGET
+                                        consecutiveMisses = 0;
+                                        statusLine.innerText = "TARGET ACQUIRED: " + data.status;
+                                        statusLine.style.color = "#0f0"; // Green
+                                        overlay.style.borderLeftColor = "#0f0";
+                                        
+                                        // Render the rich data
+                                        dataDisplay.innerHTML = `
+                                            <span style="color: cyan">UUID:</span> ${data.uuid || 'N/A'}<br>
+                                            <span style="color: cyan">TRK:</span>  ${data.trackingNumber || 'N/A'}<br>
+                                            <span style="color: cyan">TO:</span>   ${data.name || ''}<br>
+                                            <span style="color: #aaa">${data.address || ''}</span><br>
+                                            <span style="color: orange">NOTE:</span> ${data.notes || 'OK'}
+                                        `;
                                     }
-                                    
-                                    // Schedule next run
-                                    setTimeout(loop, currentInterval);
+                                    setTimeout(loop, interval);
                                 })
                                 .catch(e => {
                                     console.error(e);
-                                    setTimeout(loop, 5000); // Back off on network error
+                                    setTimeout(loop, 5000);
                                 });
                             });
                         };
-                        
                         loop();
                     }
 
                     startStream();
 
                     window.getCurrentFrameBlob = function(callback) {
-                         if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                            const canvas = document.getElementById('frame-buffer');
-                            canvas.width = video.videoWidth;
-                            canvas.height = video.videoHeight;
-                            canvas.getContext('2d').drawImage(video, 0, 0);
-                            canvas.toBlob(callback, 'image/png'); 
-                        }
+                         const canvas = document.getElementById('frame-buffer');
+                         canvas.width = video.videoWidth; 
+                         canvas.height = video.videoHeight;
+                         canvas.getContext('2d').drawImage(video, 0, 0);
+                         canvas.toBlob(callback, 'image/png'); 
                     };
                 })();
             </script>
-        """.formatted(
-                useScreenCapture,       // 1. %s (boolean) - fixed variable name
-                streamEndpoint.endpoint(),  // 2. "%s" (endpoint string)
-                captureMethod           // 3. .%s (method name string)
-        );
+        """.formatted(useScreenCapture, captureMethod, streamEndpoint.endpoint());
     }
+
 }
