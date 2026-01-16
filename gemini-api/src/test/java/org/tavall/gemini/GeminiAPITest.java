@@ -35,7 +35,7 @@ class GeminiAPITest {
         System.setOut(new PrintStream(outputStream));
 
         // Verify API key is available in environment
-        apiKey = "AIzaSyBWEogoQdny4ofEQm1y-6V7EF1P9jPj0c4";
+        apiKey = System.getenv("GEMINI_API_KEY");
         assertThat(apiKey)
                 .as("GEMINI_API_KEY environment variable must be set")
                 .isNotNull()
