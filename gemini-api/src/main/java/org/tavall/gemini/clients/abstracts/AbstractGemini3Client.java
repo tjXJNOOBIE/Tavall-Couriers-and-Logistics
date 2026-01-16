@@ -2,15 +2,18 @@ package org.tavall.gemini.clients.abstracts;
 
 
 import com.google.genai.Client;
+import com.google.genai.types.GenerateContentConfig;
+import com.google.genai.types.Schema;
 import org.tavall.gemini.enums.GeminiAPIVersion;
 import org.tavall.gemini.enums.GeminiModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-public abstract class AbstractGemini3Client extends Client.Builder {
+//TODO: Add javadoc for client and client config creation
+public abstract class AbstractGemini3Client {
 
     protected Client client;
+    protected Schema schema;
     protected List<GeminiModel> AVAILABLE_MODELS = new ArrayList<>();
     protected List<GeminiAPIVersion> AVAILABLE_API_VERSIONS = new ArrayList<>();
 
@@ -22,16 +25,29 @@ public abstract class AbstractGemini3Client extends Client.Builder {
     }
 
     public Client getClient() {
+        if (this.client == null) {
+            // TODO: Make custom exception here
+            throw new IllegalStateException("Gemini Client is not initialized. Call buildClient() first.");
+        }
         return this.client;
     }
-
-    public abstract void buildClient();
-
-    public boolean hasAvailableModel(GeminiModel geminiModel) {
-        return AVAILABLE_MODELS.contains(geminiModel);
+    public Schema getSchema() {
+        if (this.schema == null) {
+            // TODO: Make custom exception here
+            throw new IllegalStateException("Gemini Client schema is not initialized. ");
+        }
+        return this.schema;
     }
 
-    public boolean hasAvailableAPIVersion(GeminiAPIVersion geminiAPIVersion) {
-        return AVAILABLE_API_VERSIONS.contains(geminiAPIVersion);
+
+
+    public abstract GenerateContentConfig getGenerationConfig();
+
+    public abstract void buildClient();
+    public abstract void buildSchema(Schema schema);
+
+    // --- Validation Helpers ---
+    public boolean hasAvailableModel(GeminiModel geminiModel) {
+        return AVAILABLE_MODELS.contains(geminiModel);
     }
 }
