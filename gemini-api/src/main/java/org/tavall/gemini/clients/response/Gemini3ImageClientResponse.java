@@ -4,8 +4,7 @@ package org.tavall.gemini.clients.response;
 import org.tavall.gemini.clients.response.metadata.ClientResponseMetadata;
 import org.tavall.gemini.utils.AIResponseParser;
 
-//Class to parse generic objects, we should make this a abstract class
-// and pass response objects to other class via inheritance
+
 public class Gemini3ImageClientResponse<T> {
 
     private final T response;
