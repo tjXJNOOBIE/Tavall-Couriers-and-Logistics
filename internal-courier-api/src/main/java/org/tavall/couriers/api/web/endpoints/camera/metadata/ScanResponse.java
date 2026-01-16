@@ -9,11 +9,23 @@
 
 package org.tavall.couriers.api.web.endpoints.camera.metadata;
 
+import org.tavall.couriers.api.web.endpoints.CameraFeedEndpoints;
+import org.tavall.couriers.api.web.endpoints.camera.state.LiveCameraState;
+
+import java.time.Instant;
+
 public record ScanResponse(String uuid,
-                           String status, // "SEARCHING", "FOUND", "ERROR"
+                           LiveCameraState cameraState,
                            String trackingNumber,
                            String name,
                            String address,
                            String phoneNumber,
-                           String notes
-) {}
+                           Instant deadline,
+                           String notes) {
+
+
+    public boolean isMissingCriticalData(ScanResponse raw) {
+        return (raw.trackingNumber() == null || raw.trackingNumber().isBlank())
+                && (raw.address() == null || raw.address().isBlank());
+    }
+}
