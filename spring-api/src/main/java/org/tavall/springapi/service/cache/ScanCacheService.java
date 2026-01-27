@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class ScanCacheService extends AbstractCache<ScanCacheService,ScanResponse>{
 
 
-
+    private CacheMap cacheMap = CacheMap.INSTANCE;
     private ScanCacheService scanCacheService = new ScanCacheService();
     /**
      * Constructs a ScanCacheService from {@link AbstractCache} with a 5-minute default TTL.
@@ -56,29 +56,14 @@ public class ScanCacheService extends AbstractCache<ScanCacheService,ScanRespons
         return CacheVersion.V1_0;
     }
 
-    @SuppressWarnings("unchecked")
     public void registerScanResponse(ScanResponse scanResponse) {
-        // 1. Build the Key and Value
-        ICacheKey<?> cacheKey = createKey(scanCacheService,CacheType.MEMORY, CacheDomain.SCANS, CacheSource.AI_SCANNER, CacheVersion.V1_0);
-        ICacheValue<?> newValue = createValue(scanResponse);
-
-        // 2. Compute: Handles "Get List OR Create List" + "Add" in one atomic step
-        CacheMap.INSTANCE.compute(cacheKey, (k, newMapValue) -> {
-
-            List<ICacheValue<?>> valueList;
-            // If null, make new List. If exists, cast the existing value to List.
-            if(newMapValue != null) {
-                valueList = newMapValue;
-                valueList.add(newValue);
-
-                return valueList;
-            }
-            Log.error("Error: ScanResponse not found in cache. Key: " + cacheKey);
-
-
-            // Returns the List (which map stores as the Value)
-            return null; // Assuming Map allows raw List or you wrap this List in a CacheValue
-        });
+        if(scanResponse != null) {
+            ICacheKey<?> cacheKey = createKey(scanCacheService, CacheType.MEMORY, CacheDomain.SCANS, CacheSource.AI_SCANNER, CacheVersion.V1_0);
+            ICacheValue<?> newValue = createValue(scanResponse);
+            cacheMap.add(cacheKey, newValue);
+            return;
+        }
+        Log.error("Error: Cannot register null scan response.");
     }
 
 
