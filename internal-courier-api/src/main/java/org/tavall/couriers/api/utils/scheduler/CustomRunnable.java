@@ -35,6 +35,11 @@ public abstract class CustomRunnable implements Runnable {
         }
         return false;
     }
+    public void shutdown() {
+        if (customScheduler != null) {
+            customScheduler.shutdown();
+        }
+    }
     public void runTaskLater(long delayMs) {
         this.scheduledFuture = customScheduler.runTaskLater(this, delayMs);
     }
