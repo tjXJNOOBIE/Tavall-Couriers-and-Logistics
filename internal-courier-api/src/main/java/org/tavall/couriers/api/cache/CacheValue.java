@@ -10,22 +10,23 @@
 package org.tavall.couriers.api.cache;
 
 
-import org.tavall.couriers.api.cache.enums.CacheType;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 
 import java.util.Objects;
 
 public class CacheValue<V> implements ICacheValue<V> {
 
-    private final V value;
-    private final long expirationTime;
+    private V value;
+    private long expirationTime;
 
     public CacheValue(V value, long expirationTime) {
         this.value = value;
         this.expirationTime = expirationTime;
     }
-
-
+    @Override
+    public V getValue() {
+        return value;
+    }
     public boolean isExpired() {
         return isValueExpired(System.currentTimeMillis());
     }
