@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ScanCacheService extends AbstractCache<ScanCacheService,ScanResponse>{
 
-
-    private CacheMap cacheMap = CacheMap.INSTANCE;
-    private ScanCacheService scanCacheService = new ScanCacheService();
+    public static final ScanCacheService INSTANCE = new ScanCacheService();
+    private ICacheKey<ScanCacheService> cacheKey;
+    ICacheValue<?> cacheValue;
     /**
      * Constructs a ScanCacheService from {@link AbstractCache} with a 5-minute default TTL.
      */
@@ -56,15 +56,32 @@ public class ScanCacheService extends AbstractCache<ScanCacheService,ScanRespons
         return CacheVersion.V1_0;
     }
 
+    @SuppressWarnings("unchecked")
     public void registerScanResponse(ScanResponse scanResponse) {
         if(scanResponse != null) {
-            ICacheKey<?> cacheKey = createKey(scanCacheService, CacheType.MEMORY, CacheDomain.SCANS, CacheSource.AI_SCANNER, CacheVersion.V1_0);
-            ICacheValue<?> newValue = createValue(scanResponse);
-            cacheMap.add(cacheKey, newValue);
+            this.cacheKey = (ICacheKey<ScanCacheService>) createKey(INSTANCE, CacheType.MEMORY, CacheDomain.SCANS, CacheSource.AI_SCANNER, CacheVersion.V1_0);
+            this.cacheValue = createValue(scanResponse);
+            // Add to a static cache map
+            CacheMap.getCacheMap().add(cacheKey,cacheValue);
+            Log.success("Scan response registered in cache.");
             return;
         }
         Log.error("Error: Cannot register null scan response.");
     }
+
+    public ICacheKey<ScanCacheService> getScanCacheKey() {
+        return this.cacheKey;
+    }
+
+    public boolean containsScanKey() {
+        if (this.cacheKey != null) {
+            return CacheMap.getCacheMap().containsKey(getScanCacheKey());
+        }
+        return false;
+    }
+
+
+
 
 
 }
