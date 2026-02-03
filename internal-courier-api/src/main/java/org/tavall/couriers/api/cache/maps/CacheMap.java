@@ -15,42 +15,62 @@ import java.util.stream.Collectors;
 
 public class CacheMap extends ConcurrentHashMap<ICacheKey<?>, List<ICacheValue<?>>> {
 
-    public static final CacheMap INSTANCE = new CacheMap();
+    public static CacheMap INSTANCE = new CacheMap();
 
 
-    private CacheMap() {
+    public CacheMap() {
         super();
+
     }
 
+    public static CacheMap getCacheMap() {
+        return INSTANCE;
+    }
     public void add(ICacheKey<?> cacheKey, ICacheValue<?> newValue) {
 
         if (cacheKey != null && newValue != null) {
-            this.compute(cacheKey, (k, cacheValues) -> {
 
-                List<ICacheValue<?>> valueList;
-                // If null, make new List. If exists, cast the existing value to List.
-                if (cacheValues != null) {
-                    valueList = cacheValues;
-                    valueList.add(newValue);
-
-                    return valueList;
+            compute(cacheKey, (k, bucket) -> {
+                if (bucket == null) {
+                    bucket = Collections.synchronizedList(new ArrayList<>());
                 }
-                Log.error("Error: ScanResponse not found in cache. Key: " + cacheKey);
 
-
-                // Returns the List (which map stores as the Value)
-                return null; // Assuming Map allows raw List or you wrap this List in a CacheValue
+                bucket.add(newValue);
+                Log.success("New value added to cache bucket: " + String.valueOf(newValue.getValue()));
+                return bucket;
             });
+
             return;
         }
+
         Log.error("Error: Cannot add to cache: Key or Value is null.");
+    }
+
+    public boolean containsDomainKey(ICacheKey<?> key) {
+        return containsKey(key);
+    }
+    public List<ICacheValue<?>> bucket(Class<?> domainKey) {
+        return getOrDefault(domainKey, List.of());
+    }
+
+    public boolean containsInBucket(Class<?> domainKey, ICacheValue<?> value) {
+        List<ICacheValue<?>> bucket = get(domainKey);
+        if(domainKey == null){
+            Log.error("Error: domainKey is null");
+            return false;
+        }
+        if(bucket != null){
+            return bucket.contains(value);
+        }
+        Log.error("Error: Cannot find bucket for domainKey: " + domainKey.toString());
+        return false;
     }
     public void removeByValue(ICacheValue<?> valueToRemove) {
 
         if (valueToRemove != null) {
 
             // Iterate all entries (Keys -> Lists)
-            this.entrySet().removeIf(entry -> {
+            entrySet().removeIf(entry -> {
 
                 List<ICacheValue<?>> list = entry.getValue();
 
@@ -82,13 +102,13 @@ public class CacheMap extends ConcurrentHashMap<ICacheKey<?>, List<ICacheValue<?
         return null; // Call SUPER, not self.
     }
     public List<List<ICacheValue<?>>> findByDomain(CacheDomain domain) {
-        return this.entrySet().stream()
+        return entrySet().stream()
                 .filter(entry -> entry.getKey().getCacheDomain() == domain)
                 .map(Entry::getValue)
                 .collect(Collectors.toList());
     }
     public List<List<ICacheValue<?>>> findByType(CacheType type) {
-        return this.entrySet().stream()
+        return entrySet().stream()
                 .filter(entry -> entry.getKey().getCacheType() == type)
                 .map(Entry::getValue)
                 .collect(Collectors.toList());
