@@ -16,8 +16,6 @@ import org.tavall.couriers.api.cache.enums.CacheType;
 import org.tavall.couriers.api.cache.enums.CacheVersion;
 import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,10 +39,13 @@ public class CacheKey<K> implements ICacheKey<K> {
         this.version = version;
         this.createdAt = System.currentTimeMillis();
         this.hashCode = computeHashCode();
+        this.accessCount.incrementAndGet();
     }
 
     // --- CHAINED CONSTRUCTORS (Propagating Raw Key) ---
-
+    public CacheKey(K rawKey) {
+        this(rawKey, null, null, null, null);
+    }
     public CacheKey(K rawKey, CacheType cacheType) {
         this(rawKey, cacheType, null, null, null);
     }
@@ -72,7 +73,7 @@ public class CacheKey<K> implements ICacheKey<K> {
     public CacheKey(K rawKey, CacheType cacheType, CacheDomain domain, CacheVersion version) {
         this(rawKey, cacheType, domain, null, version);
     }
-
+    @Override
     public K getRawCacheKey() {
         return rawKey;
     }
@@ -107,7 +108,7 @@ public class CacheKey<K> implements ICacheKey<K> {
 
     private int computeHashCode() {
 
-        return Objects.hash(getCacheKey(), cacheType, cacheDomain, version, source);
+        return Objects.hash(getRawCacheKey(), cacheType, cacheDomain, version, source);
     }
 
 
@@ -131,11 +132,15 @@ public class CacheKey<K> implements ICacheKey<K> {
 
     @Override
     public boolean equals(Object o) {
-
         if (this == o) return true;
         if (!(o instanceof CacheKey)) return false;
-        CacheKey that = (CacheKey) o;
-        return Objects.equals(getCacheKey(), that.getCacheKey()) && cacheType == that.getCacheType();
+        CacheKey<?> that = (CacheKey<?>) o;
+
+        return Objects.equals(rawKey, that.rawKey) &&
+                cacheType == that.getCacheType() &&
+                cacheDomain == that.getCacheDomain() &&
+                version == that.getVersion() &&
+                source == that.getSource();
     }
 
 
@@ -150,7 +155,7 @@ public class CacheKey<K> implements ICacheKey<K> {
     public String toString() {
 
         return "UserCacheKey{" +
-                "key=" + getCacheKey() +
+                "key=" + rawKey +
                 ", cacheType=" + cacheType +
                 ", cacheDomain=" + cacheDomain +
                 ", version=" + version +
