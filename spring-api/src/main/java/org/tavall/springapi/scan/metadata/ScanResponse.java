@@ -7,10 +7,10 @@
  * SEE LICENSE.TXT
  */
 
-package org.tavall.couriers.api.web.endpoints.camera.metadata;
+package org.tavall.springapi.scan.metadata;
 
-import org.tavall.couriers.api.web.endpoints.CameraFeedEndpoints;
-import org.tavall.couriers.api.web.endpoints.camera.state.LiveCameraState;
+
+import org.tavall.springapi.scan.state.LiveCameraState;
 
 import java.time.Instant;
 
