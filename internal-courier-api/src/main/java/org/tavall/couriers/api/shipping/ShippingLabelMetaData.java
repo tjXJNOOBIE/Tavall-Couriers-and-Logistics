@@ -2,6 +2,8 @@ package org.tavall.couriers.api.shipping;
 
 
 
+import org.tavall.couriers.api.delivery.state.DeliveryState;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -17,6 +19,21 @@ public class ShippingLabelMetaData {
     private String country;
     private boolean priority;
     private Instant deliverBy;
+
+
+    public DeliveryState getDeliveryState() {
+
+        return deliveryState;
+    }
+
+
+    public void setDeliveryState(DeliveryState deliveryState) {
+
+        this.deliveryState = deliveryState;
+    }
+
+
+    private DeliveryState deliveryState;
 
     public ShippingLabelMetaData() {
     }
