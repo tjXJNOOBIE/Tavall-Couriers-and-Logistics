@@ -3,6 +3,7 @@ package org.tavall.couriers.api.shipping;
 
 import org.junit.jupiter.api.Test;
 import org.tavall.couriers.api.console.Log;
+import org.tavall.couriers.api.delivery.state.DeliveryState;
 
 import java.time.Instant;
 
@@ -22,8 +23,7 @@ public class ShippingLabelMetaDataTest {
                 "95112",
                 "USA",
                 true,
-                Instant.parse("2024-01-01T10:15:30Z")
-        );
+                Instant.parse("2024-01-01T10:15:30Z"), DeliveryState.LABEL_CREATED);
     }
 
     @Test
@@ -229,8 +229,7 @@ public class ShippingLabelMetaDataTest {
                 "98101",
                 "USA",
                 false,
-                Instant.parse("2024-03-03T12:00:00Z")
-        );
+                Instant.parse("2024-03-03T12:00:00Z"), DeliveryState.LABEL_CREATED);
         ShippingLabelMetaData differentUuid = buildMetaData();
         differentUuid.setUuid("uuid-456");
 

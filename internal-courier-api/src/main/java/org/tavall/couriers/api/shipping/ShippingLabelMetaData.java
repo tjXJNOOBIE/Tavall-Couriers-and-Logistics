@@ -49,8 +49,8 @@ public class ShippingLabelMetaData {
             String zipCode,
             String country,
             boolean priority,
-            Instant deliverBy
-    ) {
+            Instant deliverBy,
+            DeliveryState deliveryState) {
         this.uuid = uuid;
         this.trackingNumber = trackingNumber;
         this.recipientName = recipientName;
@@ -62,6 +62,7 @@ public class ShippingLabelMetaData {
         this.country = country;
         this.priority = priority;
         this.deliverBy = deliverBy;
+        this.deliveryState = deliveryState;
     }
 
     public String getUuid() {
