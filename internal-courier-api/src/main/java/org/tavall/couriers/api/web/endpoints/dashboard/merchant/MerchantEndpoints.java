@@ -28,6 +28,11 @@ public enum MerchantEndpoints implements AppEndpoint {
     // "To complete scanning, there should be a button to complete the scanning process"
     COMPLETE_BATCH_SESSION("/internal/api/v1/merchant/scan/batch/complete", "POST");
 
+    public static final String GET_ALL_SHIPMENTS_PATH = "/internal/api/v1/merchant/shipments/all";
+    public static final String CREATE_SHIPMENT_PATH = "/internal/api/v1/merchant/shipment/create";
+    public static final String DASHBOARD_PATH = "/merchant/dashboard";
+    public static final String CREATE_SHIPMENT_PAGE_PATH = "/merchant/create-shipment";
+
     private final String endpoint;
     private final String method;
 
