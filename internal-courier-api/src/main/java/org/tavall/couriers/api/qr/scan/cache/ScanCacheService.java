@@ -1,7 +1,7 @@
 package org.tavall.couriers.api.qr.scan.cache;
 
 
-import org.tavall.couriers.api.cache.AbstractCache;
+import org.tavall.couriers.api.cache.abstracts.AbstractCache;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
 import org.tavall.couriers.api.cache.enums.CacheType;
