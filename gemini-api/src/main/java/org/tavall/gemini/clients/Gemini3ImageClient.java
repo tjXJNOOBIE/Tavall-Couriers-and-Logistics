@@ -1,7 +1,6 @@
 package org.tavall.gemini.clients;
 
 
-import com.google.common.net.MediaType;
 import com.google.genai.Client;
 import com.google.genai.types.*;
 import org.tavall.gemini.clients.abstracts.AbstractGemini3Client;
@@ -75,7 +74,7 @@ public class Gemini3ImageClient extends AbstractGemini3Client {
                 .candidateCount(1)
                 .imageConfig(ImageConfig.builder().build())
                 .mediaResolution(MediaResolution.Known.MEDIA_RESOLUTION_HIGH)
-                .responseSchema(getSchema())// Vision usually implies data extraction
+                .responseSchema(this.schema)// Vision usually implies data extraction
                 .responseMimeType("application/json")
                 .build();
     }

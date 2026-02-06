@@ -1,9 +1,10 @@
 package org.tavall.gemini.utils;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for AIResponseParser utility methods.

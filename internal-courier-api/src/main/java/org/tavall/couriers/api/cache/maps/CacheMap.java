@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.cache.maps;
 
 
+import org.tavall.couriers.api.cache.CacheValue;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheType;
 import org.tavall.couriers.api.cache.interfaces.ICacheKey;
@@ -15,88 +16,160 @@ import java.util.stream.Collectors;
 
 public class CacheMap extends ConcurrentHashMap<ICacheKey<?>, List<ICacheValue<?>>> {
 
-    public static final CacheMap INSTANCE = new CacheMap();
+    public static CacheMap INSTANCE = new CacheMap();
 
 
-    private CacheMap() {
+    public CacheMap() {
         super();
     }
+
+
+    public static CacheMap getCacheMap() {
+
+        return INSTANCE;
+    }
+
 
     public void add(ICacheKey<?> cacheKey, ICacheValue<?> newValue) {
 
         if (cacheKey != null && newValue != null) {
-            this.compute(cacheKey, (k, cacheValues) -> {
 
-                List<ICacheValue<?>> valueList;
-                // If null, make new List. If exists, cast the existing value to List.
-                if (cacheValues != null) {
-                    valueList = cacheValues;
-                    valueList.add(newValue);
-
-                    return valueList;
+            compute(cacheKey, (k, bucket) -> {
+                if (bucket == null) {
+                    bucket = Collections.synchronizedList(new ArrayList<>());
                 }
-                Log.error("Error: ScanResponse not found in cache. Key: " + cacheKey);
 
-
-                // Returns the List (which map stores as the Value)
-                return null; // Assuming Map allows raw List or you wrap this List in a CacheValue
+                bucket.add(newValue);
+                Log.success("New value added to cache bucket: " + String.valueOf(newValue.getValue()));
+                return bucket;
             });
+
             return;
         }
+
         Log.error("Error: Cannot add to cache: Key or Value is null.");
     }
-    public void removeByValue(ICacheValue<?> valueToRemove) {
 
-        if (valueToRemove != null) {
 
-            // Iterate all entries (Keys -> Lists)
-            this.entrySet().removeIf(entry -> {
+    public List<ICacheValue<?>> getBucket(ICacheKey<?> key) {
+        if (key == null) return new ArrayList<>();
 
-                List<ICacheValue<?>> list = entry.getValue();
+        List<ICacheValue<?>> bucket = get(key);
+        if (bucket == null) return new ArrayList<>();
 
-                // Attempt to remove the item from this specific list
-                // Relies on valueToRemove.equals() being implemented correctly!
-                boolean wasRemoved = list.remove(valueToRemove);
-
-                if (wasRemoved) {
-                    Log.info("Removed value from cache bucket: " + entry.getKey().getCacheDomain());
-                }
-
-                // CLEANUP: If the list is now empty, return true.
-                // This tells the Map to delete the Key entirely.
-                return list.isEmpty();
-            });
-
-            return;
+        // Return a defensive copy to prevent ConcurrentModificationException
+        // if the caller iterates while we are adding.
+        synchronized (bucket) {
+            return new ArrayList<>(bucket);
         }
-
-        Log.error("Error: Cannot remove null value from cache.");
     }
-    public List<ICacheValue<?>> remove(ICacheKey<?> key) {
-        if (key != null) {
+    /**
+     * Type-Safe Extraction helper.
+     * You pass the Wrapper you got, and the Class you expect inside it.
+     * We handle the ugly casting here so your service code stays clean.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T unwrap(ICacheValue<?> wrapper, Class<T> type) {
+        if (wrapper == null || wrapper.getValue() == null) return null;
 
-            Log.warn("Removing cache entry: " + key.getCacheDomain());
-            return super.remove(key); // Call SUPER, not self.
+        Object rawValue = wrapper.getValue();
+        if (type.isInstance(rawValue)) {
+            return (T) rawValue;
         }
-        Log.error("Cannot remove from cache: Key is null.");
-        return null; // Call SUPER, not self.
+
+        Log.error("Cache Type Mismatch. Expected: " + type.getSimpleName() +
+                " | Found: " + rawValue.getClass().getSimpleName());
+        return null;
+    }
+
+    public boolean containsInBucket(Class<?> domainKey, ICacheValue<?> value) {
+
+        List<ICacheValue<?>> bucket = get(domainKey);
+        if (domainKey == null) {
+            Log.error("Error: domainKey is null");
+            return false;
+        }
+        if (bucket != null) {
+            return bucket.contains(value);
+        }
+        Log.error("Error: Cannot find bucket for domainKey: " + domainKey.toString());
+        return false;
+    }
+
+// --- REMOVAL METHODS ---
+
+    /**
+     * Removes a specific Wrapper value from the bucket, but keeps the Key.
+     * This supports your "Key persists, Value eliminated" logic.
+     */
+    public void removeValue(ICacheValue<?> valueToRemove) {
+        if (valueToRemove == null) return;
+
+        // Scan all buckets to find and remove this wrapper instance
+        this.forEach((key, bucket) -> {
+            synchronized (bucket) {
+                if (bucket.remove(valueToRemove)) {
+                    Log.info("Removed specific wrapper value from domain: " + key.getCacheDomain());
+                }
+            }
+        });
+    }
+
+    /**
+     * Hard delete of the Key (and its entire bucket).
+     */
+    public void removeCacheKey(ICacheKey<?> key) {
+        if (key != null) {
+            Log.warn("Removing cache Key: " + key.getCacheDomain());
+            super.remove(key); // Calls the ConcurrentHashMap remove
+        } else {
+            Log.error("Cannot remove from cache: Key is null.");
+        }
+    }
+
+
+    // --- QUERY HELPERS ---
+
+    public boolean containsDomainKey(ICacheKey<?> key) {
+        return containsKey(key);
+    }
+    /**
+     * Checks if the REAL domain object (payload) already exists in the bucket.
+     * Unwraps the CacheValue and compares the inner object using .equals().
+     */
+    public boolean containsPayload(ICacheKey<?> key, Object realPayload) {
+
+        if (key == null || realPayload == null) return false;
+
+        List<ICacheValue<?>> bucket = get(key);
+        if (bucket == null) return false;
+
+        synchronized (bucket) {
+            for (ICacheValue<?> wrapper : bucket) {
+                // Peek inside the wrapper
+                Object cachedValue = wrapper.getValue();
+
+                // Use standard Java equality check
+                if (realPayload.equals(cachedValue)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     public List<List<ICacheValue<?>>> findByDomain(CacheDomain domain) {
-        return this.entrySet().stream()
+        return entrySet().stream()
                 .filter(entry -> entry.getKey().getCacheDomain() == domain)
-                .map(Entry::getValue)
+                .map(Entry::getValue) // Returns List<ICacheValue<?>>
                 .collect(Collectors.toList());
     }
+
     public List<List<ICacheValue<?>>> findByType(CacheType type) {
-        return this.entrySet().stream()
+        return entrySet().stream()
                 .filter(entry -> entry.getKey().getCacheType() == type)
                 .map(Entry::getValue)
                 .collect(Collectors.toList());
     }
-
-
-
-
 
 
 }

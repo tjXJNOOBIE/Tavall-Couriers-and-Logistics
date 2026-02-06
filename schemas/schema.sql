@@ -1,78 +1,64 @@
--- QR Code table: stores immutable QR identifiers only
-CREATE TABLE qr_codes (
-    id VARCHAR(36) PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by VARCHAR(100) NOT NULL,
-    qr_image_url VARCHAR(500),
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE'
+-- Enums (match your Java enums)
+CREATE TYPE qr_type AS ENUM ('UUID', 'CUSTOM');
+CREATE TYPE qr_state AS ENUM ('ACTIVE', 'INACTIVE', 'EXPIRED');
+CREATE TYPE delivery_state AS ENUM (
+    'LABEL_CREATED', 'DELIVERED', 'IN_TRANSIT', 'IN_HQ',
+    'IN_MIDDLEMAN', 'CANCELLED', 'ON_HOLD', 'OUT_FOR_DELIVERY', 'RETRY'
+);
+CREATE TYPE live_camera_state AS ENUM ('IDLE', 'SCANNING', 'ANALYZING', 'FOUND', 'ERROR');
+
+-- Tables
+CREATE TABLE qr_metadata (
+                             uuid uuid PRIMARY KEY,
+                             qr_data text NOT NULL,
+                             created_at timestamptz NOT NULL,
+                             qr_type qr_type NOT NULL,
+                             qr_state qr_state NOT NULL);
+
+CREATE TABLE shipping_label_metadata (
+                                         uuid varchar(36) PRIMARY KEY,
+                                         tracking_number varchar(64) NOT NULL,
+                                         recipient_name varchar(160) NOT NULL,
+                                         phone_number varchar(30),
+                                         address text NOT NULL,
+                                         city varchar(120) NOT NULL,
+                                         state varchar(120) NOT NULL,
+                                         zip_code varchar(20) NOT NULL,
+                                         country varchar(120) NOT NULL,
+                                         priority boolean NOT NULL,
+                                         deliver_by timestamptz,
+                                         delivery_state delivery_state
 );
 
--- QR Payload table: stores business data associated with QR ID
-CREATE TABLE qr_payloads (
-    id BIGSERIAL PRIMARY KEY,
-    qr_id VARCHAR(36) NOT NULL UNIQUE REFERENCES qr_codes(id),
-    recipient_name VARCHAR(200) NOT NULL,
-    recipient_address TEXT NOT NULL,
-    recipient_phone VARCHAR(20) NOT NULL,
-    delivery_notes TEXT,
-    delivery_status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by VARCHAR(100) NOT NULL
+CREATE TABLE scan_response (
+                               uuid varchar(36) PRIMARY KEY,
+                               camera_state live_camera_state NOT NULL,
+                               tracking_number varchar(64),
+                               name varchar(160),
+                               address text,
+                               city varchar(120),
+                               state varchar(120),
+                               zip_code varchar(20),
+                               country varchar(120),
+                               phone_number varchar(30),
+                               deadline timestamptz,
+                               notes text
 );
 
--- Route table: groups multiple QR codes together
-CREATE TABLE routes (
-    id VARCHAR(36) PRIMARY KEY,
-    route_name VARCHAR(200) NOT NULL,
-    route_status VARCHAR(20) NOT NULL DEFAULT 'CREATED',
-    assigned_driver VARCHAR(100),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by VARCHAR(100) NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    locked BOOLEAN NOT NULL DEFAULT FALSE
+CREATE TABLE tracking_number_metadata (
+                                          tracking_number varchar(64) PRIMARY KEY,
+                                          qr_uuid uuid NOT NULL
 );
 
--- Route-QR mapping table: many-to-many relationship
-CREATE TABLE route_qr_mappings (
-    id BIGSERIAL PRIMARY KEY,
-    route_id VARCHAR(36) NOT NULL REFERENCES routes(id),
-    qr_id VARCHAR(36) NOT NULL REFERENCES qr_codes(id),
-    added_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    added_by VARCHAR(100) NOT NULL,
-    UNIQUE(route_id, qr_id)
-);
+-- Indexes
+CREATE INDEX idx_qr_metadata_state ON qr_metadata (qr_state);
+CREATE INDEX idx_qr_metadata_type ON qr_metadata (qr_type);
 
--- Scan logs: audit trail of all QR scans
-CREATE TABLE scan_logs (
-    id BIGSERIAL PRIMARY KEY,
-    qr_id VARCHAR(36) NOT NULL REFERENCES qr_codes(id),
-    scanned_by VARCHAR(100) NOT NULL,
-    scanned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    action_type VARCHAR(50) NOT NULL,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
-    metadata JSONB
-);
+CREATE INDEX idx_shipping_label_tracking_number ON shipping_label_metadata (tracking_number);
+CREATE INDEX idx_shipping_label_delivery_state ON shipping_label_metadata (delivery_state);
+CREATE INDEX idx_shipping_label_priority ON shipping_label_metadata (priority);
 
--- Users table: basic authentication
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL,
-    full_name VARCHAR(200),
-    email VARCHAR(200),
-    active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+CREATE INDEX idx_scan_response_tracking_number ON scan_response (tracking_number);
+CREATE INDEX idx_scan_response_camera_state ON scan_response (camera_state);
 
--- Indexes for performance
-CREATE INDEX idx_qr_payloads_qr_id ON qr_payloads(qr_id);
-CREATE INDEX idx_qr_payloads_status ON qr_payloads(delivery_status);
-CREATE INDEX idx_routes_status ON routes(route_status);
-CREATE INDEX idx_route_qr_route_id ON route_qr_mappings(route_id);
-CREATE INDEX idx_route_qr_qr_id ON route_qr_mappings(qr_id);
-CREATE INDEX idx_scan_logs_qr_id ON scan_logs(qr_id);
-CREATE INDEX idx_scan_logs_scanned_at ON scan_logs(scanned_at);
-CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_tracking_number_metadata_qr_uuid ON tracking_number_metadata (qr_uuid);
