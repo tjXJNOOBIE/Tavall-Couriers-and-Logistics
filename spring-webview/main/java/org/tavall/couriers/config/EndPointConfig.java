@@ -4,6 +4,7 @@ package org.tavall.couriers.config;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.tavall.couriers.api.utils.StringCaseUtil;
 import org.tavall.couriers.api.web.endpoints.camera.CameraFeedEndpoints;
+import org.tavall.couriers.api.web.endpoints.config.ClientConfigEndpoints;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -13,7 +14,7 @@ public class EndPointConfig {
 
 
 
-    @GetMapping("/internal/api/v1/config/handshake")
+    @GetMapping(ClientConfigEndpoints.HANDSHAKE_PATH)
     public Map<String, Object> getClientConfig() {
 
         // 1. DYNAMICALLY MAP ENUMS
