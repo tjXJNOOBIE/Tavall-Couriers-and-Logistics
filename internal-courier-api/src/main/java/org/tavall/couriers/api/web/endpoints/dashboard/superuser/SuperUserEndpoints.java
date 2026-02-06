@@ -29,6 +29,11 @@ public enum SuperUserEndpoints implements AppEndpoint {
     CREATE_OR_UPDATE_STATUS("/internal/api/v1/admin/status/update", "POST"),
     DELETE_STATUS_DEFINITION("/internal/api/v1/admin/status/delete", "DELETE");
 
+    public static final String GET_ALL_SHIPMENTS_PATH = "/internal/api/v1/admin/shipments/all";
+    public static final String FORCE_UPDATE_SHIPMENT_PATH = "/internal/api/v1/admin/shipments/update";
+    public static final String DASHBOARD_PATH = "/superuser/dashboard";
+    public static final String CREATE_SHIPMENT_PAGE_PATH = "/superuser/create-shipment";
+
     private final String endpoint;
     private final String method;
 

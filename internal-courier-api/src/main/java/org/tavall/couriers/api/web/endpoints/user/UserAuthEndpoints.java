@@ -31,6 +31,8 @@ public enum UserAuthEndpoints implements AppEndpoint {
     // "Merchant accounts can only be frozen, disabled, or deleted"
     DISABLE_USER("/internal/api/v1/users/status/disable", "POST");
 
+    public static final String LOGIN_PATH = "/internal/api/v1/auth/login";
+
     private final String endpoint;
     private final String method;
 
