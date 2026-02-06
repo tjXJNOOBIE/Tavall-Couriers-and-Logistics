@@ -7,7 +7,7 @@
  * SEE LICENSE.TXT
  */
 
-package org.tavall.couriers.api.web.endpoints.camera.state;
+package org.tavall.couriers.api.qr.scan.state;
 
 public enum LiveCameraState {
      IDLE, SCANNING, ANALYZING, FOUND, ERROR
