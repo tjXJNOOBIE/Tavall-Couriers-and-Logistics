@@ -1,17 +1,13 @@
 package org.tavall.couriers.api.qr;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.tavall.couriers.api.qr.enums.QRState;
 import org.tavall.couriers.api.qr.enums.QRType;
-import org.tavall.couriers.api.utils.uuid.GenerateUUID;
+import org.tavall.couriers.api.qr.generate.QRCodeGenerator;
+import org.tavall.couriers.api.qr.metadata.QRMetaData;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
