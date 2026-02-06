@@ -12,6 +12,9 @@ public class ScanResponseSchema  {
 
     }
 
+    /**
+     *
+     */
     //TODO: Update schema to match ScanRsponse/Shipping Label Meta Data
     public Schema getScanResponseSchema() {
         return Schema.builder()
