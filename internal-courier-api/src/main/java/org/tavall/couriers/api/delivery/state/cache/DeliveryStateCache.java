@@ -22,6 +22,7 @@ public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, Shippi
     public static final ScopedValue<DeliveryStateCache> CURRENT = ScopedValue.newInstance();
     private ICacheKey<DeliveryStateCache> cacheKey;
     private ICacheValue<?> cacheValue;
+
     //TODO: Make ICacheValue = ICacheValue<SHippingLabelMetaData>; same for other caches
     public DeliveryStateCache() {
         super();
