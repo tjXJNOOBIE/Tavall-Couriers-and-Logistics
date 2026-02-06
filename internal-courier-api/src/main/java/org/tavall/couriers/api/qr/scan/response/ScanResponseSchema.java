@@ -1,20 +1,18 @@
-package org.tavall.couriers.api.intake.driver.scanner.ai.schemas;
+package org.tavall.couriers.api.qr.scan.response;
 
 
 import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
-import org.tavall.couriers.api.intake.driver.scanner.ai.schemas.interfaces.SchemaProvider;
 
 
-
-
-public class ScanResponseSchema implements SchemaProvider {
+public class ScanResponseSchema  {
 
 
     public ScanResponseSchema() {
 
     }
-    @Override
+
+    //TODO: Update schema to match ScanRsponse/Shipping Label Meta Data
     public Schema getScanResponseSchema() {
         return Schema.builder()
                 .type(Type.Known.OBJECT)
