@@ -7,7 +7,7 @@
  * SEE LICENSE.TXT
  */
 
-package org.tavall.couriers.api.web.endpoints.interfaces;
+package org.tavall.couriers.api.web.endpoints;
 
 public interface AppEndpoint {
 
