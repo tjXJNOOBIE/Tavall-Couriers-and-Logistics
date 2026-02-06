@@ -10,5 +10,5 @@
 package org.tavall.couriers.api.cache.enums;
 
 public enum CacheDomain {
- SCANS, QR
+ SCANS, QR, TRACKING, DELIVERY
 }
