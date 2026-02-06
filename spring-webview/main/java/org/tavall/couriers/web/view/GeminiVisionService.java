@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.delivery.state.cache.DeliveryStateCache;
+import org.tavall.couriers.api.qr.scan.metadata.LocalQRScanData;
 import org.tavall.couriers.api.qr.scan.response.ScanResponseSchema;
 import org.tavall.couriers.api.qr.scan.LocalQRScanner;
 import org.tavall.couriers.api.qr.scan.state.ScanIntent;
@@ -28,6 +29,7 @@ public class GeminiVisionService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final Gemini3ImageClient client;
     private ScanResponseSchema scanResponseSchema;
+    private DeliveryStateCache deliveryStateCache;
     private ScanCacheService scanCache = ScanCacheService.INSTANCE;
     private Schema schema;
     private ScanResponse scanResponse;
@@ -157,7 +159,7 @@ public class GeminiVisionService {
                 });
     }
 
-    public LocalScanContext classifyScan(byte[] frameData) {
+    public LocalQRScanData classifyScan(byte[] frameData) {
         // 1. Run the Local Scanner
         Optional<UUID> localUuid = localScanner.scanPdfForQrCode(frameData);
 
@@ -169,26 +171,27 @@ public class GeminiVisionService {
 
             // For now, if no UUID is found, we assume it's either garbage OR an "Intake Init" if that's how your flow works.
             // If your "Intake" scan is literally a blank QR, this logic might need the raw string check.
-            return new LocalScanContext(ScanIntent.INVALID_SCAN, null, null, false);
+            return new LocalQRScanData(ScanIntent.INVALID_SCAN, null, null, false);
         }
 
         UUID scannedId = localUuid.get();
 
         // --- SCENARIO B: UUID FOUND. CHECK EXISTENCE. ---
-        boolean existsInDb = deliveryStateCache.hasShipment(scannedId); // You need this check!
+        //TODO: Update boolean to use a real cache/data object
+        boolean existsInDb = false; // You need this check!
 
         if (!existsInDb) {
             // STATE 2: "UUID exists, but no data attached"
-            return new LocalScanContext(
-                    ScanIntent.BINDING_REQUIRED,
+            return new LocalQRScanData(
+                    ScanIntent.UUID_FOUND_NO_DATA_INTAKE,
                     scannedId,
                     scannedId.toString(),
                     false
             );
         } else {
             // STATE 3: "Have both data and meta data"
-            return new LocalScanContext(
-                    ScanIntent.TRANSITION_UPDATE,
+            return new LocalQRScanData(
+                    ScanIntent.UUID_AND_DATA_FOUND,
                     scannedId,
                     scannedId.toString(),
                     true
