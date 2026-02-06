@@ -7,21 +7,25 @@
  * SEE LICENSE.TXT
  */
 
-package org.tavall.springapi.scan.metadata;
+package org.tavall.couriers.api.qr.scan.metadata;
 
 
-import org.tavall.springapi.scan.state.LiveCameraState;
+import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
 
 import java.time.Instant;
 
 public record ScanResponse(String uuid,
-                           LiveCameraState cameraState,
-                           String trackingNumber,
-                           String name,
-                           String address,
-                           String phoneNumber,
-                           Instant deadline,
-                           String notes) {
+        LiveCameraState cameraState,
+        String trackingNumber,
+        String name,
+        String address,
+        String city,        // NEW
+        String state,       // NEW
+        String zipCode,     // NEW
+        String country,     // NEW
+        String phoneNumber,
+        Instant deadline,
+        String notes) {
 
 
     public boolean isMissingCriticalData(ScanResponse raw) {
