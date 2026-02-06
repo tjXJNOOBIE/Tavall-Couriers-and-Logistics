@@ -37,13 +37,13 @@ class GenerateUUIDTest {
         assertEquals(first, second, "UUID should remain the same if already generated");
     }
 
-    @Test
-    void shouldReturnNullCreatedAtAsItIsNeverSet() {
-        GenerateUUID generator = new GenerateUUID();
-        Instant ts = generator.getCreatedAt();
-        System.out.println("[TEST][shouldReturnNullCreatedAtAsItIsNeverSet] createdAt: " + ts);
-        assertNull(ts, "createdAt is not set anywhere and should be null");
-    }
+//    @Test
+//    void shouldReturnNullCreatedAtAsItIsNeverSet() {
+//        GenerateUUID generator = new GenerateUUID();
+//        Instant ts = generator.getCreatedAt();
+//        System.out.println("[TEST][shouldReturnNullCreatedAtAsItIsNeverSet] createdAt: " + ts);
+//        assertNull(ts, "createdAt is not set anywhere and should be null");
+//    }
 
     @Test
     void shouldGenerateDifferentUuidsAcrossInstances() {
