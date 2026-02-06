@@ -2,6 +2,8 @@
 
 ## Flow Rules:
 
+* Spring Boot is used for the Web Server for this project
+
 1. All data creation, data persistence, and data retrieval are handled in java, meaning these flows should remain as much as a visual layer as possible.
    * Any data objects not created were either missed or not yet created.
 2. Web flows should keep mobile optimization (view and performance) in mind.
