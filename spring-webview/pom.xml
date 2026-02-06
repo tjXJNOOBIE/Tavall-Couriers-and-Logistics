@@ -13,6 +13,7 @@
     <description>Spring webview module for Tavall Couriers</description>
     <packaging>jar</packaging>
 
+
     <dependencies>
         <!-- Spring Boot Starters -->
         <dependency>
@@ -65,11 +66,21 @@
         </dependency>
         <dependency>
             <groupId>org.tavall</groupId>
+            <artifactId>spring-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.tavall</groupId>
             <artifactId>gemini-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>4.0.1</version>
+        </dependency>
 
     </dependencies>
     <build>
@@ -80,6 +91,27 @@
 
                 <configuration>
                     <mainClass>org.tavall.couriers.TavallCouriersApplication</mainClass>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>25</release>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <argLine>--enable-preview</argLine>
                 </configuration>
             </plugin>
         </plugins>

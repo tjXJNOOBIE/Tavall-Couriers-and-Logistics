@@ -19,7 +19,6 @@
     <modules>
         <module>gemini-api</module>
         <module>internal-courier-api</module>
-        <module>spring-api</module>
         <module>spring-webview</module>
     </modules>
     <scm>
@@ -67,6 +66,11 @@
                 <version>3.5.4</version>
             </dependency>
             <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>javase</artifactId>
+                <version>3.5.4</version>
+            </dependency>
+            <dependency>
                 <groupId>org.tavall</groupId>
                 <artifactId>gemini-api</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
@@ -95,6 +99,7 @@
 
 
     <build>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
