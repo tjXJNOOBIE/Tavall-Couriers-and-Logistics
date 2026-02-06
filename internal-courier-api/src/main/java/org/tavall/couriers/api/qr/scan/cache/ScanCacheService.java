@@ -1,8 +1,7 @@
-package org.tavall.springapi.service.cache;
+package org.tavall.couriers.api.qr.scan.cache;
 
 
 import org.tavall.couriers.api.cache.AbstractCache;
-import org.tavall.couriers.api.cache.CacheValue;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
 import org.tavall.couriers.api.cache.enums.CacheType;
@@ -11,11 +10,7 @@ import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.springapi.scan.metadata.ScanResponse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
 
 public class ScanCacheService extends AbstractCache<ScanCacheService,ScanResponse>{
 
