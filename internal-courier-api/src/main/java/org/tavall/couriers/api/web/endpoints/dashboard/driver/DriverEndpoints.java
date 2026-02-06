@@ -13,6 +13,9 @@ public enum DriverEndpoints implements AppEndpoint {
     // "Pre-scan page... If no labels... Check availability"
     CHECK_LABEL_AVAILABILITY("/internal/api/v1/driver/label/check", "GET");
 
+    public static final String DASHBOARD_PATH = "/driver/dashboard";
+    public static final String CHECK_LABEL_AVAILABILITY_PATH = "/internal/api/v1/driver/label/check";
+
     private final String endpoint;
     private final String method;
 
