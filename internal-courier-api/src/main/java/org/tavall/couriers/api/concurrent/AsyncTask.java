@@ -31,8 +31,8 @@ public class AsyncTask {
     public record ScopeOptions(
             ThreadFactory threadFactory,
             String name,
-            Duration timeout
-    ) {
+            Duration timeout) {
+
         public static ScopeOptions defaults() {
 
             return new ScopeOptions(null, null, null);
