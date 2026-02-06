@@ -1,17 +1,15 @@
-package org.tavall.couriers.api.cache;
+package org.tavall.couriers.api.cache.abstracts;
 
 
 
-import com.google.common.collect.Multimap;
+import org.tavall.couriers.api.cache.CacheKey;
+import org.tavall.couriers.api.cache.CacheValue;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
 import org.tavall.couriers.api.cache.enums.CacheType;
 import org.tavall.couriers.api.cache.enums.CacheVersion;
 import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
-import org.tavall.couriers.api.cache.maps.CacheMap;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Abstract base class for cache implementations providing common caching functionality
