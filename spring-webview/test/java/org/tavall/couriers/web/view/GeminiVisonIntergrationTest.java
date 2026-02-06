@@ -5,21 +5,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tavall.couriers.api.cache.CacheKey;
-import org.tavall.couriers.api.cache.enums.CacheDomain;
-import org.tavall.couriers.api.cache.enums.CacheSource;
-import org.tavall.couriers.api.cache.enums.CacheType;
-import org.tavall.couriers.api.cache.enums.CacheVersion;
 import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.intake.driver.scanner.ai.schemas.ScanResponseSchema;
+import org.tavall.couriers.api.qr.scan.response.ScanResponseSchema;
 import org.tavall.gemini.clients.Gemini3ImageClient;
 import org.tavall.gemini.clients.response.Gemini3Response;
-import org.tavall.springapi.scan.metadata.ScanResponse;
-import org.tavall.springapi.scan.state.LiveCameraState;
-import org.tavall.springapi.service.cache.ScanCacheService;
+import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
+import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
+import org.tavall.couriers.api.qr.scan.cache.ScanCacheService;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -111,7 +106,7 @@ public class GeminiVisonIntergrationTest {
         // Create a service that explodes
         GeminiVisionService throwingService = new GeminiVisionService() {
             @Override
-            public Gemini3Response<ScanResponse> analyzeFrame(byte[] imageBytes) {
+            public Gemini3Response<ScanResponse> analyzeFrame(byte[] frameData) {
                 throw new RuntimeException("boom");
             }
         };
@@ -180,14 +175,14 @@ public class GeminiVisonIntergrationTest {
         volatile byte[] seenBytes;
 
         @Override
-        public Gemini3Response<ScanResponse> analyzeFrame(byte[] imageBytes) {
+        public Gemini3Response<ScanResponse> analyzeFrame(byte[] frameData) {
             started.countDown();
             try {
                 if (!proceed.await(2, TimeUnit.SECONDS)) throw new RuntimeException("Latch Timeout");
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            this.seenBytes = imageBytes;
+            this.seenBytes = frameData;
             // Return Dummy Success
             return new Gemini3Response<>(new ScanResponse(
                     "uuid-test", LiveCameraState.FOUND, "TRK", null, null, null, null, null

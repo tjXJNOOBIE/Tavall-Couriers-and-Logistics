@@ -4,21 +4,23 @@ import com.google.genai.types.*;
 import org.springframework.stereotype.Service;
 import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.intake.driver.scanner.ai.schemas.ScanResponseSchema;
-import org.tavall.couriers.web.beans.ScanCacheServiceBean;
-import org.tavall.couriers.web.beans.ScanResponseSchemaBean;
+import org.tavall.couriers.api.delivery.state.cache.DeliveryStateCache;
+import org.tavall.couriers.api.qr.scan.response.ScanResponseSchema;
+import org.tavall.couriers.api.qr.scan.LocalQRScanner;
+import org.tavall.couriers.api.qr.scan.state.ScanIntent;
+import org.tavall.couriers.api.shipping.ShippingLabelMetaData;
 import org.tavall.gemini.clients.Gemini3ImageClient;
 import org.tavall.gemini.clients.response.Gemini3Response;
 import org.tavall.gemini.enums.GeminiModel;
-import org.tavall.springapi.service.cache.ScanCacheService;
-import org.tavall.springapi.scan.metadata.ScanResponse;
-import org.tavall.springapi.scan.state.LiveCameraState;
+import org.tavall.couriers.api.qr.scan.cache.ScanCacheService;
+import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
+import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 public class GeminiVisionService {
@@ -28,32 +30,42 @@ public class GeminiVisionService {
     private ScanResponseSchema scanResponseSchema;
     private ScanCacheService scanCache = ScanCacheService.INSTANCE;
     private Schema schema;
-    private static ScanResponse scanResponse;
+    private ScanResponse scanResponse;
+    private static final float RENDER_DPI = 300;
+    private final LocalQRScanner localScanner;
 
     public GeminiVisionService() {
+        this.localScanner = new LocalQRScanner();
         this.scanResponseSchema = new ScanResponseSchema();
         this.client = new Gemini3ImageClient(scanResponseSchema.getScanResponseSchema());
     }
 
 
-    public Gemini3Response<ScanResponse> analyzeFrame(byte[] imageBytes) {
+    public Gemini3Response<ScanResponse> analyzeFrame(byte[] frameData, boolean shouldScanQR) {
         try {
-            // 1. Fail Fast
-            if (imageBytes == null || imageBytes.length == 0) {
-                return new Gemini3Response<>(new ScanResponse(null, LiveCameraState.ERROR, null, null, null, null, null, "Empty Frame Data"));
+            if (frameData == null || frameData.length == 0) {
+                // Return empty record with nulls for new fields
+                return new Gemini3Response<>(new ScanResponse(null, LiveCameraState.ERROR, null, null, null, null, null, null, null, null, null, "Empty Frame Data"));
             }
+            //TODO: Add logic to detect if this ais a first scan
+            Optional<UUID> localUuid = localScanner.scanPdfForQrCode(frameData);
 
-            // 2. The Schema-Driven Prompt
-            // FIX: "SEARCHING" -> "ANALYZING" to match your Enum and prevent Jackson Crash
+            if (localUuid.isPresent()) {
+                UUID verifiedId = localUuid.get();
+                Log.info("Locally Verified UUID: " + verifiedId.toString());
+
+                // Pass verifiedId.toString() to your hybrid merge logic...
+            }
+            // Note: You said you'd update the prompt later, so I'm leaving it alone.
+            // Just know that until you ask the AI for 'city' and 'state', these fields will be null in the JSON response.
             String promptText = """
-                SYSTEM: You scan QR Codes and Page Data.
-                TASK: Extract data from the shipping label or QR code.
+                SYSTEM: You scan QR Codes and Shipping Labels.
+                TASK: Extract structured data.
                 RULES:
                 1. If NO label/QR is legible, return cameraState: "ANALYZING".
                 2. If a QR Code contains a UUID, extract it and return cameraState: "FOUND".
-                3. If QR is present but invalid/empty, return "null" for uuid.
-                4. Extract Recipient Name, Address, Phone, Tracking Number.
-                5. Extract "Deliver By" date as ISO-8601 deadline.
+                3. Extract Recipient Name, Full Address, City, State, Zip, Country, Phone, Tracking Number.
+                4. Extract "Deliver By" date/time as ISO-8601 string.
                 
                 OUTPUT JSON FORMAT (Strict):
                 {
@@ -62,18 +74,18 @@ public class GeminiVisionService {
                     "trackingNumber": "string or null",
                     "name": "string or null",
                     "address": "string or null",
+                    "city": "string or null",
+                    "state": "string or null",
+                    "zipCode": "string or null",
+                    "country": "string or null",
                     "phoneNumber": "string or null",
                     "deadline": "ISO-8601 string or null",
                     "notes": "string or null"
                 }
                 """;
 
-            Content content = Content.fromParts(
-                    Part.fromText(promptText),
-                    Part.fromBytes(imageBytes, "image/png"));
-
-            GenerateContentConfig config = client.getGenerationConfig(); // Ensure this method exists
-
+            Content content = Content.fromParts(Part.fromText(promptText), Part.fromBytes(frameData, "application/pdf"));
+            GenerateContentConfig config = client.getGenerationConfig();
             GenerateContentResponse response = client.getClient().models.generateContent(
                     String.valueOf(GeminiModel.GEMINI_3_FLASH), content, config);
 
@@ -81,30 +93,50 @@ public class GeminiVisionService {
             if (jsonText.contains("```json")) {
                 jsonText = jsonText.replace("```json", "").replace("```", "").trim();
             }
+
             ScanResponse geminiResponse = objectMapper.readValue(jsonText, ScanResponse.class);
+            this.scanResponse = geminiResponse;
 
-            Gemini3Response<ScanResponse> responseWrapper = new Gemini3Response<>(geminiResponse);
-            ScanResponse scanData = responseWrapper.getResponse();
-            scanResponse = geminiResponse;
-            // 3. INLINE CACHE (The "Hook")
-            // Only cache if we actually found something valid
-            if (scanData.cameraState() == LiveCameraState.FOUND && scanData.uuid() != null) {
-                Log.info("[Service] Caching UUID: " + scanData.uuid());
-                scanCache.registerScanResponse(scanResponse);
+            if (geminiResponse.cameraState() == LiveCameraState.FOUND) {
+                Log.info("[Service] Registering Raw Scan Response");
+                // Cache #1: Raw Scan Response
+                scanCache.registerScanResponse(geminiResponse);
 
+                // Cache #2: Cached Scan Response
+                ShippingLabelMetaData metaData = getShippingLabelMetaData(geminiResponse);
+                DeliveryStateCache.get().registerDeliveryState(metaData);
             }
 
-            // 4. RETURN
-            return new Gemini3Response<>(scanData);
+            return new Gemini3Response<>(geminiResponse);
 
         } catch (Exception e) {
             System.err.println("Gemini Vision Error: " + e.getMessage());
-            // Return ERROR state so frontend handles it gracefully
-            return new Gemini3Response<>(new ScanResponse(null, LiveCameraState.ERROR, null, null, null, null, null, e.getMessage()));
+            Log.exception(e);
+            // Return empty record with error msg
+            return new Gemini3Response<>(new ScanResponse(null, LiveCameraState.ERROR, null, null, null, null, null, null, null, null, null, e.getMessage()));
         }
     }
 
-    public CompletableFuture<Gemini3Response<ScanResponse>> analyzeFrameAsync(byte[] imageBytes) {
+    private ShippingLabelMetaData getShippingLabelMetaData(ScanResponse geminiResponse) {
+
+        ShippingLabelMetaData metaData = new ShippingLabelMetaData();
+        metaData.setUuid(geminiResponse.uuid());
+        metaData.setTrackingNumber(geminiResponse.trackingNumber());
+        metaData.setRecipientName(geminiResponse.name());
+        metaData.setAddress(geminiResponse.address());
+
+        metaData.setCity(geminiResponse.city());
+        metaData.setState(geminiResponse.state());
+        metaData.setZipCode(geminiResponse.zipCode());
+        metaData.setCountry(geminiResponse.country());
+
+        metaData.setPhoneNumber(geminiResponse.phoneNumber());
+        metaData.setDeliverBy(geminiResponse.deadline());
+        return metaData;
+    }
+
+
+    public CompletableFuture<Gemini3Response<ScanResponse>> analyzeFrameAsync(byte[] imageBytes, boolean shouldScanQR) {
         // Defensive snapshot
         final byte[] snapshot = (imageBytes == null) ? null : imageBytes.clone();
 
@@ -112,24 +144,55 @@ public class GeminiVisionService {
                 .withName("analyze-frame")
                 .withTimeout(Duration.ofSeconds(30));
 
-        return AsyncTask.runFuture(() -> analyzeFrame(snapshot), opts)
+        return AsyncTask.runFuture(() -> analyzeFrame(snapshot, shouldScanQR), opts)
                 .exceptionally(ex -> {
                     String msg = AsyncTask.unwrapMessage(ex);
-                    // FIX: Return a valid Object with ERROR state, not NULL.
-                    // This fixes the NPE in your Test.
-
+                    // Updated error constructor
                     ScanResponse errorResponse = new ScanResponse(
-                            null,
-                            LiveCameraState.ERROR,
-                            null, null, null, null, null,
-                            "Async Error: " + msg
-                    );
+                            null, LiveCameraState.ERROR, null,
+                            null, null, null,
+                            null, null, null,
+                            null, null, "Async Error: " + msg);
                     return new Gemini3Response<>(errorResponse);
                 });
     }
 
-    public static ScanResponse getScanResponse(){
-        return scanResponse;
-    }
+    public LocalScanContext classifyScan(byte[] frameData) {
+        // 1. Run the Local Scanner
+        Optional<UUID> localUuid = localScanner.scanPdfForQrCode(frameData);
 
+        // --- SCENARIO A: NO UUID FOUND ---
+        if (localUuid.isEmpty()) {
+            // Check if it's your special "Empty/Intake" QR code trigger?
+            // Let's assume your "Empty QR" scans as a specific string like "TAVALL_NEW_LABEL"
+            // If your scanner filters strictly for UUIDs, you might need to relax it to check for this trigger.
+
+            // For now, if no UUID is found, we assume it's either garbage OR an "Intake Init" if that's how your flow works.
+            // If your "Intake" scan is literally a blank QR, this logic might need the raw string check.
+            return new LocalScanContext(ScanIntent.INVALID_SCAN, null, null, false);
+        }
+
+        UUID scannedId = localUuid.get();
+
+        // --- SCENARIO B: UUID FOUND. CHECK EXISTENCE. ---
+        boolean existsInDb = deliveryStateCache.hasShipment(scannedId); // You need this check!
+
+        if (!existsInDb) {
+            // STATE 2: "UUID exists, but no data attached"
+            return new LocalScanContext(
+                    ScanIntent.BINDING_REQUIRED,
+                    scannedId,
+                    scannedId.toString(),
+                    false
+            );
+        } else {
+            // STATE 3: "Have both data and meta data"
+            return new LocalScanContext(
+                    ScanIntent.TRANSITION_UPDATE,
+                    scannedId,
+                    scannedId.toString(),
+                    true
+            );
+        }
+    }
 }

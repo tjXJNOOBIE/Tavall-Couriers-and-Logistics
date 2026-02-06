@@ -6,26 +6,16 @@ import com.google.genai.Models;
 import com.google.genai.types.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import org.tavall.couriers.api.web.endpoints.camera.metadata.ScanResponse;
+import org.tavall.couriers.api.qr.scan.response.ScanResponseSchema;
 import org.tavall.gemini.clients.Gemini3ImageClient;
 import tools.jackson.databind.ObjectMapper;
 
-
-import java.io.IOException;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +32,7 @@ class GeminiVisionServiceTest {
     @Mock private MultipartFile multipartFile;
     @Mock private GenerateContentResponse generateResponse;
     @Mock private File uploadedFile; // Google SDK File type
+    @Mock private ScanResponseSchema scanResponseSchema;
 
     private GeminiVisionService service;
 
@@ -96,7 +87,7 @@ class GeminiVisionServiceTest {
         setField(client, "models", models);
         setField(client, "files", files);
 
-        service = new GeminiVisionService(clientWrapper, objectMapper);
+        service = new GeminiVisionService();
 
         // 2. Setup Inputs
         when(multipartFile.isEmpty()).thenReturn(false);
@@ -122,8 +113,8 @@ class GeminiVisionServiceTest {
         when(generateResponse.text()).thenReturn(jsonResponse);
 
         // Mock Mapper
-        ScanResponse expectedResponse = new ScanResponse("12345-uuid", "FOUND", "TRACK-999", null, null, null, null);
-        when(objectMapper.readValue(anyString(), eq(ScanResponse.class))).thenReturn(expectedResponse);
+//        ScanResponse expectedResponse = new ScanResponse("12345-uuid", "FOUND", "TRACK-999", null, null, null, null);
+//        when(objectMapper.readValue(anyString(), eq(ScanResponse.class))).thenReturn(expectedResponse);
 
         // --- ACT ---
 //        ScanResponse actual = service.analyzeFrame(multipartFile);
@@ -134,7 +125,7 @@ class GeminiVisionServiceTest {
 //        assertEquals("12345-uuid", actual.uuid());
 
         // Verify flows
-        verify(files).upload(contains("QRWtihData.png"), any());
+        verify(files).upload(contains("QRWithData.png"), any());
         verify(models).generateContent(anyString(), Collections.singletonList(any()), any());
     }
 
@@ -142,7 +133,7 @@ class GeminiVisionServiceTest {
     void analyzeFrame_EmptyFile_FailFast() {
         // --- ARRANGE ---
         when(clientWrapper.getClient()).thenReturn(client);
-        service = new GeminiVisionService(clientWrapper, objectMapper);
+        service = new GeminiVisionService();
         when(multipartFile.isEmpty()).thenReturn(true);
 
         // --- ACT ---
@@ -162,7 +153,7 @@ class GeminiVisionServiceTest {
         // --- ARRANGE ---
         setField(client, "files", files);
         when(clientWrapper.getClient()).thenReturn(client);
-        service = new GeminiVisionService(clientWrapper, objectMapper);
+        service = new GeminiVisionService();
 
         when(multipartFile.isEmpty()).thenReturn(false);
         // Force an exception during upload
@@ -186,4 +177,5 @@ class GeminiVisionServiceTest {
             throw new RuntimeException("Failed to inject mock field: " + fieldName, e);
         }
     }
+
 }
