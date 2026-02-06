@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${title}">Home</title>
+
+    <!-- External stylesheet (your style.css) -->
+    <link rel="stylesheet" href="/css/style.css"/>
+
+    <!-- Minimal page-specific tweaks only -->
+    <style>
+        /* keep this tiny – real styles live in style.css */
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Top Nav -->
+<header class="navbar">
+    <div class="brand">
+        Tavall<span>Courier</span>
+    </div>
+
+    <div class="user-controls">
+        <div class="user-info hidden-mobile">
+            <div class="user-name">Dev Mode</div>
+            <div class="user-role">LOCAL</div>
+        </div>
+        <button class="btn-icon" aria-label="User menu">
+            ☰
+        </button>
+    </div>
+</header>
+
+<!-- Main App Area -->
+<main class="main-content fade-in">
+    <div class="container">
+
+        <!-- Card -->
+        <section class="card login-card">
+
+            <div class="card-header">
+                <h1 class="card-title" th:text="${title}">
+                    Thymeleaf Sanity Test
+                </h1>
+                <span class="badge badge-neutral">DEV</span>
+            </div>
+
+            <p class="page-subtitle mb-2">
+                If this page is styled, Spring Boot + Thymeleaf + CSS are working.
+            </p>
+
+            <!-- Info Row -->
+            <div class="form-group">
+                <label class="form-label">Rendered At</label>
+                <div class="form-input mono" th:text="${renderedAt}">
+                    time
+                </div>
+            </div>
+
+            <!-- Action -->
+            <button id="testBtn" class="btn btn-primary mt-2">
+                Click me
+            </button>
+
+            <p id="output" class="text-center text-muted mt-2">
+                JS not executed yet.
+            </p>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Inline JS (still fine for now) -->
+<script>
+    (function () {
+        const btn = document.getElementById("testBtn");
+        const out = document.getElementById("output");
+
+        if (!btn || !out) return;
+
+        out.textContent = "JS loaded ✓";
+
+        btn.addEventListener("click", function () {
+            out.textContent = "Clicked at " + new Date().toLocaleTimeString();
+            out.classList.remove("text-muted");
+        });
+    })();
+</script>
+
+</body>
+</html>
