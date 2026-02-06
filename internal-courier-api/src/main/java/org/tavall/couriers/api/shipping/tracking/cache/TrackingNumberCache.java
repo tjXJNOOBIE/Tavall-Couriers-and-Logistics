@@ -1,7 +1,7 @@
 package org.tavall.couriers.api.shipping.tracking.cache;
 
 
-import org.tavall.couriers.api.cache.AbstractCache;
+import org.tavall.couriers.api.cache.abstracts.AbstractCache;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
 import org.tavall.couriers.api.cache.enums.CacheType;
@@ -66,7 +66,23 @@ public class TrackingNumberCache extends AbstractCache<TrackingNumberCache,Track
         }
         Log.error("Error: Cannot register null tracking number metadata.");
     }
+    /**
+     * Removes the current tracking number from the global CacheMap and clears local references.
+     */
+    public void removeTrackingNumber() {
+        if (this.cacheKey != null && CacheMap.getCacheMap().containsKey(this.cacheKey)) {
+            // Remove from the global static map
+            CacheMap.getCacheMap().remove(this.cacheKey);
 
+            // Nullify local state to prevent stale data usage
+            this.cacheKey = null;
+            this.cacheValue = null;
+
+            Log.success("Tracking number removed from cache.");
+        } else {
+            Log.error("Error: Tracking number key not found or already removed.");
+        }
+    }
     public ICacheKey<TrackingNumberCache> getTrackingCacheKey() {
         return this.cacheKey;
     }
