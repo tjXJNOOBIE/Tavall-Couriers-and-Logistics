@@ -4,6 +4,12 @@ package org.tavall.couriers.api.web.endpoints.dashboard.merchant;
 import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 
 public enum MerchantEndpoints implements AppEndpoint {
+
+    // Merchants have full control over shipments, just like SuperUsers, but scoped to the platform's logistics.
+    GET_ALL_SHIPMENTS("/internal/api/v1/merchant/shipments/all", "GET"),
+    UPDATE_SHIPMENT("/internal/api/v1/merchant/shipments/update", "POST"),
+    DELETE_SHIPMENT("/internal/api/v1/merchant/shipments/delete", "DELETE"),
+
     // "Have the user create shipments labels... Input recipient data"
     CREATE_SHIPMENT("/internal/api/v1/merchant/shipment/create", "POST"),
 
