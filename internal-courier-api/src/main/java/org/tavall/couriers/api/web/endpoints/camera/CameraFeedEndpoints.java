@@ -1,7 +1,7 @@
-package org.tavall.couriers.api.web.endpoints;
+package org.tavall.couriers.api.web.endpoints.camera;
 
 
-import org.tavall.couriers.api.web.endpoints.interfaces.AppEndpoint;
+import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 
 public enum CameraFeedEndpoints implements AppEndpoint {
     SCAN_PACKAGE("/internal/api/v1/scan", "POST"),
