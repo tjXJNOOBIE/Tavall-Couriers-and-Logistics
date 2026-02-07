@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Shipment Library</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main class="main-content fade-in">
+    <div class="container">
+        <div class="max-w-4xl mx-auto fade-in">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800" th:text="${title}">Shipment Library</h1>
+                    <p class="text-slate-500 text-sm">Review, edit, and open label PDFs.</p>
+                </div>
+                <div class="flex gap-2">
+                    <a class="btn-outline-small" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantDashboard()}}">Back to Hub</a>
+                    <a class="btn-outline-small" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantScanPage()}}">POD Scan</a>
+                </div>
+            </div>
+
+            <div th:if="${updateStatus != null}" class="alert alert-success mb-4" th:text="${updateStatus}">
+                Shipment updated.
+            </div>
+            <div th:if="${updateError != null}" class="alert alert-danger mb-4" th:text="${updateError}">
+                Update failed.
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div th:if="${#lists.isEmpty(labels)}" class="text-sm text-slate-500">
+                    No shipments available yet. Create a label to get started.
+                </div>
+
+                <div th:if="${!#lists.isEmpty(labels)}" class="space-y-3">
+                    <div th:each="label : ${labels}" class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-xs font-bold text-slate-500" th:text="${label.deliveryState}">LABEL_CREATED</div>
+                                <div class="text-sm font-bold text-slate-700 mt-1" th:text="${label.trackingNumber}">TAVALL</div>
+                                <div class="text-xs text-slate-500 mt-1" th:text="${label.recipientName}">Recipient</div>
+                                <div class="text-xs text-slate-400" th:text="${label.city + ', ' + label.state}">City, State</div>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <a class="text-link" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelPdf(label.uuid)}}" target="_blank" rel="noopener">View Label PDF</a>
+                                <a class="text-link" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelDetail(label.uuid)}}">Open Details</a>
+                            </div>
+                        </div>
+
+                        <form class="mt-4" method="post" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantUpdateShipment()}}">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="uuid" th:value="${label.uuid}"/>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <select class="w-full p-3 border border-slate-200 rounded-lg outline-none" name="nextState" required>
+                                    <option value="" disabled>Select new state</option>
+                                    <option th:each="state : ${allStates}"
+                                            th:value="${state}"
+                                            th:text="${state}"
+                                            th:selected="${label.deliveryState == state}"></option>
+                                </select>
+                                <button class="btn-primary" type="submit">Update Shipment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

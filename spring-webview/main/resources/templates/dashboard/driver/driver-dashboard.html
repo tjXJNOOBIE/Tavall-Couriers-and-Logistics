@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Driver Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main class="main-content fade-in">
+    <div class="container">
+        <div class="max-w-2xl mx-auto fade-in">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-6">
+                <h1 class="text-2xl font-bold text-slate-800 mb-1">Driver Console</h1>
+                <p class="text-slate-500 text-sm">Shift ID: #8821 • Vehicle: Van-402 • <span th:text="${currentUserName}">Driver</span></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverCreateLabelPage()}}"
+                   class="bg-blue-600 text-white p-6 rounded-2xl shadow-lg shadow-blue-200 cursor-pointer hover-scale transition active-scale">
+                    <div class="flex justify-between items-start mb-4">
+                        <i data-lucide="tag" class="w-8 h-8 opacity-80"></i>
+                        <span class="bg-blue-500 px-2 py-1 rounded text-xs font-bold">New</span>
+                    </div>
+                    <h3 class="text-xl font-bold">Create Label</h3>
+                    <p class="text-blue-100 text-sm mt-1">Manual entry if pre-scan fails.</p>
+                </a>
+
+                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverScanPage()}(uuid=${firstReadyLabel != null ? firstReadyLabel.uuid : ''})}"
+                   class="bg-slate-800 text-white p-6 rounded-2xl shadow-lg shadow-slate-200 cursor-pointer hover-scale transition active-scale">
+                    <div class="flex justify-between items-start mb-4">
+                        <i data-lucide="qr-code" class="w-8 h-8 opacity-80"></i>
+                        <span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold">Action</span>
+                    </div>
+                    <h3 class="text-xl font-bold">Scan Package</h3>
+                    <p class="text-slate-400 text-sm mt-1">Update package status via QR.</p>
+                </a>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">Pre-Scan Queue</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div th:if="${!hasReadyLabels}" class="p-4 text-sm text-slate-500">
+                        No labels are ready to scan yet. Create one to continue.
+                    </div>
+                    <div th:each="label : ${readyLabels}" class="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                                <i data-lucide="package" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}">TAVALL-XXXX</div>
+                                <div class="text-xs text-slate-400" th:text="${label.recipientName}">Recipient</div>
+                            </div>
+                        </div>
+                        <a class="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                           th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverScanPage()}(uuid=${label.uuid})}">
+                            Scan
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">All Labels</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div th:if="${#lists.isEmpty(labels)}" class="p-4 text-sm text-slate-500">
+                        No labels found. Create one to start your flow.
+                    </div>
+                    <div th:each="label : ${labels}" class="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}">TAVALL-XXXX</div>
+                                <div class="text-xs text-slate-400" th:text="${label.deliveryState}">LABEL_CREATED</div>
+                            </div>
+                        </div>
+                        <a class="text-slate-600 hover:text-slate-800 text-sm font-medium"
+                           th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverScanPage()}(uuid=${label.uuid})}">
+                            Open
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

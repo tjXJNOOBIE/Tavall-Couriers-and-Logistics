@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer class="app-footer" th:fragment="footer">
+    <div class="container">
+        <div class="text-muted" style="padding: 1rem 0; font-size: 0.9rem;">
+            © <span th:text="${#dates.year(#dates.createNow())}">2026</span> Tavall Couriers ·
+            <span class="mono">Build: DEV</span>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

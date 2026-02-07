@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${title}">Shipping Labels</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main class="main-content fade-in">
+    <div class="container">
+
+        <section class="card">
+            <div class="card-header">
+                <h1 class="card-title" th:text="${title}">Shipping Labels</h1>
+                <span class="badge badge-neutral">DEV</span>
+            </div>
+
+            <!-- LIST -->
+            <div class="mt-2">
+                <div class="form-group">
+                    <label class="form-label">All Shipment Labels</label>
+                    <div class="form-input" th:if="${labels == null || #lists.isEmpty(labels)}">
+                        No shipment labels found.
+                    </div>
+                </div>
+
+                <div th:if="${labels != null && !#lists.isEmpty(labels)}">
+                    <div th:each="l : ${labels}" class="form-group">
+                        <div class="form-input">
+                            <div class="mono">
+                                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelDetail(l.uuid)}}"
+                                   th:text="${l.trackingNumber != null ? l.trackingNumber : l.uuid}">
+                                    TRACK
+                                </a>
+                            </div>
+
+                            <div class="text-muted"
+                                 th:text="${(l.recipientName != null ? l.recipientName : 'Unknown')
+                                          + ' • ' + (l.deliveryState != null ? l.deliveryState : 'N/A')}">
+                                meta
+                            </div>
+
+                            <div class="text-muted mono"
+                                 th:text="${(l.city != null ? l.city : '') + ', ' + (l.state != null ? l.state : '') + ' ' + (l.zipCode != null ? l.zipCode : '')}">
+                                location
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DETAIL -->
+            <div class="mt-2">
+                <div class="form-group">
+                    <label class="form-label">Selected Shipment</label>
+
+                    <div class="form-input text-muted" th:if="${selected == null}">
+                        No selection.
+                        <span th:if="${selectedUuid != null && !#strings.isEmpty(selectedUuid)}"
+                              th:text="' UUID tried: ' + ${selectedUuid}"></span>
+                    </div>
+                </div>
+
+                <div th:if="${selected != null}">
+                    <div class="form-group">
+                        <label class="form-label">UUID</label>
+                        <div class="form-input mono" th:text="${selected.uuid}">uuid</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tracking Number</label>
+                        <div class="form-input mono" th:text="${selected.trackingNumber}">tracking</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Recipient</label>
+                        <div class="form-input" th:text="${selected.recipientName}">recipient</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <div class="form-input mono" th:text="${selected.phoneNumber}">phone</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <div class="form-input" th:text="${selected.address}">address</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">City / State / Zip</label>
+                        <div class="form-input"
+                             th:text="${selected.city + ', ' + selected.state + ' ' + selected.zipCode}">
+                            city, state zip
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Country</label>
+                        <div class="form-input" th:text="${selected.country}">country</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <div class="form-input mono" th:text="${selected.priority}">priority</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Deliver By</label>
+                        <div class="form-input mono"
+                             th:text="${selected.deliverBy != null ? selected.deliverBy.toString() : 'N/A'}">
+                            deliverBy
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Delivery State</label>
+                        <div class="form-input mono"
+                             th:text="${selected.deliveryState != null ? selected.deliveryState : 'N/A'}">
+                            state
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+</body>
+</html>
