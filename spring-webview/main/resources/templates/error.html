@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Error</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <style>
+        .error-big { font-size: 2.25rem; font-weight: 800; }
+        .error-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        details pre { white-space: pre-wrap; word-break: break-word; }
+    </style>
+</head>
+<body>
+
+<header class="navbar">
+    <div class="brand">Tavall<span>Courier</span></div>
+</header>
+
+<main class="main-content fade-in">
+    <div class="container">
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <div class="error-big">Something broke</div>
+                    <div class="text-muted mono">
+                        <span th:text="${status}">500</span>
+                        <span class="text-muted"> • </span>
+                        <span th:text="${error}">Internal Server Error</span>
+                    </div>
+                </div>
+                <span class="badge badge-neutral">DEV</span>
+            </div>
+
+            <p class="text-muted mb-2">
+                The app hit a problem and decided to be dramatic about it.
+            </p>
+
+            <div class="form-group">
+                <label class="form-label">Path</label>
+                <div class="form-input mono" th:text="${path}">/</div>
+            </div>
+
+            <div class="form-group" th:if="${message != null && !#strings.isEmpty(message)}">
+                <label class="form-label">Message</label>
+                <div class="form-input" th:text="${message}">message</div>
+            </div>
+
+            <div class="form-group" th:if="${exception != null && !#strings.isEmpty(exception)}">
+                <label class="form-label">Exception</label>
+                <div class="form-input mono" th:text="${exception}">exception</div>
+            </div>
+
+            <div class="form-group" th:if="${trace != null && !#strings.isEmpty(trace)}">
+                <label class="form-label">Details</label>
+                <div class="form-input">
+                    <details>
+                        <summary class="mono">Show stack trace</summary>
+                        <pre class="mono" th:text="${trace}">trace</pre>
+                    </details>
+                </div>
+            </div>
+
+            <div class="error-actions mt-2">
+                <a class="btn btn-primary" href="/">Home</a>
+                <a class="btn" href="/home">Home</a>
+            </div>
+        </section>
+    </div>
+</main>
+
+</body>
+</html>
