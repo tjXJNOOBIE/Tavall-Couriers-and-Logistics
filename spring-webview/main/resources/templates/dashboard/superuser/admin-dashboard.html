@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">System Administration</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main class="main-content fade-in">
+    <div class="container">
+        <div class="max-w-3xl mx-auto fade-in">
+            <h1 class="text-2xl font-bold text-slate-800 mb-6">System Administration</h1>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700">User Management</h3>
+                    <button class="bg-slate-900 text-white text-xs px-3 py-1.5 rounded hover-scale transition" type="button">Add User</button>
+                </div>
+                <div th:each="user : ${adminUsers}" class="flex items-center justify-between p-4 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500"
+                             th:text="${#strings.substring(user.name,0,1)}">U</div>
+                        <div>
+                            <div class="text-sm font-bold text-slate-800" th:text="${user.name}">User</div>
+                            <div class="text-xs text-slate-400" th:text="${user.role}">ROLE</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="p-2 text-blue-600 hover-scale" type="button"><i data-lucide="arrow-up-circle" class="w-5 h-5"></i></button>
+                        <button class="p-2 text-amber-600 hover-scale" type="button"><i data-lucide="arrow-down-circle" class="w-5 h-5"></i></button>
+                        <button class="p-2 text-red-600 hover-scale" type="button"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 grid grid-cols-2 gap-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-2">System Health</h3>
+                    <div class="text-3xl font-bold text-green-600" th:text="${systemHealth}">98.2%</div>
+                    <p class="text-xs text-slate-400">Uptime (Last 30 days)</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-2">Total Parcels</h3>
+                    <div class="text-3xl font-bold text-blue-600" th:text="${totalShipments}">0</div>
+                    <p class="text-xs text-slate-400">Processed this month</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

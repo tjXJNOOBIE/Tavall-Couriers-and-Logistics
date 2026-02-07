@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Tracking</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main class="main-content fade-in">
+    <div class="container" id="tracking-root"
+         th:attr="data-tracking-base=@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingDetail('__TRACK__')}}}">
+        <div class="max-w-xl mx-auto mt-10 fade-in">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Track your <span class="text-blue-600">Package</span></h1>
+                <p class="text-slate-500 mt-2">Real-time status updates across the Tavall Network.</p>
+            </div>
+
+            <form class="bg-white p-2 rounded-xl shadow-lg border border-slate-200 flex gap-2 mb-8" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingPage()}}" method="get">
+                <input id="track-input" name="trackingNumber" type="text"
+                       class="flex-1 p-3 outline-none text-slate-700 font-mono uppercase placeholder-slate-300"
+                       placeholder="e.g. TAVALL-12345" th:value="${trackingNumber}">
+                <button class="bg-blue-600 text-white px-6 rounded-lg font-bold hover-scale transition" type="submit">Track</button>
+            </form>
+
+            <form class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-8" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingPage()}}" method="get">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Track Multiple Shipments</label>
+                <textarea name="batch" rows="3"
+                          class="w-full p-3 border border-slate-200 rounded-lg outline-none font-mono placeholder-slate-300"
+                          placeholder="Paste tracking numbers separated by commas or new lines"></textarea>
+                <button class="bg-slate-900 text-white px-6 py-3 rounded-lg font-bold hover-scale transition mt-6" type="submit">
+                    Track Batch
+                </button>
+            </form>
+
+            <div id="track-result" th:if="${trackingResult != null}">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">Tracking Details</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
+                            <div class="scan-field mono" th:text="${trackingResult.trackingNumber}">TAVALL</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Recipient</label>
+                            <div class="scan-field" th:text="${trackingResult.recipientName}">Recipient</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Delivery Status</label>
+                            <div class="scan-field" th:text="${trackingResult.deliveryState}">IN_TRANSIT</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deliver By</label>
+                            <div class="scan-field" th:text="${trackingResult.deliverBy}">ETA</div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Address</label>
+                            <div class="scan-field" th:text="${trackingResult.address}">Address</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="track-result-empty" th:if="${trackingNumber != null && trackingResult == null}" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 text-slate-500 text-sm">
+                No shipment found for <span class="mono" th:text="${trackingNumber}">TAVALL</span>.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(batchResults)}" class="mt-8">
+                <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">Batch Results</h3>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div th:each="label : ${batchResults}" class="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}">TAVALL</div>
+                            <div class="text-xs text-slate-400" th:text="${label.deliveryState}">STATE</div>
+                        </div>
+                        <a class="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                           th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingDetail(label.trackingNumber)}}">View</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLoginHome()}}" class="text-sm text-slate-400 hover:text-slate-600">
+                    Employee Login
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+    (function () {
+        const input = document.getElementById("track-input");
+        const root = document.getElementById("tracking-root");
+        if (!input || !root) return;
+        const base = root.getAttribute("data-tracking-base") || "";
+        let timer = null;
+        input.addEventListener("keyup", function () {
+            const value = input.value.trim().toUpperCase();
+            if (!value.startsWith("TAVALL")) return;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                window.location.href = base.replace("__TRACK__", value);
+            }, 500);
+        });
+    })();
+</script>
+</body>
+</html>

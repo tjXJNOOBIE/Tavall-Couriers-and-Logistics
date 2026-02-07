@@ -1,0 +1,20 @@
+/* --- Login Page --- */
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+}
+
+/* --- Driver Dashboard --- */
+.action-card {
+    display: block;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    color: white;
+    text-decoration: none;
+    transition: transform 0.2s;
+    box-shadow: var(--shadow-lg);
+}
+.action-card:hover { transform: translateY(-2px); }
+.action-card h3 { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+.action-card p { opacity: 0.8; font-size: 0.875rem; margin: 0; }

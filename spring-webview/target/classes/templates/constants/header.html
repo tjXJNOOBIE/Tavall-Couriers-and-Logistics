@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="navbar" th:fragment="header(userName, userRole)">
+    <a class="brand" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).home()}}" aria-label="Tavall Couriers home">
+        Tavall<span>Courier</span>
+    </a>
+
+    <div class="user-controls">
+        <div class="user-info hidden-mobile"
+             th:with="
+                role=${userRole != null ? userRole : ''},
+                roleLabel=${(role != null && !#strings.isEmpty(role)) ? role : 'GUEST'},
+                title=${role == 'DRIVER' ? 'Driver Console'
+                       : role == 'MERCHANT' ? 'Merchant Console'
+                       : role == 'SUPERUSER' ? 'Superuser Console'
+                       : role == 'ADMIN' ? 'Admin Console'
+                       : (userName != null && !#strings.isEmpty(userName) ? userName : 'Tavall Couriers')},
+                detail=${(role == 'DRIVER' or role == 'MERCHANT' or role == 'SUPERUSER' or role == 'ADMIN')
+                        ? (userName != null && !#strings.isEmpty(userName) ? userName : roleLabel)
+                        : roleLabel}">
+            <div class="user-name" th:text="${title}">Dev Mode</div>
+            <div class="user-role" th:text="${detail}">LOCAL</div>
+        </div>
+        <button class="btn-icon" id="userMenuToggle" aria-label="User menu" type="button">☰</button>
+    </div>
+
+    <div id="userMenu" class="user-tray fade-in" hidden>
+        <div class="modal-card">
+            <h3 class="modal-title">Session</h3>
+            <p class="text-slate-500 text-sm"
+               th:text="${(userRole != null && userRole != 'GUEST') ? 'Signed in as ' + userName : 'Browsing as guest'}">
+                Signed in.
+            </p>
+
+            <div class="modal-actions">
+                <button class="btn-ghost" type="button" id="userMenuClose">Close</button>
+                <a class="btn-primary" th:if="${userRole == null || userRole == 'GUEST'}"
+                   th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLoginHome()}}">
+                    Log in
+                </a>
+                <form th:if="${userRole != null && userRole != 'GUEST'}"
+                      th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLogout()}}"
+                      method="post">
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button class="btn-primary" type="submit">Log out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const menu = document.getElementById("userMenu");
+            const toggle = document.getElementById("userMenuToggle");
+            const closeBtn = document.getElementById("userMenuClose");
+            if (!menu || !toggle) return;
+
+            const closeMenu = () => {
+                menu.setAttribute("hidden", "hidden");
+                toggle.setAttribute("aria-expanded", "false");
+            };
+
+            const openMenu = () => {
+                menu.removeAttribute("hidden");
+                toggle.setAttribute("aria-expanded", "true");
+            };
+
+            toggle.addEventListener("click", (event) => {
+                event.stopPropagation();
+                if (menu.hasAttribute("hidden")) {
+                    openMenu();
+                } else {
+                    closeMenu();
+                }
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", closeMenu);
+            }
+
+            document.addEventListener("click", (event) => {
+                if (menu.hasAttribute("hidden")) return;
+                if (!menu.contains(event.target) && event.target !== toggle) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeMenu();
+                }
+            });
+        })();
+    </script>
+</header>
+</body>
+</html>
