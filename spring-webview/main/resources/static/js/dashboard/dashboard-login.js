@@ -1,5 +1,5 @@
 (function () {
-    const form = document.querySelector('form[action="/dashboard/login"], form[action$="/dashboard/login"]');
+    const form = document.getElementById("login-form") || document.querySelector('form[action="/dashboard/login"], form[action$="/dashboard/login"]');
     const user = document.getElementById("username");
     const pass = document.getElementById("password");
 

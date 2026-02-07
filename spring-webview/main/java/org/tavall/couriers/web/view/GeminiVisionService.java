@@ -5,12 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
+import org.tavall.couriers.api.delivery.state.DeliveryState;
 import org.tavall.couriers.api.delivery.state.cache.DeliveryStateCache;
 import org.tavall.couriers.api.qr.scan.metadata.LocalQRScanData;
 import org.tavall.couriers.api.qr.scan.response.ScanResponseSchema;
 import org.tavall.couriers.api.qr.scan.LocalQRScanner;
 import org.tavall.couriers.api.qr.scan.state.ScanIntent;
-import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
+import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
 import org.tavall.gemini.clients.Gemini3ImageClient;
 import org.tavall.gemini.clients.response.Gemini3Response;
 import org.tavall.gemini.enums.GeminiModel;
@@ -111,7 +112,7 @@ public class GeminiVisionService {
                 scanCache.registerScanResponse(geminiResponse);
 
                 // Cache #2: Cached Scan Response
-                ShippingLabelMetaData metaData = getShippingLabelMetaData(geminiResponse);
+                ShippingLabelMetaDataEntity metaData = getShippingLabelMetaData(geminiResponse);
                 DeliveryStateCache.get().registerDeliveryState(metaData);
             }
 
@@ -125,9 +126,9 @@ public class GeminiVisionService {
         }
     }
 
-    private ShippingLabelMetaData getShippingLabelMetaData(ScanResponse geminiResponse) {
+    private ShippingLabelMetaDataEntity getShippingLabelMetaData(ScanResponse geminiResponse) {
 
-        ShippingLabelMetaData metaData = new ShippingLabelMetaData();
+        ShippingLabelMetaDataEntity metaData = new ShippingLabelMetaDataEntity();
         metaData.setUuid(geminiResponse.uuid());
         metaData.setTrackingNumber(geminiResponse.trackingNumber());
         metaData.setRecipientName(geminiResponse.name());
@@ -140,6 +141,7 @@ public class GeminiVisionService {
 
         metaData.setPhoneNumber(geminiResponse.phoneNumber());
         metaData.setDeliverBy(geminiResponse.deadline());
+        metaData.setDeliveryState(DeliveryState.LABEL_CREATED);
         return metaData;
     }
 

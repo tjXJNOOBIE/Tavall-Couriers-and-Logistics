@@ -8,11 +8,7 @@
 
 <body>
 
-<header class="navbar">
-    <div class="brand">
-        Tavall<span>Courier</span>
-    </div>
-</header>
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
 <main class="main-content fade-in">
     <div class="container">
@@ -21,11 +17,6 @@
             <div class="card-header">
                 <h1 class="card-title" th:text="${title}">Shipping Labels</h1>
                 <span class="badge badge-neutral">DEV</span>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Rendered At</label>
-                <div class="form-input mono" th:text="${renderedAt}">time</div>
             </div>
 
             <!-- LIST -->
@@ -41,7 +32,7 @@
                     <div th:each="l : ${labels}" class="form-group">
                         <div class="form-input">
                             <div class="mono">
-                                <a th:href="@{/shipping-labels/{uuid}(uuid=${l.uuid})}"
+                                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelDetail(l.uuid)}}"
                                    th:text="${l.trackingNumber != null ? l.trackingNumber : l.uuid}">
                                     TRACK
                                 </a>

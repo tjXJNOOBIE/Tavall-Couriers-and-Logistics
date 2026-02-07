@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.tavall.couriers.api.web.endpoints.camera.CameraFeedEndpoints;
+import org.tavall.couriers.api.web.endpoints.Routes;
 
 @Controller
 public class CameraPageController {
@@ -47,7 +47,7 @@ public class CameraPageController {
 
 
 
-    @PostMapping(CameraFeedEndpoints.STREAM_FRAME_PATH)
+    @PostMapping(Routes.CAMERA_STREAM_FRAME)
     public ResponseEntity<Void> receiveFrame() {
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }

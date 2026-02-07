@@ -165,19 +165,7 @@
 
 <body>
 
-<header class="navbar">
-    <div class="brand">
-        Tavall<span>Courier</span>
-    </div>
-
-    <div class="user-controls">
-        <div class="user-info hidden-mobile">
-            <div class="user-name">Dev Mode</div>
-            <div class="user-role">LOCAL</div>
-        </div>
-        <button class="btn-icon" aria-label="User menu">☰</button>
-    </div>
-</header>
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
 <main class="main-content fade-in">
     <div class="container">
@@ -194,17 +182,12 @@
                     This is the landing zone. From here you can jump into the dashboard or (eventually) register new accounts.
                 </div>
 
-                <div class="form-group" style="max-width: 520px;">
-                    <label class="form-label">Rendered At</label>
-                    <div class="form-input mono" th:text="${renderedAt}">time</div>
-                </div>
-
                 <div class="home-actions">
                     <button id="registerBtn" class="btn btn-secondary" type="button">
                         Register
                     </button>
 
-                    <a class="btn btn-primary" th:href="@{${@routes.dashboard()}}">
+                    <a class="btn btn-primary" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboard()}}">
                         Dashboard
                     </a>
                 </div>

@@ -2,198 +2,86 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="${title}">Dashboard Login</title>
-
     <link rel="stylesheet" href="/css/style.css"/>
-
-    <style>
-        .page-subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .login-grid {
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 1rem;
-        }
-
-        .mini-card {
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: var(--bg-surface);
-            box-shadow: var(--shadow-sm);
-            padding: 1rem;
-        }
-
-        .mini-title {
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-        }
-
-        .mini-text {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.35;
-        }
-
-        .alert {
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 0.75rem 0.9rem;
-            background: var(--bg-body);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .alert-danger {
-            border-color: color-mix(in srgb, var(--danger) 35%, var(--border-color));
-        }
-
-        .alert-success {
-            border-color: color-mix(in srgb, var(--success) 35%, var(--border-color));
-        }
-
-        @media (max-width: 860px) {
-            .login-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-
 <body>
-
-<header class="navbar">
-    <div class="brand">
-        Tavall<span>Courier</span>
-    </div>
-
-    <div class="user-controls">
-        <div class="user-info hidden-mobile">
-            <div class="user-name">Auth</div>
-            <div class="user-role">DASHBOARD</div>
-        </div>
-        <a class="btn btn-secondary" href="/" style="text-decoration:none; padding: 0.5rem 0.8rem;">
-            Home
-        </a>
-    </div>
-</header>
 
 <main class="main-content fade-in">
     <div class="container">
-
-        <section class="card">
-            <div class="card-header">
-                <h1 class="card-title" th:text="${title}">Dashboard Login</h1>
-                <span class="badge badge-neutral">DEV</span>
+        <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl fade-in border border-slate-100">
+            <div class="text-center mb-8">
+                <div class="text-sm font-bold text-slate-400 uppercase mb-2">Tavall Couriers</div>
+                <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shield-check" class="text-blue-600 w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Secure Login</h2>
+                <p class="text-slate-500 text-sm">Access the Tavall Logistics Network</p>
             </div>
 
-            <p class="page-subtitle mb-2">
-                Login to access the dashboard. Yes, we’re doing server-side auth like civilized people.
-            </p>
-
-            <div class="form-group" style="max-width: 520px;">
-                <label class="form-label">Rendered At</label>
-                <div class="form-input mono" th:text="${renderedAt}">time</div>
+            <div th:if="${param.error}" class="alert alert-danger mb-2">
+                Invalid username or password.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success mb-2">
+                Logged out.
             </div>
 
-            <div class="login-grid mt-2">
+            <form id="login-form" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLoginHome()}}" method="post" class="space-y-4">
+                <input type="hidden" th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-                <!-- Left info panel -->
-                <div class="mini-card">
-                    <div class="mini-title">Why login?</div>
-                    <div class="mini-text">
-                        Because “security through vibes” is not a strategy.
-                        This dashboard is scoped for roles (merchant/driver/superuser), and everything routes through your permission system.
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1" for="username">Username</label>
+                    <input type="text" id="username" name="username"
+                           class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                           placeholder="Enter username" autocomplete="username" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1" for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                           placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg font-bold transition shadow-lg shadow-slate-200 mt-2">
+                    Login
+                </button>
+
+                <div class="relative py-4">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-200"></div>
                     </div>
-
-                    <div class="mini-title" style="margin-top: 0.9rem;">Notes</div>
-                    <div class="mini-text">
-                        If you’re behind Apache reverse proxy, make sure forwarded headers are set so rate limits and audit logs track real client IPs.
+                    <div class="relative flex justify-center">
+                        <span class="bg-white px-2 text-xs text-slate-400 uppercase">Or use demo credentials</span>
                     </div>
                 </div>
 
-                <!-- Login form -->
-                <div class="mini-card">
-
-                    <!-- Error / Logout banners -->
-                    <div class="alert alert-danger mb-2" th:if="${param.error}">
-                        Invalid username or password.
-                    </div>
-
-                    <div class="alert alert-success mb-2" th:if="${param.logout}">
-                        Logged out.
-                    </div>
-
-                    <!--
-                      IMPORTANT:
-                      action defaults to /dashboard/login (same as your login page) so it can be your loginProcessingUrl too.
-                      If you configure loginProcessingUrl differently, update th:action.
-                    -->
-                    <form th:action="@{/dashboard/login}" method="post">
-                        <!-- CSRF -->
-                        <input type="hidden" th:if="${_csrf != null}"
-                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-                        <div class="form-group">
-                            <label class="form-label" for="username">Username</label>
-                            <input class="form-input" id="username" name="username" type="text" autocomplete="username" required/>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="password">Password</label>
-                            <input class="form-input" id="password" name="password" type="password" autocomplete="current-password" required/>
-                        </div>
-
-                        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
-                            <input id="remember-me" name="remember-me" type="checkbox"/>
-                            <label class="form-label" for="remember-me" style="margin:0;">Remember me</label>
-                        </div>
-
-                        <button class="btn btn-primary mt-2" type="submit" style="width:100%;">
-                            Login
-                        </button>
-                    </form>
-                    <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border-color);" />
-
-                    <div class="mini-title">Demo Accounts</div>
-                    <p class="mini-text" style="margin-top: -0.25rem;">
-                        One-click login for role flows. Update credentials in JS if you change your in-memory users.
-                    </p>
-
-                    <div class="demo-actions" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem;">
-                        <button type="button" class="btn btn-secondary demo-login"
-                                data-username="driver" data-password="driver">
-                            Driver
-                        </button>
-
-                        <button type="button" class="btn btn-secondary demo-login"
-                                data-username="merchant" data-password="merchant">
-                            Merchant
-                        </button>
-
-                        <button type="button" class="btn btn-secondary demo-login"
-                                data-username="superuser" data-password="superuser">
-                            Superuser
-                        </button>
-                    </div>
-
-                    <p class="text-muted mt-2" style="font-size: 0.85rem;">
-                        These buttons just fill the form and submit it. The server still handles auth.
-                    </p>
-                    <p class="text-muted mt-2" style="font-size: 0.9rem;">
-                        No account yet? Registration is coming soon. Because of course it is.
-                    </p>
-
+                <div class="grid grid-cols-3 gap-2">
+                    <button th:each="demo : ${demoCredentials}"
+                            class="p-2 border border-slate-200 rounded hover:bg-slate-50 text-xs font-medium text-slate-600 transition demo-login"
+                            type="button"
+                            th:attr="data-username=${demo.username},data-password=${demo.password}">
+                        <span th:text="${demo.label}">Demo</span>
+                    </button>
                 </div>
-            </div>
-        </section>
 
+                <div class="mt-6 text-center">
+                    <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingPage()}}"
+                       class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                        Track a shipment instead?
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </main>
+
 <script defer src="/js/dashboard/dashboard-login.js"></script>
-
-<div th:replace="constants/footer :: footer"></div>
-
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

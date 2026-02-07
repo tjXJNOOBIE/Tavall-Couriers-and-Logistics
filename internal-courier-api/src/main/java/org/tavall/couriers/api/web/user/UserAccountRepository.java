@@ -9,8 +9,13 @@
 
 package org.tavall.couriers.api.web.user;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 import java.util.UUID;
+
 
 public interface UserAccountRepository {
     Optional<UserAccount> findById(UUID id);

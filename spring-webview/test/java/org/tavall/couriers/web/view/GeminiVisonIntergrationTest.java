@@ -36,7 +36,7 @@
 //        // 1. Validate Environment
 //        String apiKey = System.getenv("GEMINI_API_KEY");
 //        if (apiKey == null || apiKey.isBlank()) {
-//            throw new RuntimeException("SKIPPING TEST: GEMINI_API_KEY not found in env variables.");
+//            throw new RuntimeException("SKIPPING TEST: GEMINI_API_KEY not found in env variables.css.");
 //        }
 //
 //        // 2. Validate Test File Exists

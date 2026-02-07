@@ -97,6 +97,35 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>net.logicsquad</groupId>
+                <artifactId>minifier-maven-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>default-minify</id>
+                        <configuration>
+                            <sourceDir>${basedir}/spring-webview/main/resources</sourceDir>
+                            <targetDir>${project.build.directory}/${project.build.finalName}.woa/Contents/WebServerResources</targetDir>
+                            <cssIncludes>
+                                <cssInclude>**/*.css</cssInclude>
+                            </cssIncludes>
+                            <cssExcludes>
+                                <cssExclude>**/*.min.css</cssExclude>
+                            </cssExcludes>
+                            <jsIncludes>
+                                <jsInclude>**/*.js</jsInclude>
+                            </jsIncludes>
+                            <jsExcludes>
+                                <jsExclude>**/*.min.js</jsExclude>
+                            </jsExcludes>
+                        </configuration>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>

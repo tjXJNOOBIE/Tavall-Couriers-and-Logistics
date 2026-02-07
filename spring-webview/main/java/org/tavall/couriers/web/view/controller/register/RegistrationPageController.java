@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.tavall.couriers.api.web.endpoints.Routes;
 import org.tavall.couriers.api.web.service.utils.RateLimitService;
 
 import java.util.Map;
@@ -20,7 +21,7 @@ public class RegistrationPageController {
     // We pull this from your ButtonConfig logic (usually 4000ms)
     private static final int REGISTER_COOLDOWN = 4000;
 
-    @PostMapping("/api/register")
+    @PostMapping(Routes.REGISTER)
     public ResponseEntity<?> handleRegistration(HttpServletRequest request) {
         String clientIp = resolveClientIp(request);
 

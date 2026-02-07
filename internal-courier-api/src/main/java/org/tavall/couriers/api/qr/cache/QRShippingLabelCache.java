@@ -10,9 +10,9 @@ import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
+import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
 
-public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, ShippingLabelMetaData> {
+public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, ShippingLabelMetaDataEntity> {
 
     public static final QRShippingLabelCache INSTANCE = new QRShippingLabelCache();
     private ICacheKey<QRShippingLabelCache> cacheKey;
@@ -41,7 +41,7 @@ public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, Sh
     }
 
     @SuppressWarnings("unchecked")
-    public void registerShippingLabel(ShippingLabelMetaData labelData) {
+    public void registerShippingLabel(ShippingLabelMetaDataEntity labelData) {
         if (labelData != null) {
             // Create the key for the QR domain
             this.cacheKey = (ICacheKey<QRShippingLabelCache>) createKey(

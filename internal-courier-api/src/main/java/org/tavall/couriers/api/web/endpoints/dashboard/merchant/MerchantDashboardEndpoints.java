@@ -26,12 +26,19 @@ public enum MerchantDashboardEndpoints implements AppEndpoint {
     RESOLVE_BATCH_ERROR("/internal/api/v1/merchant/scan/batch/resolve", "POST"),
 
     // "To complete scanning, there should be a button to complete the scanning process"
-    COMPLETE_BATCH_SESSION("/internal/api/v1/merchant/scan/batch/complete", "POST");
+    COMPLETE_BATCH_SESSION("/internal/api/v1/merchant/scan/batch/complete", "POST"),
+
+    // Merchant shipment library
+    SHIPMENTS_PAGE("/dashboard/merchant/shipments", "GET");
+
+    public static final String SHIPMENTS_PAGE_PATH = "/dashboard/merchant/shipments";
 
     public static final String GET_ALL_SHIPMENTS_PATH = "/internal/api/v1/merchant/shipments/all";
+    public static final String UPDATE_SHIPMENT_PATH = "/internal/api/v1/merchant/shipments/update";
     public static final String CREATE_SHIPMENT_PATH = "/internal/api/v1/merchant/shipment/create";
-    public static final String DASHBOARD_PATH = "/merchant/dashboard";
-    public static final String CREATE_SHIPMENT_PAGE_PATH = "/merchant/create-shipment";
+    public static final String DASHBOARD_PATH = "/dashboard/merchant";
+    public static final String CREATE_SHIPMENT_PAGE_PATH = "/dashboard/merchant/create-shipment";
+    public static final String SCAN_PAGE_PATH = "/dashboard/merchant/scan";
 
     private final String endpoint;
     private final String method;

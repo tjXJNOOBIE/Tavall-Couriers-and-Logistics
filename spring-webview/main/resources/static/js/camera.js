@@ -33,6 +33,10 @@
     const overlay = document.getElementById('ai-overlay');
     const toggleBtn = document.getElementById('btn-toggle-source');
 
+    if (!video) {
+        return;
+    }
+
     let consecutiveMisses = 0;
     let currentStream = null;
     let isScreenShare = false;
@@ -72,10 +76,16 @@
         video.srcObject = stream;
         isScreenShare = isScreen;
 
-        toggleBtn.innerText = isScreen ? "SWITCH TO CAMERA" : "SWITCH TO SCREEN SHARE";
-        statusLine.innerText = isScreen ? "STATUS: SCREEN CAPTURE ACTIVE" : "STATUS: CAMERA ACTIVE";
-        statusLine.style.color = "#aaa";
-        overlay.style.borderLeftColor = "#444";
+        if (toggleBtn) {
+            toggleBtn.innerText = isScreen ? "SWITCH TO CAMERA" : "SWITCH TO SCREEN SHARE";
+        }
+        if (statusLine) {
+            statusLine.innerText = isScreen ? "STATUS: SCREEN CAPTURE ACTIVE" : "STATUS: CAMERA ACTIVE";
+            statusLine.style.color = "#aaa";
+        }
+        if (overlay) {
+            overlay.style.borderLeftColor = "#444";
+        }
 
         stream.getVideoTracks()[0].onended = () => {
             if (isScreen) startCamera();
@@ -106,9 +116,13 @@
             const interval = isIdle ? 4000 : 1000;
 
             if (!isIdle) {
-                statusLine.innerText = "STATUS: ANALYZING...";
-                statusLine.style.color = "yellow";
-                overlay.style.borderLeftColor = "yellow";
+                if (statusLine) {
+                    statusLine.innerText = "STATUS: ANALYZING...";
+                    statusLine.style.color = "yellow";
+                }
+                if (overlay) {
+                    overlay.style.borderLeftColor = "yellow";
+                }
             }
 
             window.getCurrentFrameBlob(blob => {
@@ -124,23 +138,32 @@
                         if (state === "SEARCHING" || state === "ERROR" || state === "IDLE") {
                             consecutiveMisses++;
                             if (isIdle) {
-                                statusLine.innerText = "STATUS: IDLE (LOW POWER)";
-                                statusLine.style.color = "#888";
-                                overlay.style.borderLeftColor = "#888";
+                                if (statusLine) {
+                                    statusLine.innerText = "STATUS: IDLE (LOW POWER)";
+                                    statusLine.style.color = "#888";
+                                }
+                                if (overlay) {
+                                    overlay.style.borderLeftColor = "#888";
+                                }
                             }
                         } else {
                             consecutiveMisses = 0;
-                            statusLine.innerText = "TARGET ACQUIRED: " + state;
-                            statusLine.style.color = "#0f0";
-                            overlay.style.borderLeftColor = "#0f0";
-
-                            dataDisplay.innerHTML = `
-                            <span style="color: cyan">UUID:</span> ${data.uuid || 'N/A'}<br>
-                            <span style="color: cyan">TRK:</span>  ${data.trackingNumber || 'N/A'}<br>
-                            <span style="color: cyan">TO:</span>   ${data.name || ''}<br>
-                            <span style="color: #aaa">${data.address || ''}</span><br>
-                            <span style="color: orange">NOTE:</span> ${data.notes || 'OK'}
-                        `;
+                            if (statusLine) {
+                                statusLine.innerText = "TARGET ACQUIRED: " + state;
+                                statusLine.style.color = "#0f0";
+                            }
+                            if (overlay) {
+                                overlay.style.borderLeftColor = "#0f0";
+                            }
+                            if (dataDisplay) {
+                                dataDisplay.innerHTML = `
+                                <span style="color: cyan">UUID:</span> ${data.uuid || 'N/A'}<br>
+                                <span style="color: cyan">TRK:</span>  ${data.trackingNumber || 'N/A'}<br>
+                                <span style="color: cyan">TO:</span>   ${data.name || ''}<br>
+                                <span style="color: #aaa">${data.address || ''}</span><br>
+                                <span style="color: orange">NOTE:</span> ${data.notes || 'OK'}
+                            `;
+                            }
                         }
                         setTimeout(loop, interval);
                     })
@@ -155,20 +178,26 @@
 
     function handleError(msg, err) {
         console.error(err);
-        statusLine.innerText = "ERROR: " + msg;
-        statusLine.style.color = "red";
-        overlay.style.borderLeftColor = "red";
+        if (statusLine) {
+            statusLine.innerText = "ERROR: " + msg;
+            statusLine.style.color = "red";
+        }
+        if (overlay) {
+            overlay.style.borderLeftColor = "red";
+        }
     }
 
     // --- INITIALIZATION ---
 
-    toggleBtn.addEventListener('click', () => {
-        if (isScreenShare) {
-            startCamera();
-        } else {
-            startScreenShare();
-        }
-    });
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            if (isScreenShare) {
+                startCamera();
+            } else {
+                startScreenShare();
+            }
+        });
+    }
 
     window.getCurrentFrameBlob = function(callback) {
         const canvas = document.getElementById('frame-buffer');

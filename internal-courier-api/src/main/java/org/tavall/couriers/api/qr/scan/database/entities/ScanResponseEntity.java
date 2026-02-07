@@ -1,5 +1,6 @@
 package org.tavall.couriers.api.qr.scan.database.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,11 +9,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
-@Table(name = "scan_response")
-public class ScanResponseEntity {
+@Table(name = "scan_response", schema = "courier_schemas")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class ScanResponseEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "uuid", nullable = false, length = 36)

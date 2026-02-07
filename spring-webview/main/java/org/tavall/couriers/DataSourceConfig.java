@@ -1,4 +1,4 @@
-package org.tavall.couriers.config;
+package org.tavall.couriers;
 
 
 import com.zaxxer.hikari.HikariConfig;
@@ -31,8 +31,7 @@ public class DataSourceConfig {
 
         if (url == null) {
             throw new IllegalStateException(
-                    "Missing DB URL. Set spring.datasource.url or NOVUS_POSTGRES_URL"
-            );
+                    "Missing DB URL. Set spring.datasource.url or NOVUS_POSTGRES_URL");
         }
 
         if (user == null) {

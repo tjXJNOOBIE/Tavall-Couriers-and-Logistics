@@ -32,6 +32,13 @@ public enum UserAuthEndpoints implements AppEndpoint {
     DISABLE_USER("/internal/api/v1/users/status/disable", "POST");
 
     public static final String LOGIN_PATH = "/internal/api/v1/auth/login";
+    public static final String LOGOUT_PATH = "/internal/api/v1/auth/logout";
+    public static final String CHECK_SESSION_PATH = "/internal/api/v1/auth/session";
+    public static final String PROMOTE_USER_PATH = "/internal/api/v1/users/promote";
+    public static final String DEMOTE_USER_PATH = "/internal/api/v1/users/demote";
+    public static final String DELETE_USER_PATH = "/internal/api/v1/users/delete";
+    public static final String CREATE_MERCHANT_PATH = "/internal/api/v1/users/merchant/create";
+    public static final String DISABLE_USER_PATH = "/internal/api/v1/users/status/disable";
 
     private final String endpoint;
     private final String method;

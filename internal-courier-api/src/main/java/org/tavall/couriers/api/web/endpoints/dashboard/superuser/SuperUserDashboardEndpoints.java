@@ -31,8 +31,8 @@ public enum SuperUserDashboardEndpoints implements AppEndpoint {
 
     public static final String GET_ALL_SHIPMENTS_PATH = "/internal/api/v1/admin/shipments/all";
     public static final String FORCE_UPDATE_SHIPMENT_PATH = "/internal/api/v1/admin/shipments/update";
-    public static final String DASHBOARD_PATH = "/superuser/dashboard";
-    public static final String CREATE_SHIPMENT_PAGE_PATH = "/superuser/create-shipment";
+    public static final String DASHBOARD_PATH = "/dashboard/superuser";
+    public static final String CREATE_SHIPMENT_PAGE_PATH = "/dashboard/superuser/create-shipment";
 
     private final String endpoint;
     private final String method;

@@ -12,9 +12,7 @@
 </head>
 <body>
 
-<header class="navbar">
-    <div class="brand">Tavall<span>Courier</span></div>
-</header>
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
 <main class="main-content fade-in">
     <div class="container">
@@ -61,8 +59,8 @@
             </div>
 
             <div class="error-actions mt-2">
-                <a class="btn btn-primary" href="/">Home</a>
-                <a class="btn" href="/home">Home</a>
+                <a class="btn btn-primary" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).home()}}">Home</a>
+                <a class="btn" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).home()}}">Home</a>
             </div>
         </section>
     </div>

@@ -12,12 +12,12 @@ import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
+import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.StructuredTaskScope;
 @Component
-public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, ShippingLabelMetaData> {
+public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, ShippingLabelMetaDataEntity> {
 
     // If you don't bind it, it crashes. This is a feature, not a bug.
     public static final ScopedValue<DeliveryStateCache> CURRENT = ScopedValue.newInstance();
@@ -40,7 +40,7 @@ public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, Shippi
 
     // --- Execution Helper (Async + Scope) ---
 
-    public static <T> T runAsync(ShippingLabelMetaData initialData, Callable<T> task)
+    public static <T> T runAsync(ShippingLabelMetaDataEntity initialData, Callable<T> task)
             throws InterruptedException, StructuredTaskScope.TimeoutException, StructuredTaskScope.FailedException, Exception {
 
         DeliveryStateCache cache = new DeliveryStateCache();
@@ -73,7 +73,7 @@ public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, Shippi
     public CacheVersion getVersion() { return CacheVersion.V1_0; }
 
     @SuppressWarnings("unchecked")
-    public void registerDeliveryState(ShippingLabelMetaData labelData) {
+    public void registerDeliveryState(ShippingLabelMetaDataEntity labelData) {
         if (labelData != null) {
             // Create key referencing 'this' instance
             this.cacheKey = (ICacheKey<DeliveryStateCache>) createKey(

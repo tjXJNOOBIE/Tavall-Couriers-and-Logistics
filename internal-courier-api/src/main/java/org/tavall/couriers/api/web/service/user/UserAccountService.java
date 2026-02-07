@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.web.service.user;
 
 
+import org.springframework.stereotype.Service;
 import org.tavall.couriers.api.web.user.UserAccount;
 import org.tavall.couriers.api.web.user.UserAccountRepository;
 import org.tavall.couriers.api.web.user.permission.Role;
@@ -12,14 +13,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+@Service
 public class UserAccountService {
 
 
-    private final UserAccountRepository repo;
+    private UserAccountRepository repo;
 
-    public UserAccountService(UserAccountRepository repo) {
-        this.repo = Objects.requireNonNull(repo, "repo");
-    }
+
 
     public UserAccount getOrCreateFromOAuthSubject(String subject, String username) {
         Objects.requireNonNull(subject, "subject");

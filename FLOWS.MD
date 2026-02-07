@@ -106,6 +106,7 @@
 # Dashboard Flows
 
 * Dashboards (and other pages) use thyemleaf/java as much as possible, so we can follow DRY and not have to change code in multiple locations.
+* Dashboards should be unique to the roles from 'Role.java'
 
 ## Dashboard Login Flow
 

@@ -1,5 +1,6 @@
 package org.tavall.couriers.api.qr.database.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,12 +10,16 @@ import jakarta.persistence.Table;
 import org.tavall.couriers.api.qr.enums.QRState;
 import org.tavall.couriers.api.qr.enums.QRType;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "qr_metadata")
-public class QRMetaDataEntity {
+@Table(name = "qr_metadata", schema = "courier_schemas")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class QRMetaDataEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "uuid", nullable = false)

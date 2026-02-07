@@ -10,9 +10,9 @@ import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.tracking.metadata.TrackingNumberMetaData;
+import org.tavall.couriers.api.web.entities.tracking.TrackingNumberMetaDataEntity;
 
-public class TrackingNumberCache extends AbstractCache<TrackingNumberCache,TrackingNumberMetaData> {
+public class TrackingNumberCache extends AbstractCache<TrackingNumberCache, TrackingNumberMetaDataEntity> {
 
     public static final TrackingNumberCache INSTANCE = new TrackingNumberCache();
     private ICacheKey<TrackingNumberCache> cacheKey;
@@ -46,7 +46,7 @@ public class TrackingNumberCache extends AbstractCache<TrackingNumberCache,Track
     }
 
     @SuppressWarnings("unchecked")
-    public void registerTrackingNumber(TrackingNumberMetaData trackingData) {
+    public void registerTrackingNumber(TrackingNumberMetaDataEntity trackingData) {
         if (trackingData != null) {
             // Create the key specifically for this tracking instance
             this.cacheKey = (ICacheKey<TrackingNumberCache>) createKey(

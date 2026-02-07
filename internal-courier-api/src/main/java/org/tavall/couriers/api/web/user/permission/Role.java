@@ -10,9 +10,10 @@
 package org.tavall.couriers.api.web.user.permission;
 
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.*;
 
 public enum Role {
 
@@ -44,6 +45,8 @@ public enum Role {
             UserPermissions.SYSTEM_SCHEDULE_JOBS,
             UserPermissions.SYSTEM_MONITOR));
 
+    public static final String PREFIX = "ROLE_";
+
     private final Set<UserPermissions> permissions;
 
     Role(Set<UserPermissions> permissions) {
@@ -52,5 +55,22 @@ public enum Role {
 
     public Set<UserPermissions> permissions() {
         return permissions;
+    }
+
+    public String authority() {
+        return PREFIX + name();
+    }
+
+    public GrantedAuthority grantedAuthority() {
+        return new SimpleGrantedAuthority(authority());
+    }
+
+    public Collection<? extends GrantedAuthority> grantedAuthorities() {
+        List<GrantedAuthority> out = new ArrayList<>();
+        out.add(grantedAuthority());
+        for (UserPermissions perm : permissions) {
+            out.add(perm.grantedAuthority());
+        }
+        return Collections.unmodifiableList(out);
     }
 }

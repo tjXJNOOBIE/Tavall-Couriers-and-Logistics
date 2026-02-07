@@ -17,7 +17,10 @@ public enum DefaultDashboardEndpoints implements AppEndpoint {
     DASHBOARD_ERROR("/dashboard/error", "GET"),
 
     // Optional: quick status page for dashboard UI sanity checks
-    DASHBOARD_STATUS("/dashboard/status", "GET");
+    DASHBOARD_STATUS("/dashboard/status", "GET"),
+
+    // Admin-only user management
+    DASHBOARD_ADMIN_USERS("/dashboard/admin/users", "GET");
 
     public static final String DASHBOARD_HOME_PATH = "/dashboard";
     public static final String DASHBOARD_HOME_ALIAS_PATH = "/dashboard/home";
@@ -26,6 +29,7 @@ public enum DefaultDashboardEndpoints implements AppEndpoint {
     public static final String DASHBOARD_ACCESS_DENIED_PATH = "/dashboard/denied";
     public static final String DASHBOARD_ERROR_PATH = "/dashboard/error";
     public static final String DASHBOARD_STATUS_PATH = "/dashboard/status";
+    public static final String DASHBOARD_ADMIN_USERS_PATH = "/dashboard/admin/users";
 
 
     private final String endpoint;

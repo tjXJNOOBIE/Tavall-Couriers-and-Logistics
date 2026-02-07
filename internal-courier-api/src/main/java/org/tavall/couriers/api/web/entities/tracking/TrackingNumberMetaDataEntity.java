@@ -1,15 +1,20 @@
-package org.tavall.couriers.api.database;
+package org.tavall.couriers.api.web.entities.tracking;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
-@Table(name = "tracking_number_metadata")
-public class TrackingNumberMetaDataEntity {
+@Table(name = "tracking_number_metadata", schema = "courier_schemas")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class TrackingNumberMetaDataEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "tracking_number", nullable = false, length = 64)

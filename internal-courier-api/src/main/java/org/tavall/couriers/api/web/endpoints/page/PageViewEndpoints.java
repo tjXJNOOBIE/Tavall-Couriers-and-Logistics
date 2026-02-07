@@ -13,10 +13,14 @@ import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 
 public enum PageViewEndpoints implements AppEndpoint {
     HOME("/", "GET"),
-    LOGIN("/login", "GET");
+    LOGIN("/login", "GET"),
+    TRACKING("/tracking", "GET"),
+    TRACKING_DETAIL("/tracking/{trackingNumber}", "GET");
 
     public static final String HOME_PATH = "/";
     public static final String LOGIN_PATH = "/login";
+    public static final String TRACKING_PATH = "/tracking";
+    public static final String TRACKING_DETAIL_PATH = "/tracking/{trackingNumber}";
 
     private final String endpoint;
     private final String method;

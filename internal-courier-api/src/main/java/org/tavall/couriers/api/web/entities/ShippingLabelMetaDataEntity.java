@@ -1,5 +1,6 @@
-package org.tavall.couriers.api.shipping.database.entities;
+package org.tavall.couriers.api.web.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,11 +9,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.tavall.couriers.api.delivery.state.DeliveryState;
 
+import java.io.Serializable;
 import java.time.Instant;
 
 @Entity
 @Table(name = "shipping_label_metadata", schema = "courier_schemas")
-public class ShippingLabelMetaDataEntity {
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class ShippingLabelMetaDataEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "uuid", nullable = false, length = 36)
@@ -155,6 +160,10 @@ public class ShippingLabelMetaDataEntity {
     }
 
     public boolean isPriority() {
+        return priority;
+    }
+
+    public boolean getPriority() {
         return priority;
     }
 

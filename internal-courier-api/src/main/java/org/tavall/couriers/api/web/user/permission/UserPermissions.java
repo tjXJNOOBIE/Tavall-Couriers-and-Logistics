@@ -9,6 +9,9 @@
 
 package org.tavall.couriers.api.web.user.permission;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 public enum UserPermissions {
     AUTH_LOGIN,
 
@@ -35,5 +38,16 @@ public enum UserPermissions {
     ADMIN_DELETE_SHIPMENTS,
 
     SYSTEM_SCHEDULE_JOBS,
-    SYSTEM_MONITOR
+    SYSTEM_MONITOR;
+
+    public static final String PREFIX = "PERM_";
+
+    public String authority() {
+        return PREFIX + name();
+    }
+
+    public GrantedAuthority grantedAuthority() {
+        return new SimpleGrantedAuthority(authority());
+    }
+
 }
