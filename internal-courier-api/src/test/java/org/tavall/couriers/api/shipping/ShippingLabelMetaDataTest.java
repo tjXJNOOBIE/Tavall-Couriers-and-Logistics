@@ -4,6 +4,7 @@ package org.tavall.couriers.api.shipping;
 import org.junit.jupiter.api.Test;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.delivery.state.DeliveryState;
+import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
 
 import java.time.Instant;
 

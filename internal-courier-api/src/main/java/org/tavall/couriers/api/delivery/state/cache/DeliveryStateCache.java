@@ -12,7 +12,7 @@ import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.shipping.ShippingLabelMetaData;
+import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.StructuredTaskScope;

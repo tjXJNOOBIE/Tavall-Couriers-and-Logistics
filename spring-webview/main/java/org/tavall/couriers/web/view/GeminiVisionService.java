@@ -10,7 +10,7 @@ import org.tavall.couriers.api.qr.scan.metadata.LocalQRScanData;
 import org.tavall.couriers.api.qr.scan.response.ScanResponseSchema;
 import org.tavall.couriers.api.qr.scan.LocalQRScanner;
 import org.tavall.couriers.api.qr.scan.state.ScanIntent;
-import org.tavall.couriers.api.shipping.ShippingLabelMetaData;
+import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
 import org.tavall.gemini.clients.Gemini3ImageClient;
 import org.tavall.gemini.clients.response.Gemini3Response;
 import org.tavall.gemini.enums.GeminiModel;

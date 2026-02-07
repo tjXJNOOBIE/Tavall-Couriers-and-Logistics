@@ -1,21 +1,17 @@
 package org.tavall.couriers.api.shipping.ai;
 
 
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.delivery.state.DeliveryState;
-import org.tavall.couriers.api.shipping.ShippingLabelMetaData;
-import org.tavall.couriers.api.shipping.tracking.TrackingNumberManager;
-import org.tavall.couriers.api.shipping.tracking.metadata.TrackingNumberMetaData;
+import org.tavall.couriers.api.shipping.helpers.QRShippingLabelCombiner;
+import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
+import org.tavall.couriers.api.tracking.TrackingNumberManager;
+import org.tavall.couriers.api.tracking.metadata.TrackingNumberMetaData;
 import org.tavall.couriers.api.utils.uuid.GenerateUUID;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
