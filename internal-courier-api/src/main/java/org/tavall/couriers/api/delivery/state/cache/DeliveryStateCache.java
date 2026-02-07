@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.delivery.state.cache;
 
 
+import org.springframework.stereotype.Component;
 import org.tavall.couriers.api.cache.abstracts.AbstractCache;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
@@ -15,7 +16,7 @@ import org.tavall.couriers.api.shipping.ShippingLabelMetaData;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.StructuredTaskScope;
-
+@Component
 public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, ShippingLabelMetaData> {
 
     // If you don't bind it, it crashes. This is a feature, not a bug.

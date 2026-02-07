@@ -8,11 +8,13 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import org.tavall.couriers.api.qr.enums.QRState;
 import org.tavall.couriers.api.qr.enums.QRType;
+import org.tavall.couriers.api.qr.metadata.QRMetaData;
 import org.tavall.couriers.api.utils.uuid.GenerateUUID;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.UUID;
 
 public class QRCodeGenerator {
 
@@ -27,19 +29,19 @@ public class QRCodeGenerator {
 
     //For java doc, method can be created with a UUID, or data. UUID or data can be null
     // but not both.
-    public QRMetaData createQRCodeWithUUID(GenerateUUID newGeneratedUUID, String imageFormat, BarcodeFormat barcodeFormat, int qrWidth, int qrHeight) throws IOException, WriterException {
+    public QRMetaData createQRCodeWithUUID(GenerateUUID generateUUID, String imageFormat, BarcodeFormat barcodeFormat, int qrWidth, int qrHeight) throws IOException, WriterException {
         QR_TYPE = QRType.UUID;
-        if (newGeneratedUUID == null) {
-            newGeneratedUUID = new GenerateUUID();
-            newGeneratedUUID.generateUUID();
+        if (generateUUID == null) {
+            generateUUID = new GenerateUUID();
+
 
         }
-        String qrUUID = newGeneratedUUID.getGeneratedUUID().toString();
+        String qrUUID = generateUUID.getUUID().toString();
         BitMatrix matrix = new MultiFormatWriter().encode(qrUUID, barcodeFormat, qrWidth, qrHeight);
         Path outputFile = outDir.resolve("qr-" + qrUUID + ".png");
 
         MatrixToImageWriter.writeToPath(matrix, imageFormat, outputFile);
-        return new QRMetaData(QR_TYPE, newGeneratedUUID, null, Instant.now(), QRState.ACTIVE);
+        return new QRMetaData(QR_TYPE, generateUUID, null, Instant.now(), QRState.ACTIVE);
     }
 
 

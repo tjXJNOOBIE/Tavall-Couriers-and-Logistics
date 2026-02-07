@@ -1,6 +1,7 @@
 package org.tavall.couriers.web.view;
 
 import com.google.genai.types.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
@@ -27,23 +28,28 @@ import java.util.concurrent.CompletableFuture;
 public class GeminiVisionService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Gemini3ImageClient client;
+    private Gemini3ImageClient client;
+    @Autowired
     private ScanResponseSchema scanResponseSchema;
+    @Autowired
     private DeliveryStateCache deliveryStateCache;
-    private ScanCacheService scanCache = ScanCacheService.INSTANCE;
-    private Schema schema;
+    @Autowired
+    private ScanCacheService scanCache;
     private ScanResponse scanResponse;
     private static final float RENDER_DPI = 300;
-    private final LocalQRScanner localScanner;
+    @Autowired
+    private LocalQRScanner localScanner;
+
 
     public GeminiVisionService() {
-        this.localScanner = new LocalQRScanner();
-        this.scanResponseSchema = new ScanResponseSchema();
-        this.client = new Gemini3ImageClient(scanResponseSchema.getScanResponseSchema());
+
     }
 
 
     public Gemini3Response<ScanResponse> analyzeFrame(byte[] frameData, boolean shouldScanQR) {
+        //TODO: Currently this creates one client per call
+        this.client = new Gemini3ImageClient(scanResponseSchema.getScanResponseSchema());
+
         try {
             if (frameData == null || frameData.length == 0) {
                 // Return empty record with nulls for new fields

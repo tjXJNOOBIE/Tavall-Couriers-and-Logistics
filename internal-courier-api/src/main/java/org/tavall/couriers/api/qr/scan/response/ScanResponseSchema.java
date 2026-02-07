@@ -3,8 +3,9 @@ package org.tavall.couriers.api.qr.scan.response;
 
 import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class ScanResponseSchema  {
 
 

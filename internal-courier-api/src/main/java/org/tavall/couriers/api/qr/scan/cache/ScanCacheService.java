@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.qr.scan.cache;
 
 
+import org.springframework.stereotype.Component;
 import org.tavall.couriers.api.cache.abstracts.AbstractCache;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
@@ -11,7 +12,7 @@ import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
-
+@Component
 public class ScanCacheService extends AbstractCache<ScanCacheService,ScanResponse>{
 
     public static final ScanCacheService INSTANCE = new ScanCacheService();
