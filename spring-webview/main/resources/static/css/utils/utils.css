@@ -1,0 +1,34 @@
+/* * TRUE UTILITY CLASSES
+ * These should be single-purpose and highly reusable.
+ * If it doesn't work on EVERY page, it doesn't belong here.
+ */
+
+/* Layout Helpers */
+.grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Typography & Alignment */
+.text-center { text-align: center; }
+.text-link { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 0.875rem; }
+
+/* Spacing Helpers */
+.mt-2 { margin-top: 2rem; }
+.mb-2 { margin-bottom: 2rem; }
+
+/* Visibility */
+.hidden-mobile { display: none; }
+@media (min-width: 768px) { .hidden-mobile { display: block; } }
+
+/* Universal Animations */
+.fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
