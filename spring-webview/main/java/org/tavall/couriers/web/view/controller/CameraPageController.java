@@ -56,12 +56,8 @@ public class CameraPageController {
 //        }
 //        return ResponseEntity.ok(new ScanResponse(null, LiveCameraState.ERROR, null, null, null, null, null, "Failed to analyze frame"));
 //    }
-@GetMapping(PageViewEndpoints.HOME_PATH)
-public String home(Model model) {
-    model.addAttribute("title", "Thymeleaf One-File Sanity Test");
-    model.addAttribute("renderedAt", Instant.now().toString());
-    return "home"; // maps to templates/home.html
-}
+
+
 
     @PostMapping(CameraFeedEndpoints.STREAM_FRAME_PATH)
     public ResponseEntity<Void> receiveFrame() {
