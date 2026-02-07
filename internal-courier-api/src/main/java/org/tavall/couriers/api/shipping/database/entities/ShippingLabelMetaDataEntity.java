@@ -11,7 +11,7 @@ import org.tavall.couriers.api.delivery.state.DeliveryState;
 import java.time.Instant;
 
 @Entity
-@Table(name = "shipping_label_metadata")
+@Table(name = "shipping_label_metadata", schema = "courier_schemas")
 public class ShippingLabelMetaDataEntity {
 
     @Id
