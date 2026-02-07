@@ -4,22 +4,167 @@
     <meta charset="UTF-8"/>
     <title th:text="${title}">Home</title>
 
-    <!-- External stylesheet (your style.css) -->
     <link rel="stylesheet" href="/css/style.css"/>
 
-    <!-- Minimal page-specific tweaks only -->
+    <!-- CSRF meta (works when Spring Security is enabled) -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+
     <style>
-        /* keep this tiny – real styles live in style.css */
         .page-subtitle {
             color: var(--text-muted);
             font-size: 0.95rem;
+        }
+
+        .home-hero {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .home-hero .hero-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
+
+        .home-hero .hero-desc {
+            color: var(--text-muted);
+            max-width: 60ch;
+        }
+
+        .home-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .home-actions .btn,
+        .home-actions a.btn {
+            padding: 0.95rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 650;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            min-height: 3.2rem;
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-body);
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .mini-card {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+            box-shadow: var(--shadow-sm);
+            padding: 1rem;
+        }
+
+        .mini-title {
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .mini-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.35;
+        }
+
+        /* Toast styles still live here for now.
+           If you want, we can move these into style.css next. */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 1.25rem;
+            transform: translateX(-50%);
+            width: min(560px, calc(100% - 2rem));
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 0.85rem 1rem;
+            z-index: 9999;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+            animation: toastIn 180ms ease-out;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .toast-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .toast-text {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .toast-meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .toast-bar-wrap {
+            margin-top: 0.65rem;
+            height: 0.45rem;
+            background: var(--bg-body);
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .toast-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+        }
+
+        @media (max-width: 860px) {
+            .home-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<!-- Top Nav -->
 <header class="navbar">
     <div class="brand">
         Tavall<span>Courier</span>
@@ -30,68 +175,69 @@
             <div class="user-name">Dev Mode</div>
             <div class="user-role">LOCAL</div>
         </div>
-        <button class="btn-icon" aria-label="User menu">
-            ☰
-        </button>
+        <button class="btn-icon" aria-label="User menu">☰</button>
     </div>
 </header>
 
-<!-- Main App Area -->
 <main class="main-content fade-in">
     <div class="container">
 
-        <!-- Card -->
-        <section class="card login-card">
-
+        <section class="card">
             <div class="card-header">
-                <h1 class="card-title" th:text="${title}">
-                    Thymeleaf Sanity Test
-                </h1>
+                <h1 class="card-title">Home</h1>
                 <span class="badge badge-neutral">DEV</span>
             </div>
 
-            <p class="page-subtitle mb-2">
-                If this page is styled, Spring Boot + Thymeleaf + CSS are working.
-            </p>
+            <div class="home-hero">
+                <div class="hero-title">Tavall Couriers Control Panel</div>
+                <div class="hero-desc">
+                    This is the landing zone. From here you can jump into the dashboard or (eventually) register new accounts.
+                </div>
 
-            <!-- Info Row -->
-            <div class="form-group">
-                <label class="form-label">Rendered At</label>
-                <div class="form-input mono" th:text="${renderedAt}">
-                    time
+                <div class="form-group" style="max-width: 520px;">
+                    <label class="form-label">Rendered At</label>
+                    <div class="form-input mono" th:text="${renderedAt}">time</div>
+                </div>
+
+                <div class="home-actions">
+                    <button id="registerBtn" class="btn btn-secondary" type="button">
+                        Register
+                    </button>
+
+                    <a class="btn btn-primary" th:href="@{${@routes.dashboard()}}">
+                        Dashboard
+                    </a>
                 </div>
             </div>
 
-            <!-- Action -->
-            <button id="testBtn" class="btn btn-primary mt-2">
-                Click me
-            </button>
+            <div class="home-grid">
+                <div class="mini-card">
+                    <div class="mini-title">Quick Status</div>
+                    <div class="mini-text">
+                        App is up, templates render, CSS loads, and the server is not screaming.
+                    </div>
+                </div>
 
-            <p id="output" class="text-center text-muted mt-2">
-                JS not executed yet.
-            </p>
+                <div class="mini-card">
+                    <div class="mini-title">Next Steps</div>
+                    <div class="mini-text">
+                        Hook dashboard widgets, add account provisioning, and keep tightening security.
+                    </div>
+                </div>
+            </div>
 
         </section>
 
     </div>
 </main>
 
-<!-- Inline JS (still fine for now) -->
-<script>
-    (function () {
-        const btn = document.getElementById("testBtn");
-        const out = document.getElementById("output");
+<!-- Toasts (shared) -->
+<div th:replace="constants/toasts :: registerToast"></div>
 
-        if (!btn || !out) return;
+<!-- Footer (shared) -->
+<div th:replace="constants/footer :: footer"></div>
 
-        out.textContent = "JS loaded ✓";
-
-        btn.addEventListener("click", function () {
-            out.textContent = "Clicked at " + new Date().toLocaleTimeString();
-            out.classList.remove("text-muted");
-        });
-    })();
-</script>
+<script defer src="/js/home.js"></script>
 
 </body>
 </html>
