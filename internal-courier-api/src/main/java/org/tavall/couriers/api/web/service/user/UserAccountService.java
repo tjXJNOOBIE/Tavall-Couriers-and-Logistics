@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.web.user.service;
+package org.tavall.couriers.api.web.service.user;
 
 
 import org.tavall.couriers.api.web.user.UserAccount;
@@ -6,7 +6,6 @@ import org.tavall.couriers.api.web.user.UserAccountRepository;
 import org.tavall.couriers.api.web.user.permission.Role;
 import org.tavall.couriers.api.web.user.permission.UserPermissions;
 
-import java.security.Permission;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -14,6 +13,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public class UserAccountService {
+
+
     private final UserAccountRepository repo;
 
     public UserAccountService(UserAccountRepository repo) {

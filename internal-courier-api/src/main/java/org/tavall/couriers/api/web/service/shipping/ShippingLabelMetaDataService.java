@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.web.service;
+package org.tavall.couriers.api.web.service.shipping;
 
 import org.springframework.stereotype.Service;
 import org.tavall.couriers.api.shipping.database.entities.ShippingLabelMetaDataEntity;

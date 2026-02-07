@@ -1,23 +1,23 @@
-package org.tavall.couriers.web.view.controller;
+package org.tavall.couriers.web.view.controller.dsahboard.superuser;
+
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.tavall.couriers.api.web.endpoints.dashboard.merchant.MerchantEndpoints;
+import org.tavall.couriers.api.web.endpoints.dashboard.superuser.SuperUserDashboardEndpoints;
 
 import java.util.Map;
 
 @Controller
-public class MerchantDashboardController {
+public class SuperuserDashboardController {
 
-    @GetMapping({MerchantEndpoints.DASHBOARD_PATH, MerchantEndpoints.GET_ALL_SHIPMENTS_PATH})
+    @GetMapping({SuperUserDashboardEndpoints.DASHBOARD_PATH, SuperUserDashboardEndpoints.GET_ALL_SHIPMENTS_PATH})
     public String dashboard(Model model) {
         // 1. Mock User
         model.addAttribute("user", Map.of(
                 "username", "Merchant Mary",
-                "role", "MERCHANT"
-        ));
+                "role", "MERCHANT"));
 
         // 2. Mock Stats
         model.addAttribute("totalShipments", 142);
@@ -26,10 +26,11 @@ public class MerchantDashboardController {
         return "dashboard/merchant";
     }
 
-    @PostMapping({MerchantEndpoints.CREATE_SHIPMENT_PAGE_PATH, MerchantEndpoints.CREATE_SHIPMENT_PATH})
+    @PostMapping({SuperUserDashboardEndpoints.CREATE_SHIPMENT_PAGE_PATH, SuperUserDashboardEndpoints.FORCE_UPDATE_SHIPMENT_PATH})
     public String createShipment() {
         // Logic to save shipment would go here
         // For demo, just redirect back with a success param (optional)
-        return "redirect:" + MerchantEndpoints.GET_ALL_SHIPMENTS_PATH + "?success";
+        return "redirect:" + SuperUserDashboardEndpoints.GET_ALL_SHIPMENTS_PATH + "?success";
     }
+
 }

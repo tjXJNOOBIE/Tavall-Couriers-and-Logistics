@@ -1,22 +1,10 @@
-package org.tavall.couriers.web.view.controller;
+package org.tavall.couriers.web.view.controller.camera;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.tavall.couriers.api.web.endpoints.camera.CameraFeedEndpoints;
-import org.tavall.couriers.api.web.endpoints.page.PageViewEndpoints;
-import org.tavall.couriers.web.view.GeminiVisionService;
-import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
-import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
-
-import java.io.IOException;
-import java.time.Instant;
 
 @Controller
 public class CameraPageController {

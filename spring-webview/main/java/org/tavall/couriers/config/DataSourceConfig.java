@@ -1,4 +1,4 @@
-package org.tavall.couriers;
+package org.tavall.couriers.config;
 
 
 import com.zaxxer.hikari.HikariConfig;
@@ -14,21 +14,20 @@ public class DataSourceConfig {
     @Bean(destroyMethod = "close")
     public HikariDataSource dataSource(Environment env) {
 
+        //TODO: Use system env variables instead
+
         // Properties-first (application.properties / application.yml / profiles)
         String url = firstNonBlank(
                 env.getProperty("spring.datasource.url"),
-                env.getProperty("NOVUS_POSTGRES_URL")
-        );
+                env.getProperty("NOVUS_POSTGRES_URL"));
 
         String user = firstNonBlank(
                 env.getProperty("spring.datasource.username"),
-                env.getProperty("NOVUS_POSTGRES_USER")
-        );
+                env.getProperty("NOVUS_POSTGRES_USER"));
 
         String pass = firstNonBlank(
                 env.getProperty("spring.datasource.password"),
-                env.getProperty("NOVUS_POSTGRES_PASS")
-        );
+                env.getProperty("NOVUS_POSTGRES_PASS"));
 
         if (url == null) {
             throw new IllegalStateException(
