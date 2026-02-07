@@ -11,7 +11,7 @@ package org.tavall.couriers.api.web.endpoints.dashboard.superuser;
 
 import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 
-public enum SuperUserEndpoints implements AppEndpoint {
+public enum SuperUserDashboardEndpoints implements AppEndpoint {
 
     // --- 1. SHIPMENT LABELS ("view, edit, or destroy any/all") ---
     GET_ALL_SHIPMENTS("/internal/api/v1/admin/shipments/all", "GET"),
@@ -37,7 +37,7 @@ public enum SuperUserEndpoints implements AppEndpoint {
     private final String endpoint;
     private final String method;
 
-    SuperUserEndpoints(String endpoint, String method) {
+    SuperUserDashboardEndpoints(String endpoint, String method) {
         this.endpoint = endpoint;
         this.method = method;
     }

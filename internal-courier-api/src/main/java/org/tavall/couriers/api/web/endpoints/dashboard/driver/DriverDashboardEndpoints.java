@@ -3,7 +3,7 @@ package org.tavall.couriers.api.web.endpoints.dashboard.driver;
 
 import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 
-public enum DriverEndpoints implements AppEndpoint {
+public enum DriverDashboardEndpoints implements AppEndpoint {
     // "Have the user create a shipping label before we can scan QR"
     CREATE_LABEL("/internal/api/v1/driver/label/create", "POST"),
 
@@ -19,7 +19,7 @@ public enum DriverEndpoints implements AppEndpoint {
     private final String endpoint;
     private final String method;
 
-    DriverEndpoints(String endpoint, String method) {
+    DriverDashboardEndpoints(String endpoint, String method) {
         this.endpoint = endpoint;
         this.method = method;
     }

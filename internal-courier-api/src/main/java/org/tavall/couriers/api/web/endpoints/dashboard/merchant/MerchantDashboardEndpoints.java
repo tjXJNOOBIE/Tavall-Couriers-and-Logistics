@@ -3,7 +3,7 @@ package org.tavall.couriers.api.web.endpoints.dashboard.merchant;
 
 import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 
-public enum MerchantEndpoints implements AppEndpoint {
+public enum MerchantDashboardEndpoints implements AppEndpoint {
 
     // Merchants have full control over shipments, just like SuperUsers, but scoped to the platform's logistics.
     GET_ALL_SHIPMENTS("/internal/api/v1/merchant/shipments/all", "GET"),
@@ -36,7 +36,7 @@ public enum MerchantEndpoints implements AppEndpoint {
     private final String endpoint;
     private final String method;
 
-    MerchantEndpoints(String endpoint, String method) {
+    MerchantDashboardEndpoints(String endpoint, String method) {
         this.endpoint = endpoint;
         this.method = method;
     }
