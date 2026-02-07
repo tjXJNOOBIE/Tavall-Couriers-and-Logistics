@@ -11,30 +11,51 @@ import org.springframework.core.env.Environment;
 public class DataSourceConfig {
 
 
-
     @Bean(destroyMethod = "close")
-    public HikariDataSource dataSource(Environment env) { 
-        String url = env.getProperty("NOVUS_POSTGRES_URL");
-        String user = env.getProperty("NOVUS_POSTGRES_USER"); 
-        String pass = env.getProperty("NOVUS_POSTGRES_PASS"); 
+    public HikariDataSource dataSource(Environment env) {
 
-        // Optional fallback to Spring standard keys if you want both supported 
-        if (url == null || url.isBlank()) url = env.getProperty("spring.datasource.url");
-        if (user == null || user.isBlank()) user = env.getProperty("spring.datasource.username"); 
-        if (pass == null) pass = env.getProperty("spring.datasource.password"); 
+        // Properties-first (application.properties / application.yml / profiles)
+        String url = firstNonBlank(
+                env.getProperty("spring.datasource.url"),
+                env.getProperty("NOVUS_POSTGRES_URL")
+        );
 
-        if (url == null || url.isBlank()) { 
-            throw new IllegalStateException("Missing DB URL. Set NOVUS_POSTGRES_URL or spring.datasource.url"); 
-        } 
-        if (user == null || user.isBlank()) { 
-            throw new IllegalStateException("Missing DB USER. Set NOVUS_POSTGRES_USER or spring.datasource.username"); 
+        String user = firstNonBlank(
+                env.getProperty("spring.datasource.username"),
+                env.getProperty("NOVUS_POSTGRES_USER")
+        );
+
+        String pass = firstNonBlank(
+                env.getProperty("spring.datasource.password"),
+                env.getProperty("NOVUS_POSTGRES_PASS")
+        );
+
+        if (url == null) {
+            throw new IllegalStateException(
+                    "Missing DB URL. Set spring.datasource.url or NOVUS_POSTGRES_URL"
+            );
         }
-        HikariConfig cfg = new HikariConfig();
 
+        if (user == null) {
+            throw new IllegalStateException(
+                    "Missing DB USER. Set spring.datasource.username or NOVUS_POSTGRES_USER"
+            );
+        }
+
+        HikariConfig cfg = new HikariConfig();
         cfg.setJdbcUrl(url);
         cfg.setUsername(user);
         cfg.setPassword(pass);
+
         return new HikariDataSource(cfg);
     }
-    
+
+    private String firstNonBlank(String... values) {
+        for (String v : values) {
+            if (v != null && !v.isBlank()) {
+                return v;
+            }
+        }
+        return null;
+    }
 }

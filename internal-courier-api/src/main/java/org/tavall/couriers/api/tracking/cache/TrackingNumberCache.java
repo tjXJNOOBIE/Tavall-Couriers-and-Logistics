@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.shipping.tracking.cache;
+package org.tavall.couriers.api.tracking.cache;
 
 
 import org.tavall.couriers.api.cache.abstracts.AbstractCache;
@@ -10,7 +10,7 @@ import org.tavall.couriers.api.cache.interfaces.ICacheKey;
 import org.tavall.couriers.api.cache.interfaces.ICacheValue;
 import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
-import org.tavall.couriers.api.shipping.tracking.metadata.TrackingNumberMetaData;
+import org.tavall.couriers.api.tracking.metadata.TrackingNumberMetaData;
 
 public class TrackingNumberCache extends AbstractCache<TrackingNumberCache,TrackingNumberMetaData> {
 

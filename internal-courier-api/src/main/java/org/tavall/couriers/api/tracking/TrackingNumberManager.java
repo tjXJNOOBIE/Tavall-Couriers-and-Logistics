@@ -1,7 +1,7 @@
-package org.tavall.couriers.api.shipping.tracking;
+package org.tavall.couriers.api.tracking;
 
 
-import org.tavall.couriers.api.shipping.tracking.metadata.TrackingNumberMetaData;
+import org.tavall.couriers.api.tracking.metadata.TrackingNumberMetaData;
 
 import java.security.SecureRandom;
 import java.util.UUID;

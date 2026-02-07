@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.shipping.tracking.metadata;
+package org.tavall.couriers.api.tracking.metadata;
 
 
 import java.util.Objects;

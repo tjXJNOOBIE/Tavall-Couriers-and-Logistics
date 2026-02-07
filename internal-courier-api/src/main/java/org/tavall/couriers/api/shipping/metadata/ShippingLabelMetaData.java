@@ -1,61 +1,44 @@
-package org.tavall.couriers.api.database;
+package org.tavall.couriers.api.shipping.metadata;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
+
 import org.tavall.couriers.api.delivery.state.DeliveryState;
 
 import java.time.Instant;
+import java.util.Objects;
 
-@Entity
-@Table(name = "shipping_label_metadata")
-public class ShippingLabelMetaDataEntity {
-
-    @Id
-    @Column(name = "uuid", nullable = false, length = 36)
+public class ShippingLabelMetaData {
     private String uuid;
-
-    @Column(name = "tracking_number", nullable = false, length = 64)
     private String trackingNumber;
-
-    @Column(name = "recipient_name", nullable = false, length = 160)
     private String recipientName;
-
-    @Column(name = "phone_number", length = 30)
     private String phoneNumber;
-
-    @Column(name = "address", nullable = false, columnDefinition = "text")
     private String address;
-
-    @Column(name = "city", nullable = false, length = 120)
     private String city;
-
-    @Column(name = "state", nullable = false, length = 120)
     private String state;
-
-    @Column(name = "zip_code", nullable = false, length = 20)
     private String zipCode;
-
-    @Column(name = "country", nullable = false, length = 120)
     private String country;
-
-    @Column(name = "priority", nullable = false)
     private boolean priority;
-
-    @Column(name = "deliver_by")
     private Instant deliverBy;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_state", length = 40)
-    private DeliveryState deliveryState;
 
-    public ShippingLabelMetaDataEntity() {
+    public DeliveryState getDeliveryState() {
+
+        return deliveryState;
     }
 
-    public ShippingLabelMetaDataEntity(
+
+    public void setDeliveryState(DeliveryState deliveryState) {
+
+        this.deliveryState = deliveryState;
+    }
+
+
+    private DeliveryState deliveryState;
+
+    public ShippingLabelMetaData() {
+    }
+
+    public ShippingLabelMetaData(
             String uuid,
             String trackingNumber,
             String recipientName,
@@ -170,11 +153,29 @@ public class ShippingLabelMetaDataEntity {
         this.deliverBy = deliverBy;
     }
 
-    public DeliveryState getDeliveryState() {
-        return deliveryState;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ShippingLabelMetaData that)) return false;
+        return Objects.equals(uuid, that.uuid);
     }
 
-    public void setDeliveryState(DeliveryState deliveryState) {
-        this.deliveryState = deliveryState;
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
+
+    @Override
+    public String toString() {
+        return "ShippingLabelMetaData{" +
+                "uuid='" + uuid + '\'' +
+                ", trackingNumber='" + trackingNumber + '\'' +
+                ", recipientName='" + recipientName + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", country='" + country + '\'' +
+                ", priority=" + priority +
+                ", deliverBy=" + deliverBy +
+                '}';
     }
 }

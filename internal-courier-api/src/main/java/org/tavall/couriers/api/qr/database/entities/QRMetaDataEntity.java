@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.database;
+package org.tavall.couriers.api.qr.database.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.shipping.ai;
+package org.tavall.couriers.api.shipping.helpers;
 
 
 import com.google.zxing.BinaryBitmap;
@@ -15,7 +15,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
-import org.tavall.couriers.api.shipping.ShippingLabelMetaData;
+import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
