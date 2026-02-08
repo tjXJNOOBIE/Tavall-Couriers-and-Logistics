@@ -9,6 +9,6 @@
 
 package org.tavall.couriers.api.qr.scan.state;
 
-public enum LiveCameraState {
-     IDLE, SCANNING, ANALYZING, FOUND, ERROR
+public enum CameraState {
+     SEARCHING, ANALYZING, FOUND, ERROR
 }

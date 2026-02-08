@@ -19,7 +19,7 @@ public class DashboardLoginPageController {
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication instanceof AnonymousAuthenticationToken) {
-            return dashboardLogin(model);
+            return "redirect:" + Routes.home();
         }
 
         if (hasRole(authentication, Role.SUPERUSER)) {
@@ -36,10 +36,14 @@ public class DashboardLoginPageController {
     }
 
     @GetMapping(Routes.DASHBOARD_LOGIN_HOME)
-    public String dashboardLoginRedirect() {
+    public String dashboardLoginRedirect(Model model, Authentication authentication) {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            return dashboardHome(model, authentication);
+        }
         // Maps to src/main/resources/templates/dashboard-login.html
-        return "redirect:" + Routes.dashboard();
-
+        return dashboardLogin(model);
     }
 
     @PostMapping(Routes.AUTH_LOGIN)

@@ -104,7 +104,7 @@
                     <execution>
                         <id>default-minify</id>
                         <configuration>
-                            <sourceDir>${basedir}/spring-webview/main/resources</sourceDir>
+                            <sourceDir>${basedir}/main/resources</sourceDir>
                             <targetDir>${project.build.directory}/${project.build.finalName}.woa/Contents/WebServerResources</targetDir>
                             <cssIncludes>
                                 <cssInclude>**/*.css</cssInclude>

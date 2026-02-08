@@ -1,0 +1,108 @@
+.label-popup-modal .scan-modal-backdrop,
+.label-popup-modal.open .scan-modal-backdrop {
+    background: rgba(226, 232, 240, 0.78);
+    opacity: 1;
+}
+
+.label-popup-panel {
+    width: min(720px, 96vw);
+    height: auto;
+    max-height: 92vh;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+.label-popup-frame {
+    background: transparent;
+}
+
+.label-popup-topbar {
+    display: none;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.label-popup-close {
+    background: var(--primary);
+    color: var(--text-inverse);
+    border: none;
+    border-radius: 999px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 18px -12px rgba(15, 23, 42, 0.6);
+}
+
+.label-popup-embedded .label-popup-topbar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.label-popup-embedded header {
+    display: none;
+}
+
+.label-popup-embedded .main-content {
+    padding: 0;
+}
+
+html.label-popup-embedded,
+body.label-popup-embedded {
+    background: transparent;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+}
+
+body.label-popup-embedded {
+    display: block;
+}
+
+.label-popup-embedded .container {
+    max-width: 720px;
+    padding: 0;
+}
+
+.label-popup-embedded .card {
+    margin: 0;
+    padding: 0.6rem;
+    box-shadow: 0 12px 35px rgba(15, 23, 42, 0.28);
+}
+
+.label-popup-embedded .mt-2 {
+    margin-top: 0.25rem;
+}
+
+.label-popup-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+
+.label-popup-details-grid .form-input {
+    font-size: 0.90rem;
+    padding: 0.65rem;
+}
+
+.label-form-modal .scan-modal-panel {
+    width: min(760px, 94vw);
+    height: auto;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--slate-100);
+    padding: 1.5rem;
+}
+
+.label-form-modal .scan-modal-close {
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.label-form-modal .scan-modal-close:hover {
+    background: var(--bg-body);
+}

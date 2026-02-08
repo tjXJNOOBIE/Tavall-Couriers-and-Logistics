@@ -29,6 +29,11 @@ public enum Role {
             UserPermissions.SHIPMENT_CREATE,
             UserPermissions.SHIPMENT_VIEW,
             UserPermissions.SHIPMENT_EDIT,
+            UserPermissions.MERCHANT_INTAKE_SCAN,
+            UserPermissions.ROUTE_CREATE,
+            UserPermissions.ROUTE_VIEW,
+            UserPermissions.ROUTE_EDIT,
+            UserPermissions.ROUTE_DELETE,
             UserPermissions.USER_PROMOTE_TO_DRIVER,
             UserPermissions.USER_DEMOTE_FROM_DRIVER)),
 

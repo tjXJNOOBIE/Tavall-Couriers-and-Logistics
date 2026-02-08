@@ -21,7 +21,29 @@
     color: inherit;
     text-decoration: none;
 }
-.brand span { color: var(--accent); }
+.brand-text {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+.brand-text span { color: var(--accent); }
+.brand-logo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.brand-logo::before {
+    content: "";
+    width: 1.2rem;
+    height: 1.2rem;
+    background-color: var(--brand-gold);
+    -webkit-mask: url("https://unpkg.com/lucide@latest/icons/truck.svg") no-repeat center / contain;
+    mask: url("https://unpkg.com/lucide@latest/icons/truck.svg") no-repeat center / contain;
+}
 .brand:hover,
 .brand:focus {
     text-decoration: none;
@@ -54,3 +76,111 @@
     justify-content: center;
 }
 .btn-icon:hover { background-color: rgba(255,255,255,0.1); }
+
+body {
+    transition: transform 0.35s ease;
+    transform: translateX(0);
+}
+
+body.sidebar-open {
+    transform: translateX(calc(-1 * var(--sidebar-width)));
+}
+
+.user-tray {
+    position: fixed;
+    top: var(--nav-height);
+    right: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--nav-height));
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -24px 0 40px -30px rgba(15, 23, 42, 0.45);
+    padding: 1.5rem 1.25rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(calc(100% + var(--sidebar-width)));
+    transition: transform 0.35s ease, opacity 0.2s ease;
+    z-index: 120;
+}
+
+body.sidebar-open .user-tray {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(100%);
+}
+
+.user-tray-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 1.25rem;
+}
+
+.user-tray-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.user-tray-header .btn-secondary {
+    padding: 0.4rem 0.85rem;
+    font-size: 0.75rem;
+}
+
+.user-tray-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.user-tray-sub {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.user-tray-links {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.user-tray-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.user-tray-link {
+    color: var(--text-main);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.user-tray-link:hover {
+    background: var(--bg-body);
+}
+
+.user-tray-actions {
+    margin-top: auto;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.user-tray-actions .btn-primary,
+.user-tray-actions .btn-secondary,
+.user-tray-actions form {
+    width: 100%;
+}
+
+@media (max-width: 640px) {
+    :root {
+        --sidebar-width: 82vw;
+    }
+}

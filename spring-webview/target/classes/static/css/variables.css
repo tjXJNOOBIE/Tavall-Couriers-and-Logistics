@@ -11,6 +11,7 @@
     --primary-hover: #1e293b;
     --accent: #3b82f6;       /* Blue 500 */
     --accent-hover: #2563eb;
+    --brand-gold: #fbbf24;
     --danger: #ef4444;
     --success: #22c55e;
 
@@ -24,4 +25,5 @@
     /* Layout */
     --nav-height: 4rem;
     --container-width: 1200px;
+    --sidebar-width: 280px;
 }

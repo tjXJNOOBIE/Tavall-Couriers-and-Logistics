@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.qr.cache;
 
 
+import org.springframework.stereotype.Component;
 import org.tavall.couriers.api.cache.abstracts.AbstractCache;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
@@ -12,9 +13,8 @@ import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
 
+@Component
 public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, ShippingLabelMetaDataEntity> {
-
-    public static final QRShippingLabelCache INSTANCE = new QRShippingLabelCache();
     private ICacheKey<QRShippingLabelCache> cacheKey;
     private ICacheValue<?> cacheValue;
 
@@ -45,7 +45,7 @@ public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, Sh
         if (labelData != null) {
             // Create the key for the QR domain
             this.cacheKey = (ICacheKey<QRShippingLabelCache>) createKey(
-                    INSTANCE,
+                    this,
                     CacheType.MEMORY,
                     CacheDomain.QR,
                     CacheSource.QR_CODE_GENERATOR,
@@ -83,9 +83,12 @@ public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, Sh
     }
 
     public boolean containsLabelKey() {
-        if (this.cacheKey != null) {
-            return CacheMap.getCacheMap().containsKey(getLabelCacheKey());
+        if (this.cacheKey == null) {
+            Log.warn("Shipping label cache key missing; cache is empty.");
+            return false;
         }
-        return false;
+        boolean contains = CacheMap.getCacheMap().containsKey(getLabelCacheKey());
+        Log.info("Shipping label cache key present: " + contains);
+        return contains;
     }
 }

@@ -20,8 +20,8 @@
                     <p class="text-slate-500 text-sm">Review, edit, and open label PDFs.</p>
                 </div>
                 <div class="flex gap-2">
-                    <a class="btn-outline-small" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantDashboard()}}">Back to Hub</a>
-                    <a class="btn-outline-small" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantScanPage()}}">POD Scan</a>
+                    <a class="btn-outline-small" th:href="@{/dashboard/merchant}">Back to Hub</a>
+                    <a class="btn-outline-small" th:href="@{/dashboard/merchant/scan}" data-scan-popup="true">POD Scan</a>
                 </div>
             </div>
 
@@ -47,12 +47,14 @@
                                 <div class="text-xs text-slate-400" th:text="${label.city + ', ' + label.state}">City, State</div>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <a class="text-link" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelPdf(label.uuid)}}" target="_blank" rel="noopener">View Label PDF</a>
-                                <a class="text-link" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelDetail(label.uuid)}}">Open Details</a>
+                                <a class="text-link" th:href="@{/shipping-labels/{uuid}/pdf(uuid=${label.uuid})}" target="_blank" rel="noopener">View Label PDF</a>
+                                <a class="text-link"
+                                   th:href="@{/shipping-labels/{uuid}(uuid=${label.uuid})}"
+                                   data-label-popup="true">Open Details</a>
                             </div>
                         </div>
 
-                        <form class="mt-4" method="post" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantUpdateShipment()}}">
+                        <form class="mt-4" method="post" th:action="@{/internal/api/v1/merchant/shipments/update}">
                             <input type="hidden" th:if="${_csrf != null}"
                                    th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                             <input type="hidden" name="uuid" th:value="${label.uuid}"/>
@@ -74,8 +76,40 @@
     </div>
 </main>
 
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
+    window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+</script>
+<script defer src="/js/label-popup.js"></script>
+<script defer src="/js/scan-popup.js"></script>
 <script>
     lucide.createIcons();
 </script>
+
+<div id="scanModal" class="scan-modal" hidden>
+    <div id="scanModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel">
+        <button id="scanModalClose" class="scan-modal-close" type="button" aria-label="Close scanner">
+            ×
+        </button>
+        <iframe id="scanModalFrame"
+                class="scan-modal-frame"
+                title="Scanner"
+                allow="camera; microphone; display-capture"
+                loading="lazy"></iframe>
+</div>
+</div>
+
+<div id="labelModal" class="scan-modal label-popup-modal" hidden>
+    <div id="labelModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel label-popup-panel">
+        <iframe id="labelModalFrame"
+                class="scan-modal-frame label-popup-frame"
+                title="Label details"
+                loading="lazy"></iframe>
+    </div>
+</div>
 </body>
 </html>

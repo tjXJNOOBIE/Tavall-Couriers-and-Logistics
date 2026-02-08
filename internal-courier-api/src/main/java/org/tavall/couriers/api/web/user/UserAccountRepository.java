@@ -9,17 +9,16 @@
 
 package org.tavall.couriers.api.web.user;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
-
-public interface UserAccountRepository {
-    Optional<UserAccount> findById(UUID id);
-    Optional<UserAccount> findByExternalSubject(String subject);
-    UserAccount save(UserAccount account);
+@Repository
+public interface UserAccountRepository extends JpaRepository<UserAccountEntity, UUID> {
+    Optional<UserAccountEntity> findByExternalSubject(String subject);
+    Optional<UserAccountEntity> findByUsernameIgnoreCase(String username);
     boolean existsByExternalSubject(String subject);
+    boolean existsByUsernameIgnoreCase(String username);
 }

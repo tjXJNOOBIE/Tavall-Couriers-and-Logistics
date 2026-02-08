@@ -19,8 +19,9 @@
                     <h1 class="text-2xl font-bold text-slate-800">Merchant Hub</h1>
                     <p class="text-slate-500 text-sm">Manage shipments and PODs</p>
                 </div>
-                <a class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium shadow-sm hover-scale transition flex items-center gap-2"
-                   th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantScanPage()}}">
+                <a class="btn-primary shadow-sm hover-scale"
+                   th:href="@{/dashboard/merchant/scan}"
+                   data-scan-popup="true">
                     <i data-lucide="printer"></i>
                     POD Bulk Scan
                 </a>
@@ -28,80 +29,72 @@
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-slate-800">
-                        <i data-lucide="package-plus" class="text-slate-400"></i>
-                        New Shipment
-                    </h3>
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-800">
+                            <i data-lucide="package-plus" class="text-slate-400"></i>
+                            New Shipment
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400 uppercase">Intake</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4">Scan a page to intake shipments or create a label manually.</p>
 
-                    <div th:if="${createdLabel != null}" class="alert alert-success mb-4">
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <a class="btn-primary gap-2 hover-scale"
+                           th:href="@{/dashboard/merchant/scan}"
+                           data-scan-popup="true">
+                            <i data-lucide="scan" class="w-4 h-4"></i>
+                            Scan Intake
+                        </a>
+                        <button class="btn-secondary gap-2 hover-scale" type="button" data-label-modal-open="true">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            Manual Label
+                        </button>
+                    </div>
+
+                    <div th:if="${createdLabel != null}" class="alert alert-success mt-4">
                         Label created for <span th:text="${createdLabel.recipientName}">Recipient</span>.
                         Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}">TAVALL</span>
                     </div>
-
-                    <form th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantCreateShipment()}}" th:object="${shipment}" method="post" class="space-y-4">
-                        <input type="hidden" th:if="${_csrf != null}"
-                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="Recipient Name" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                   th:field="*{recipientName}" required>
-                            <input type="text" placeholder="Phone" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                   th:field="*{phoneNumber}">
-                        </div>
-                        <input type="text" placeholder="Address Line 1" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                               th:field="*{address}" required>
-                        <div class="grid grid-cols-3 gap-4">
-                            <input type="text" placeholder="City" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                   th:field="*{city}" required>
-                            <input type="text" placeholder="State" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                   th:field="*{state}" required>
-                            <input type="text" placeholder="Zip" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                   th:field="*{zipCode}" required>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="Country" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                   th:field="*{country}" value="USA" required>
-                            <input type="date" name="deliverByDate" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <select name="initialState" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none">
-                                <option th:each="state : ${allStates}" th:value="${state}" th:text="${state}"></option>
-                            </select>
-                            <label class="flex items-center gap-2 text-sm text-slate-600">
-                                <input type="checkbox" th:field="*{priority}">
-                                Priority shipment
-                            </label>
-                        </div>
-                        <button class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover-scale transition">
-                            Generate Label &amp; QR
-                        </button>
-                    </form>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                     <h3 class="font-bold text-lg mb-4 text-slate-800">Scan Queue</h3>
-                    <div class="space-y-3">
-                        <div th:if="${#lists.isEmpty(scanErrors)}" class="text-sm text-slate-500">
-                            No scan errors right now.
-                        </div>
-                        <div th:each="err : ${scanErrors}" class="p-3 bg-red-50 border border-red-100 rounded-lg">
-                            <div class="flex justify-between items-start">
-                                <span class="text-xs font-bold text-red-600">ERROR</span>
-                                <a class="text-xs text-red-600" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantScanPage()}(uuid=${err.uuid})}">Rescan</a>
-                            </div>
-                            <p class="text-sm text-slate-600 mt-1" th:text="${err.trackingNumber}">Label unreadable.</p>
+                    <div class="scan-queue-list">
+                        <div th:if="${#lists.isEmpty(scanProcessing) && #lists.isEmpty(scanErrors) && #lists.isEmpty(scanQueue)}"
+                             class="text-sm text-slate-500">
+                            No scan activity yet.
                         </div>
 
-                        <div th:if="${!#lists.isEmpty(scanQueue)}" class="p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                            <span class="text-xs font-bold text-blue-600">PROCESSING</span>
-                            <p class="text-sm text-slate-600 mt-1">Analyzing batch queue...</p>
-                            <div class="w-full bg-blue-200 h-1 mt-2 rounded-full overflow-hidden">
-                                <div class="bg-blue-500 h-full" th:style="'width:' + ${batchProgress} + '%'"></div>
+                        <div th:each="processing : ${scanProcessing}" class="scan-queue-card scan-queue-processing">
+                            <div class="scan-queue-top">
+                                <span class="scan-queue-status">PROCESSING</span>
+                                <span class="scan-queue-meta" th:text="${processing.geminiResponseState}">RESPONDING</span>
                             </div>
+                            <div class="scan-queue-title" th:text="${processing.notes}">Processing scan...</div>
+                            <div class="scan-queue-progress"></div>
                         </div>
 
-                        <div th:each="label : ${scanQueue}" class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                            <div class="text-xs font-bold text-slate-500" th:text="${label.deliveryState}">LABEL_CREATED</div>
-                            <p class="text-sm text-slate-700 mt-1" th:text="${label.trackingNumber}">TAVALL</p>
+                        <div th:each="err : ${scanErrors}" class="scan-queue-card scan-queue-error">
+                            <div class="scan-queue-top">
+                                <span class="scan-queue-status">ERROR</span>
+                                <a class="scan-queue-link" th:href="@{/dashboard/merchant/scan(uuid=${err.uuid})}">Rescan</a>
+                            </div>
+                            <div class="scan-queue-title" th:text="${err.trackingNumber}">Label unreadable.</div>
+                            <div class="scan-queue-sub" th:text="${err.recipientName}">Recipient</div>
+                        </div>
+
+                        <div th:each="label : ${scanQueue}" class="scan-queue-card scan-queue-complete">
+                            <div class="scan-queue-top">
+                                <span class="scan-queue-status" th:text="${label.cameraState}">FOUND</span>
+                                <span class="scan-queue-meta mono"
+                                      th:text="${label.trackingNumber != null ? label.trackingNumber : label.uuid}">TAVALL</span>
+                            </div>
+                            <div class="scan-queue-title"
+                                 th:text="${label.name != null ? label.name : 'Shipment scanned'}">Shipment scanned</div>
+                            <div class="scan-queue-sub"
+                                 th:text="${label.notes != null ? label.notes : (label.city != null ? label.city + (label.state != null ? ', ' + label.state : '') : 'Scan complete')}">
+                                Scan complete
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -109,37 +102,46 @@
 
             <div class="mt-8">
                 <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">Operations</h3>
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <a class="bg-slate-900 text-white p-5 rounded-2xl shadow-lg shadow-slate-200 cursor-pointer hover-scale transition"
-                       th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantShipmentsPage()}}">
-                        <div class="flex justify-between items-start mb-3">
-                            <i data-lucide="archive" class="w-6 h-6 opacity-80"></i>
-                            <span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold"
-                                  th:text="${totalShipments}">0</span>
+                <div class="ops-grid">
+                    <a class="ops-card hover-scale"
+                       th:href="@{/dashboard/merchant/shipments}">
+                        <div class="ops-card-header">
+                            <i data-lucide="archive" class="ops-card-icon"></i>
+                            <span class="ops-card-badge" th:text="${totalShipments}">0</span>
                         </div>
-                        <h3 class="text-lg font-bold">Shipment Library</h3>
-                        <p class="text-slate-300 text-sm mt-1">Review and update delivery states.</p>
+                        <h3 class="ops-card-title">Shipment Library</h3>
+                        <p class="ops-card-desc">Review and update delivery states.</p>
                     </a>
 
-                    <a class="bg-blue-600 text-white p-5 rounded-2xl shadow-lg shadow-blue-200 cursor-pointer hover-scale transition"
-                       th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).merchantScanPage()}(uuid=${firstScanErrorUuid != null ? firstScanErrorUuid : ''})}">
-                        <div class="flex justify-between items-start mb-3">
-                            <i data-lucide="scan" class="w-6 h-6 opacity-80"></i>
-                            <span class="bg-blue-500 px-2 py-1 rounded text-xs font-bold"
-                                  th:text="${scanErrorCount}">0</span>
+                    <a class="ops-card hover-scale"
+                       th:href="@{/dashboard/merchant/scan(uuid=${firstScanErrorUuid != null ? firstScanErrorUuid : ''})}"
+                       data-scan-popup="true">
+                        <div class="ops-card-header">
+                            <i data-lucide="scan" class="ops-card-icon"></i>
+                            <span class="ops-card-badge" th:text="${scanErrorCount}">0</span>
                         </div>
-                        <h3 class="text-lg font-bold">Resolve Scan Errors</h3>
-                        <p class="text-blue-100 text-sm mt-1">Re-scan items flagged during POD.</p>
+                        <h3 class="ops-card-title">Resolve Scan Errors</h3>
+                        <p class="ops-card-desc">Re-scan items flagged during POD.</p>
                     </a>
 
-                    <a th:if="${isAdminUser}" class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 cursor-pointer hover-scale transition"
-                       th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardAdminUsers()}}">
-                        <div class="flex justify-between items-start mb-3">
-                            <i data-lucide="users" class="w-6 h-6 text-slate-400"></i>
-                            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-bold">ADMIN</span>
+                    <a class="ops-card hover-scale"
+                       th:href="@{/dashboard/merchant/routes}">
+                        <div class="ops-card-header">
+                            <i data-lucide="route" class="ops-card-icon"></i>
+                            <span class="ops-card-badge" th:text="${routeCount}">0</span>
                         </div>
-                        <h3 class="text-lg font-bold text-slate-800">Team Management</h3>
-                        <p class="text-slate-500 text-sm mt-1">Promote or demote driver accounts.</p>
+                        <h3 class="ops-card-title">Routes</h3>
+                        <p class="ops-card-desc">Plan and manage delivery runs.</p>
+                    </a>
+
+                    <a th:if="${isAdminUser}" class="ops-card ops-card-alt hover-scale"
+                       th:href="@{/dashboard/admin/users}">
+                        <div class="ops-card-header">
+                            <i data-lucide="users" class="ops-card-icon"></i>
+                            <span class="ops-card-badge">ADMIN</span>
+                        </div>
+                        <h3 class="ops-card-title">Team Management</h3>
+                        <p class="ops-card-desc">Promote or demote driver accounts.</p>
                     </a>
                 </div>
             </div>
@@ -147,8 +149,120 @@
     </div>
 </main>
 
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
+    window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+</script>
+<script defer src="/js/scan-popup.js"></script>
+<script>
+    (function () {
+        const modal = document.getElementById("labelFormModal");
+        const backdrop = document.getElementById("labelFormBackdrop");
+        const openButtons = document.querySelectorAll("[data-label-modal-open]");
+        const closeButtons = modal ? modal.querySelectorAll("[data-label-modal-close]") : [];
+        const closeBtn = document.getElementById("labelFormClose");
+        const TRANSITION_MS = 220;
+
+        if (!modal) return;
+
+        const openModal = () => {
+            modal.removeAttribute("hidden");
+            document.body.classList.add("scan-modal-open");
+            requestAnimationFrame(() => modal.classList.add("open"));
+        };
+
+        const closeModal = () => {
+            modal.classList.remove("open");
+            document.body.classList.remove("scan-modal-open");
+            setTimeout(() => {
+                modal.setAttribute("hidden", "hidden");
+            }, TRANSITION_MS);
+        };
+
+        openButtons.forEach((btn) => btn.addEventListener("click", openModal));
+        closeButtons.forEach((btn) => btn.addEventListener("click", closeModal));
+
+        if (closeBtn) {
+            closeBtn.addEventListener("click", closeModal);
+        }
+        if (backdrop) {
+            backdrop.addEventListener("click", closeModal);
+        }
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
+                closeModal();
+            }
+        });
+    })();
+</script>
 <script>
     lucide.createIcons();
 </script>
+
+<div id="scanModal" class="scan-modal" hidden>
+    <div id="scanModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel">
+        <button id="scanModalClose" class="scan-modal-close" type="button" aria-label="Close scanner">
+            ×
+        </button>
+        <iframe id="scanModalFrame"
+                class="scan-modal-frame"
+                title="Scanner"
+                allow="camera; microphone; display-capture"
+                loading="lazy"></iframe>
+    </div>
+</div>
+<div id="labelFormModal" class="scan-modal label-form-modal" hidden>
+    <div id="labelFormBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel">
+        <button id="labelFormClose" class="scan-modal-close" type="button" aria-label="Close manual label">
+            &times;
+        </button>
+        <div class="label-form-header">
+            <h3 class="text-xl font-bold text-slate-800">Manual Label</h3>
+            <p class="text-sm text-slate-500">Enter recipient details to generate a new label.</p>
+        </div>
+        <form th:action="@{/internal/api/v1/merchant/shipment/create}" th:object="${shipment}" method="post" class="space-y-4 label-form-body">
+            <input type="hidden" th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" placeholder="Recipient Name" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                       th:field="*{recipientName}" required>
+                <input type="text" placeholder="Phone" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                       th:field="*{phoneNumber}">
+            </div>
+            <input type="text" placeholder="Address Line 1" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                   th:field="*{address}" required>
+            <div class="grid grid-cols-3 gap-4">
+                <input type="text" placeholder="City" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                       th:field="*{city}" required>
+                <input type="text" placeholder="State" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                       th:field="*{state}" required>
+                <input type="text" placeholder="Zip" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                       th:field="*{zipCode}" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" placeholder="Country" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                       th:field="*{country}" value="USA" required>
+                <input type="date" name="deliverByDate" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <select name="initialState" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none">
+                    <option th:each="state : ${allStates}" th:value="${state}" th:text="${state}"></option>
+                </select>
+                <label class="flex items-center gap-2 text-sm text-slate-600">
+                    <input type="checkbox" th:field="*{priority}">
+                    Priority shipment
+                </label>
+            </div>
+            <div class="label-form-actions">
+                <button class="btn-secondary" type="button" data-label-modal-close="true">Cancel</button>
+                <button class="btn-primary" type="submit">Generate Label &amp; QR</button>
+            </div>
+        </form>
+    </div>
+</div>
 </body>
 </html>

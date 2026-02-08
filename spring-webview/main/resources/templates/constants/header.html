@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <header class="navbar" th:fragment="header(userName, userRole)">
-    <a class="brand" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).home()}}" aria-label="Tavall Couriers home">
-        Tavall<span>Courier</span>
+    <a class="brand" th:href="@{/}" aria-label="Tavall Couriers home">
+        <span class="brand-logo" aria-hidden="true"></span>
+        <span class="brand-text">Tavall <span>Couriers</span></span>
     </a>
 
     <div class="user-controls">
@@ -22,25 +23,36 @@
             <div class="user-name" th:text="${title}">Dev Mode</div>
             <div class="user-role" th:text="${detail}">LOCAL</div>
         </div>
-        <button class="btn-icon" id="userMenuToggle" aria-label="User menu" type="button">☰</button>
+        <button class="btn-icon" id="userMenuToggle" aria-label="User menu" aria-controls="userMenu" aria-expanded="false" type="button">&#9776;</button>
     </div>
 
-    <div id="userMenu" class="user-tray fade-in" hidden>
-        <div class="modal-card">
-            <h3 class="modal-title">Session</h3>
-            <p class="text-slate-500 text-sm"
-               th:text="${(userRole != null && userRole != 'GUEST') ? 'Signed in as ' + userName : 'Browsing as guest'}">
-                Signed in.
-            </p>
+    <div id="userMenu" class="user-tray" aria-hidden="true">
+        <div class="user-tray-panel">
+            <div class="user-tray-header">
+                <div>
+                    <div class="user-tray-title">Session</div>
+                    <p class="user-tray-sub"
+                       th:text="${(userRole != null && userRole != 'GUEST') ? 'Signed in as ' + userName : 'Browsing as guest'}">
+                        Signed in.
+                    </p>
+                </div>
+                <button class="btn-secondary" type="button" id="userMenuClose">Close</button>
+            </div>
 
-            <div class="modal-actions">
-                <button class="btn-ghost" type="button" id="userMenuClose">Close</button>
+            <div class="user-tray-links">
+                <div class="user-tray-section-title">Quick Links</div>
+                <a class="user-tray-link" th:href="@{/}">Home</a>
+                <a class="user-tray-link" th:href="@{/dashboard}">Dashboard</a>
+                <a class="user-tray-link" th:href="@{/tracking}">Tracking</a>
+            </div>
+
+            <div class="user-tray-actions">
                 <a class="btn-primary" th:if="${userRole == null || userRole == 'GUEST'}"
-                   th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLoginHome()}}">
+                   th:href="@{/dashboard/login}">
                     Log in
                 </a>
                 <form th:if="${userRole != null && userRole != 'GUEST'}"
-                      th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLogout()}}"
+                      th:action="@{/dashboard/logout}"
                       method="post">
                     <input type="hidden" th:if="${_csrf != null}"
                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -55,24 +67,27 @@
             const menu = document.getElementById("userMenu");
             const toggle = document.getElementById("userMenuToggle");
             const closeBtn = document.getElementById("userMenuClose");
+            const body = document.body;
             if (!menu || !toggle) return;
 
             const closeMenu = () => {
-                menu.setAttribute("hidden", "hidden");
+                body.classList.remove("sidebar-open");
+                menu.setAttribute("aria-hidden", "true");
                 toggle.setAttribute("aria-expanded", "false");
             };
 
             const openMenu = () => {
-                menu.removeAttribute("hidden");
+                body.classList.add("sidebar-open");
+                menu.setAttribute("aria-hidden", "false");
                 toggle.setAttribute("aria-expanded", "true");
             };
 
             toggle.addEventListener("click", (event) => {
                 event.stopPropagation();
-                if (menu.hasAttribute("hidden")) {
-                    openMenu();
-                } else {
+                if (body.classList.contains("sidebar-open")) {
                     closeMenu();
+                } else {
+                    openMenu();
                 }
             });
 
@@ -81,7 +96,7 @@
             }
 
             document.addEventListener("click", (event) => {
-                if (menu.hasAttribute("hidden")) return;
+                if (!body.classList.contains("sidebar-open")) return;
                 if (!menu.contains(event.target) && event.target !== toggle) {
                     closeMenu();
                 }
@@ -97,3 +112,4 @@
 </header>
 </body>
 </html>
+

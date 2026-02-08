@@ -10,12 +10,14 @@
 package org.tavall.couriers.api.qr.scan.metadata;
 
 
-import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
+import org.tavall.couriers.api.qr.scan.state.CameraState;
+import org.tavall.couriers.api.qr.scan.state.GeminiResponseState;
 
 import java.time.Instant;
 
 public record ScanResponse(String uuid,
-        LiveCameraState cameraState,
+        CameraState cameraState,
+        GeminiResponseState geminiResponseState,
         String trackingNumber,
         String name,
         String address,

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Routes</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main class="main-content fade-in">
+    <div class="container">
+        <div class="max-w-5xl mx-auto fade-in">
+            <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800" th:text="${title}">Routes</h1>
+                    <p class="text-slate-500 text-sm">Plan, review, and refine delivery routes.</p>
+                </div>
+                <div class="flex gap-2">
+                    <a class="btn-outline-small" th:href="@{/dashboard/merchant}">Back to Hub</a>
+                    <form method="post" th:action="@{/internal/api/v1/merchant/routes/create}">
+                        <input type="hidden" th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button class="btn-primary" type="submit">Create Route</button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${routeStatus != null}" class="alert alert-success mb-4" th:text="${routeStatus}">
+                Route updated.
+            </div>
+            <div th:if="${routeError != null}" class="alert alert-danger mb-4" th:text="${routeError}">
+                Route update failed.
+            </div>
+
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-lg mb-4 text-slate-800">Routes</h3>
+                    <div th:if="${#lists.isEmpty(routes)}" class="text-sm text-slate-500">
+                        No routes created yet.
+                    </div>
+                    <div th:if="${!#lists.isEmpty(routes)}" class="space-y-3">
+                        <div th:each="route : ${routes}" class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                            <div class="flex justify-between items-start gap-3">
+                                <div>
+                                    <div class="text-xs font-bold text-slate-500" th:text="${route.status}">PLANNED</div>
+                                    <div class="text-sm font-bold text-slate-700 mt-1" th:text="${route.routeId}">RTE-</div>
+                                    <div class="text-xs text-slate-500 mt-1">
+                                        <span th:text="${route.labelCount}">0</span> stops
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end gap-2">
+                                    <a class="text-link" th:href="@{/dashboard/merchant/routes(routeId=${route.routeId})}">View</a>
+                                    <form method="post" th:action="@{/internal/api/v1/merchant/routes/delete}">
+                                        <input type="hidden" th:if="${_csrf != null}"
+                                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                        <input type="hidden" name="routeId" th:value="${route.routeId}"/>
+                                        <button class="text-link text-red-500" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-lg mb-4 text-slate-800">Route Details</h3>
+                    <div th:if="${selectedRoute == null}" class="text-sm text-slate-500">
+                        Select a route to view its stops.
+                    </div>
+                    <div th:if="${selectedRoute != null}" class="space-y-4">
+                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                            <div class="text-xs font-bold text-slate-500">Route ID</div>
+                            <div class="text-sm font-bold text-slate-700" th:text="${selectedRoute.routeId}">RTE-</div>
+                            <div class="text-xs text-slate-500">Stops: <span th:text="${selectedRoute.labelCount}">0</span></div>
+                        </div>
+
+                        <form method="post" th:action="@{/internal/api/v1/merchant/routes/update}" class="space-y-3">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="routeId" th:value="${selectedRoute.routeId}"/>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <input type="text" name="status" placeholder="Status"
+                                       class="w-full p-3 border border-slate-200 rounded-lg outline-none"
+                                       th:value="${selectedRoute.status}">
+                                <input type="text" name="notes" placeholder="Notes"
+                                       class="w-full p-3 border border-slate-200 rounded-lg outline-none"
+                                       th:value="${selectedRoute.notes}">
+                            </div>
+                            <button class="btn-outline-small" type="submit">Update Route</button>
+                        </form>
+
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 tracking-wider">Stops</h4>
+                            <div th:if="${#lists.isEmpty(selectedStops)}" class="text-sm text-slate-500">
+                                No stops assigned.
+                            </div>
+                            <div th:if="${!#lists.isEmpty(selectedStops)}" class="space-y-3">
+                                <div th:each="stop, iter : ${selectedStops}" class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                                    <div th:with="label=${labelLookup[stop.labelUuid]}">
+                                        <div class="text-xs font-bold text-slate-500">Stop <span th:text="${iter.count}">1</span></div>
+                                        <div class="text-sm font-bold text-slate-700"
+                                             th:text="${label != null ? label.trackingNumber : stop.labelUuid}">TAVALL</div>
+                                        <div class="text-xs text-slate-500"
+                                             th:text="${label != null ? label.recipientName : 'Label unavailable'}">Recipient</div>
+                                        <div class="text-xs text-slate-400"
+                                             th:text="${label != null ? label.city + ', ' + label.state : ''}">City, State</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

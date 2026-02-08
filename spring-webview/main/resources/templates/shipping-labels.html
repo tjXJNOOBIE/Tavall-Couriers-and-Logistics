@@ -14,46 +14,10 @@
     <div class="container">
 
         <section class="card">
-            <div class="card-header">
-                <h1 class="card-title" th:text="${title}">Shipping Labels</h1>
-                <span class="badge badge-neutral">DEV</span>
+            <div class="label-popup-topbar">
+                <button class="label-popup-close" type="button" id="embeddedBackBtn">Back</button>
             </div>
 
-            <!-- LIST -->
-            <div class="mt-2">
-                <div class="form-group">
-                    <label class="form-label">All Shipment Labels</label>
-                    <div class="form-input" th:if="${labels == null || #lists.isEmpty(labels)}">
-                        No shipment labels found.
-                    </div>
-                </div>
-
-                <div th:if="${labels != null && !#lists.isEmpty(labels)}">
-                    <div th:each="l : ${labels}" class="form-group">
-                        <div class="form-input">
-                            <div class="mono">
-                                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelDetail(l.uuid)}}"
-                                   th:text="${l.trackingNumber != null ? l.trackingNumber : l.uuid}">
-                                    TRACK
-                                </a>
-                            </div>
-
-                            <div class="text-muted"
-                                 th:text="${(l.recipientName != null ? l.recipientName : 'Unknown')
-                                          + ' • ' + (l.deliveryState != null ? l.deliveryState : 'N/A')}">
-                                meta
-                            </div>
-
-                            <div class="text-muted mono"
-                                 th:text="${(l.city != null ? l.city : '') + ', ' + (l.state != null ? l.state : '') + ' ' + (l.zipCode != null ? l.zipCode : '')}">
-                                location
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- DETAIL -->
             <div class="mt-2">
                 <div class="form-group">
                     <label class="form-label">Selected Shipment</label>
@@ -66,62 +30,55 @@
                 </div>
 
                 <div th:if="${selected != null}">
-                    <div class="form-group">
-                        <label class="form-label">UUID</label>
-                        <div class="form-input mono" th:text="${selected.uuid}">uuid</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Tracking Number</label>
-                        <div class="form-input mono" th:text="${selected.trackingNumber}">tracking</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Recipient</label>
-                        <div class="form-input" th:text="${selected.recipientName}">recipient</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Phone</label>
-                        <div class="form-input mono" th:text="${selected.phoneNumber}">phone</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Address</label>
-                        <div class="form-input" th:text="${selected.address}">address</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">City / State / Zip</label>
-                        <div class="form-input"
-                             th:text="${selected.city + ', ' + selected.state + ' ' + selected.zipCode}">
-                            city, state zip
+                    <div class="label-popup-details-grid">
+                        <div class="form-group">
+                            <label class="form-label">UUID</label>
+                            <div class="form-input mono" th:text="${selected.uuid}">uuid</div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Country</label>
-                        <div class="form-input" th:text="${selected.country}">country</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Priority</label>
-                        <div class="form-input mono" th:text="${selected.priority}">priority</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Deliver By</label>
-                        <div class="form-input mono"
-                             th:text="${selected.deliverBy != null ? selected.deliverBy.toString() : 'N/A'}">
-                            deliverBy
+                        <div class="form-group">
+                            <label class="form-label">Tracking Number</label>
+                            <div class="form-input mono" th:text="${selected.trackingNumber}">tracking</div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Delivery State</label>
-                        <div class="form-input mono"
-                             th:text="${selected.deliveryState != null ? selected.deliveryState : 'N/A'}">
-                            state
+                        <div class="form-group">
+                            <label class="form-label">Recipient</label>
+                            <div class="form-input" th:text="${selected.recipientName}">recipient</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <div class="form-input mono" th:text="${selected.phoneNumber}">phone</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <div class="form-input" th:text="${selected.address}">address</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">City / State / Zip</label>
+                            <div class="form-input"
+                                 th:text="${selected.city + ', ' + selected.state + ' ' + selected.zipCode}">
+                                city, state zip
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country</label>
+                            <div class="form-input" th:text="${selected.country}">country</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Priority</label>
+                            <div class="form-input mono" th:text="${selected.priority}">priority</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Deliver By</label>
+                            <div class="form-input mono"
+                                 th:text="${selected.deliverBy != null ? selected.deliverBy.toString() : 'N/A'}">
+                                deliverBy
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Delivery State</label>
+                            <div class="form-input mono"
+                                 th:text="${selected.deliveryState != null ? selected.deliveryState : 'N/A'}">
+                                state
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,4 +90,27 @@
 </main>
 
 </body>
+<script>
+    (function () {
+        if (window.self === window.top) return;
+        document.body.classList.add("label-popup-embedded");
+        document.documentElement.classList.add("label-popup-embedded");
+        const closeBtn = document.getElementById("embeddedBackBtn");
+        if (!closeBtn) return;
+        closeBtn.addEventListener("click", () => {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: "labelModalClose" }, window.location.origin);
+                return;
+            }
+            window.history.back();
+        });
+        const postHeight = () => {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: "labelModalResize", height }, window.location.origin);
+        };
+        window.addEventListener("load", postHeight);
+        window.addEventListener("resize", postHeight);
+        setTimeout(postHeight, 0);
+    })();
+</script>
 </html>

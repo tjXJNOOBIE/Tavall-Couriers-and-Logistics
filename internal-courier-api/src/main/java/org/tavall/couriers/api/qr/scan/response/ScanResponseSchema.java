@@ -5,6 +5,10 @@ import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class ScanResponseSchema  {
 
@@ -18,58 +22,83 @@ public class ScanResponseSchema  {
      */
     //TODO: Update schema to match ScanRsponse/Shipping Label Meta Data
     public Schema getScanResponseSchema() {
+        Map<String, Schema> properties = new HashMap<>();
+        properties.put("uuid", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("The UUID extracted from the QR code if present.")
+                .nullable(true)
+                .build());
+
+        properties.put("cameraState", Schema.builder()
+                .type(Type.Known.STRING)
+                .enum_(List.of("SEARCHING", "ANALYZING", "FOUND", "ERROR"))
+                .description("SEARCHING when no document is visible, ANALYZING while processing a frame, FOUND when a label is detected, ERROR on failure.")
+                .build());
+
+        properties.put("trackingNumber", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("The courier tracking number.")
+                .nullable(true)
+                .build());
+
+        properties.put("name", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Recipient name.")
+                .nullable(true)
+                .build());
+
+        properties.put("address", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Full recipient address.")
+                .nullable(true)
+                .build());
+
+        properties.put("city", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Recipient city.")
+                .nullable(true)
+                .build());
+
+        properties.put("state", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Recipient state.")
+                .nullable(true)
+                .build());
+
+        properties.put("zipCode", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Recipient zip code.")
+                .nullable(true)
+                .build());
+
+        properties.put("country", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Recipient country.")
+                .nullable(true)
+                .build());
+
+        properties.put("phoneNumber", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Recipient phone number.")
+                .nullable(true)
+                .build());
+
+        properties.put("deadline", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Deliver By date in strict ISO-8601 format (e.g., 2026-01-14T15:00:00Z).")
+                .nullable(true)
+                .build());
+
+        properties.put("notes", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Physical condition notes (e.g. 'Box dented', 'Do not bend').")
+                .nullable(true)
+                .build());
+
         return Schema.builder()
                 .type(Type.Known.OBJECT)
-                .properties(new java.util.HashMap<>() {{
-                    put("uuid", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("The UUID extracted from the QR code if present.")
-                            .nullable(true)
-                            .build());
-
-                    put("cameraState", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .enum_(java.util.Arrays.asList("FOUND", "ERROR"))
-                            .description("FOUND if label data is legible. ERROR if label is damaged or unreadable.")
-                            .build());
-
-                    put("trackingNumber", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("The courier tracking number.")
-                            .nullable(true)
-                            .build());
-
-                    put("name", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("Recipient name.")
-                            .nullable(true)
-                            .build());
-
-                    put("address", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("Full recipient address.")
-                            .nullable(true)
-                            .build());
-
-                    put("phoneNumber", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("Recipient phone number.")
-                            .nullable(true)
-                            .build());
-
-                    put("deadline", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("Deliver By date in strict ISO-8601 format (e.g., 2026-01-14T15:00:00Z).")
-                            .nullable(true)
-                            .build());
-
-                    put("notes", Schema.builder()
-                            .type(Type.Known.STRING)
-                            .description("Physical condition notes (e.g. 'Box dented', 'Do not bend').")
-                            .nullable(true)
-                            .build());
-                }})
-                .required(java.util.Arrays.asList("cameraState")) // Only State is strictly required
+                .properties(properties)
+                .required(List.of("cameraState")) // Only State is strictly required
                 .build();
     }
 

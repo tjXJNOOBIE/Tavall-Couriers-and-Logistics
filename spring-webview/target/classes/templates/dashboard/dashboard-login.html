@@ -28,7 +28,7 @@
                 Logged out.
             </div>
 
-            <form id="login-form" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLoginHome()}}" method="post" class="space-y-4">
+            <form id="login-form" th:action="@{/dashboard/login}" method="post" class="space-y-4">
                 <input type="hidden" th:if="${_csrf != null}"
                        th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
@@ -46,7 +46,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg font-bold transition shadow-lg shadow-slate-200 mt-2">
+                        class="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-lg font-bold transition shadow-lg shadow-slate-200 mt-2 cursor-pointer">
                     Login
                 </button>
 
@@ -61,7 +61,7 @@
 
                 <div class="grid grid-cols-3 gap-2">
                     <button th:each="demo : ${demoCredentials}"
-                            class="p-2 border border-slate-200 rounded hover:bg-slate-50 text-xs font-medium text-slate-600 transition demo-login"
+                            class="p-2 border border-slate-200 rounded hover:bg-slate-50 text-xs font-medium text-slate-600 transition demo-login cursor-pointer"
                             type="button"
                             th:attr="data-username=${demo.username},data-password=${demo.password}">
                         <span th:text="${demo.label}">Demo</span>
@@ -69,7 +69,7 @@
                 </div>
 
                 <div class="mt-6 text-center">
-                    <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingPage()}}"
+                    <a th:href="@{/tracking}"
                        class="text-blue-500 hover:text-blue-700 text-sm font-medium">
                         Track a shipment instead?
                     </a>
@@ -79,6 +79,11 @@
     </div>
 </main>
 
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.dashboardLogin = /*[[@{/dashboard/login}]]*/ "/dashboard/login";
+</script>
 <script defer src="/js/dashboard/dashboard-login.js"></script>
 <script>
     lucide.createIcons();

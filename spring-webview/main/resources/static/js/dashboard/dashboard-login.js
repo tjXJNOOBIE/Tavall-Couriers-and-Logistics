@@ -1,5 +1,12 @@
 (function () {
-    const form = document.getElementById("login-form") || document.querySelector('form[action="/dashboard/login"], form[action$="/dashboard/login"]');
+    const endpoints = window.APP && window.APP.endpoints ? window.APP.endpoints : null;
+    if (!endpoints || !endpoints.dashboardLogin) {
+        throw new Error("Missing endpoint: dashboardLogin");
+    }
+    const loginEndpoint = endpoints.dashboardLogin;
+
+    const form = document.getElementById("login-form")
+        || document.querySelector(`form[action="${loginEndpoint}"], form[action$="${loginEndpoint}"]`);
     const user = document.getElementById("username");
     const pass = document.getElementById("password");
 

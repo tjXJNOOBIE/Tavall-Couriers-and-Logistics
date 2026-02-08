@@ -19,7 +19,7 @@
                     <h1 class="text-2xl font-bold text-slate-800" th:text="${title}">Create Shipment</h1>
                     <p class="text-slate-500 text-sm">Enter recipient details to generate a label and tracking number.</p>
                 </div>
-                <a class="btn-ghost" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverDashboard()}}">Back</a>
+                <a class="btn-ghost" th:href="@{/dashboard/driver}">Back</a>
             </div>
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -28,7 +28,7 @@
                     Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}">TAVALL</span>
                 </div>
 
-                <form th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverCreateLabel()}}" th:object="${shipment}" method="post" class="space-y-4">
+                <form th:action="@{/internal/api/v1/driver/label/create}" th:object="${shipment}" method="post" class="space-y-4">
                     <input type="hidden" th:if="${_csrf != null}"
                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <div class="grid grid-cols-2 gap-4">

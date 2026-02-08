@@ -4,6 +4,19 @@
 
 A document that contains decisions and purposes related to the architecture of the Tavall Couriers project. This includes the design of the Gemini Client, the internal API, and the external API. **Not for system administrator architecture decisions.**
 
+
+# Tech Stack
+1. Java
+2. Spring Boot
+3. PostgreSQL
+4. Thymeleaf
+5. Raw CSS and JS. No dedicated frontend frameworks.
+    * **Why?**: Lower complexity, more secure to known vulnerabilities (no npm packages), less dependencies/bloat,
+
+## Third Party Libraries
+1. Maven minifier Plugin[https://github.com/logicsquad/minifier-maven-plugin]
+2. Spring Data JPA
+3. 
 ## System Abstractions
 
 * **Gemini Clients(_org.tavall.gemini.clients_\):** Gemini3Client(abstract class) -> Gemini3ImageClient

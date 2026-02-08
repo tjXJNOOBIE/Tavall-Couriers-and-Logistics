@@ -17,9 +17,12 @@ import java.util.UUID;
 public class TrackingNumberMetaDataService {
 
     private final TrackingNumberMetaDataRepository repository;
+    private final TrackingNumberCache trackingNumberCache;
 
-    public TrackingNumberMetaDataService(TrackingNumberMetaDataRepository repository) {
+    public TrackingNumberMetaDataService(TrackingNumberMetaDataRepository repository,
+                                         TrackingNumberCache trackingNumberCache) {
         this.repository = repository;
+        this.trackingNumberCache = trackingNumberCache;
     }
 
     public List<TrackingNumberMetaDataEntity> getAllTrackingNumbers() {
@@ -89,6 +92,6 @@ public class TrackingNumberMetaDataService {
     }
 
     private void registerCaches(TrackingNumberMetaDataEntity entity) {
-        TrackingNumberCache.INSTANCE.registerTrackingNumber(entity);
+        trackingNumberCache.registerTrackingNumber(entity);
     }
 }

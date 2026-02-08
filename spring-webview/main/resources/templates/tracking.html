@@ -13,21 +13,21 @@
 
 <main class="main-content fade-in">
     <div class="container" id="tracking-root"
-         th:attr="data-tracking-base=@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingDetail('__TRACK__')}}}">
+         th:attr="data-tracking-base=@{/tracking/{trackingNumber}(trackingNumber='__TRACK__')}">
         <div class="max-w-xl mx-auto mt-10 fade-in">
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Track your <span class="text-blue-600">Package</span></h1>
                 <p class="text-slate-500 mt-2">Real-time status updates across the Tavall Network.</p>
             </div>
 
-            <form class="bg-white p-2 rounded-xl shadow-lg border border-slate-200 flex gap-2 mb-8" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingPage()}}" method="get">
+            <form class="bg-white p-2 rounded-xl shadow-lg border border-slate-200 flex gap-2 mb-8" th:action="@{/tracking}" method="get">
                 <input id="track-input" name="trackingNumber" type="text"
                        class="flex-1 p-3 outline-none text-slate-700 font-mono uppercase placeholder-slate-300"
                        placeholder="e.g. TAVALL-12345" th:value="${trackingNumber}">
                 <button class="bg-blue-600 text-white px-6 rounded-lg font-bold hover-scale transition" type="submit">Track</button>
             </form>
 
-            <form class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-8" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingPage()}}" method="get">
+            <form class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-8" th:action="@{/tracking}" method="get">
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Track Multiple Shipments</label>
                 <textarea name="batch" rows="3"
                           class="w-full p-3 border border-slate-200 rounded-lg outline-none font-mono placeholder-slate-300"
@@ -78,13 +78,13 @@
                             <div class="text-xs text-slate-400" th:text="${label.deliveryState}">STATE</div>
                         </div>
                         <a class="text-blue-500 hover:text-blue-700 text-sm font-medium"
-                           th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).trackingDetail(label.trackingNumber)}}">View</a>
+                           th:href="@{/tracking/{trackingNumber}(trackingNumber=${label.trackingNumber})}">View</a>
                     </div>
                 </div>
             </div>
 
             <div class="text-center mt-10">
-                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboardLoginHome()}}" class="text-sm text-slate-400 hover:text-slate-600">
+                <a th:href="@{/dashboard/login}" class="text-sm text-slate-400 hover:text-slate-600">
                     Employee Login
                 </a>
             </div>

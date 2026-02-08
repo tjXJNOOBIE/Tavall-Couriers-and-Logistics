@@ -1,4 +1,10 @@
 (function () {
+    const endpoints = window.APP && window.APP.endpoints ? window.APP.endpoints : null;
+    if (!endpoints || !endpoints.register) {
+        throw new Error("Missing endpoint: register");
+    }
+    const REGISTER_ENDPOINT = endpoints.register;
+
     const registerBtn = document.getElementById("registerBtn");
     const toast = document.getElementById("toast");
     const toastText = document.getElementById("toastText");
@@ -63,7 +69,7 @@
             headers[csrf.header] = csrf.token;
         }
 
-        const res = await fetch("/api/register", {
+        const res = await fetch(REGISTER_ENDPOINT, {
             method: "POST",
             headers,
             credentials: "same-origin"

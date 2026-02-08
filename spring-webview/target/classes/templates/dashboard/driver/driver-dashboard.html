@@ -20,18 +20,19 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverCreateLabelPage()}}"
+                <a th:href="@{/dashboard/driver/create-label}"
                    class="bg-blue-600 text-white p-6 rounded-2xl shadow-lg shadow-blue-200 cursor-pointer hover-scale transition active-scale">
                     <div class="flex justify-between items-start mb-4">
                         <i data-lucide="tag" class="w-8 h-8 opacity-80"></i>
                         <span class="bg-blue-500 px-2 py-1 rounded text-xs font-bold">New</span>
                     </div>
                     <h3 class="text-xl font-bold">Create Label</h3>
-                    <p class="text-blue-100 text-sm mt-1">Manual entry if pre-scan fails.</p>
+                    <p class="text-blue-100 text-sm mt-1">Create a label for scanning (Demo Only)</p>
                 </a>
 
-                <a th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverScanPage()}(uuid=${firstReadyLabel != null ? firstReadyLabel.uuid : ''})}"
-                   class="bg-slate-800 text-white p-6 rounded-2xl shadow-lg shadow-slate-200 cursor-pointer hover-scale transition active-scale">
+                <a th:href="@{/dashboard/driver/scan(uuid=${firstReadyLabel != null ? firstReadyLabel.uuid : ''})}"
+                   class="bg-slate-800 text-white p-6 rounded-2xl shadow-lg shadow-slate-200 cursor-pointer hover-scale transition active-scale"
+                   data-scan-popup="true">
                     <div class="flex justify-between items-start mb-4">
                         <i data-lucide="qr-code" class="w-8 h-8 opacity-80"></i>
                         <span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold">Action</span>
@@ -58,7 +59,7 @@
                             </div>
                         </div>
                         <a class="text-blue-500 hover:text-blue-700 text-sm font-medium"
-                           th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverScanPage()}(uuid=${label.uuid})}">
+                           th:href="@{/dashboard/driver/scan(uuid=${label.uuid})}">
                             Scan
                         </a>
                     </div>
@@ -81,9 +82,10 @@
                                 <div class="text-xs text-slate-400" th:text="${label.deliveryState}">LABEL_CREATED</div>
                             </div>
                         </div>
-                        <a class="text-slate-600 hover:text-slate-800 text-sm font-medium"
-                           th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverScanPage()}(uuid=${label.uuid})}">
-                            Open
+                        <a class="text-link"
+                           th:href="@{/shipping-labels/{uuid}(uuid=${label.uuid})}"
+                           data-label-popup="true">
+                            Open details
                         </a>
                     </div>
                 </div>
@@ -92,8 +94,40 @@
     </div>
 </main>
 
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
+    window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+</script>
+<script defer src="/js/label-popup.js"></script>
+<script defer src="/js/scan-popup.js"></script>
 <script>
     lucide.createIcons();
 </script>
+
+<div id="scanModal" class="scan-modal" hidden>
+    <div id="scanModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel">
+        <button id="scanModalClose" class="scan-modal-close" type="button" aria-label="Close scanner">
+            ×
+        </button>
+        <iframe id="scanModalFrame"
+                class="scan-modal-frame"
+                title="Scanner"
+                allow="camera; microphone; display-capture"
+                loading="lazy"></iframe>
+</div>
+</div>
+
+<div id="labelModal" class="scan-modal label-popup-modal" hidden>
+    <div id="labelModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel label-popup-panel">
+        <iframe id="labelModalFrame"
+                class="scan-modal-frame label-popup-frame"
+                title="Label details"
+                loading="lazy"></iframe>
+    </div>
+</div>
 </body>
 </html>

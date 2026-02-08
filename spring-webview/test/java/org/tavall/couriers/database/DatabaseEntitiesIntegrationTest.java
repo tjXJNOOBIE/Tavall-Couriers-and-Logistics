@@ -23,7 +23,7 @@ import org.tavall.couriers.api.web.entities.tracking.TrackingNumberMetaDataEntit
 import org.tavall.couriers.api.delivery.state.DeliveryState;
 import org.tavall.couriers.api.qr.enums.QRState;
 import org.tavall.couriers.api.qr.enums.QRType;
-import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
+import org.tavall.couriers.api.qr.scan.state.CameraState;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -96,7 +96,7 @@ class DatabaseEntitiesIntegrationTest {
 
         ScanResponseEntity scanResponse = new ScanResponseEntity(
                 qrUuid.toString(),
-                LiveCameraState.FOUND,
+                CameraState.FOUND,
                 "TRACK-10001",
                 "Taylor Recipient",
                 "123 Courier Ave",
@@ -135,6 +135,6 @@ class DatabaseEntitiesIntegrationTest {
         ScanResponseEntity loadedScan =
                 entityManager.find(ScanResponseEntity.class, scanResponse.getUuid());
         assertThat(loadedScan).isNotNull();
-        assertThat(loadedScan.getCameraState()).isEqualTo(LiveCameraState.FOUND);
+        assertThat(loadedScan.getCameraState()).isEqualTo(CameraState.FOUND);
     }
 }

@@ -21,6 +21,8 @@
 /* 5. PAGES - Styles that ONLY apply to specific views */
 @import url('page/templates/page_templates.css');
 @import url('page/flow.css');
+@import url('page/popup/camera-popup.css');
+@import url('page/popup/label-popup.css');
 
 /* 6. UTILITIES - High-specificity helper classes (The "God Mode" classes) */
 @import url('utils/utils.css');

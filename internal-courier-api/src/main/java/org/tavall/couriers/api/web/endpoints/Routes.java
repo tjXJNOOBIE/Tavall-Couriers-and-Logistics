@@ -47,6 +47,10 @@ public final class Routes {
     public static final String MERCHANT_GET_ALL_SHIPMENTS = MerchantDashboardEndpoints.GET_ALL_SHIPMENTS_PATH;
     public static final String MERCHANT_UPDATE_SHIPMENT = MerchantDashboardEndpoints.UPDATE_SHIPMENT_PATH;
     public static final String MERCHANT_CREATE_SHIPMENT = MerchantDashboardEndpoints.CREATE_SHIPMENT_PATH;
+    public static final String MERCHANT_ROUTES_PAGE = MerchantDashboardEndpoints.ROUTES_PAGE_PATH;
+    public static final String MERCHANT_CREATE_ROUTE = MerchantDashboardEndpoints.CREATE_ROUTE_PATH;
+    public static final String MERCHANT_UPDATE_ROUTE = MerchantDashboardEndpoints.UPDATE_ROUTE_PATH;
+    public static final String MERCHANT_DELETE_ROUTE = MerchantDashboardEndpoints.DELETE_ROUTE_PATH;
 
     // Superuser dashboard
     public static final String SUPERUSER_DASHBOARD = SuperUserDashboardEndpoints.DASHBOARD_PATH;
@@ -238,6 +242,10 @@ public final class Routes {
         return MERCHANT_SHIPMENTS_PAGE;
     }
 
+    public static String merchantRoutesPage() {
+        return MERCHANT_ROUTES_PAGE;
+    }
+
     public static String merchantGetAllShipments() {
         return MERCHANT_GET_ALL_SHIPMENTS;
     }
@@ -252,6 +260,18 @@ public final class Routes {
 
     public static String merchantCreateShipment() {
         return MERCHANT_CREATE_SHIPMENT;
+    }
+
+    public static String merchantCreateRoute() {
+        return MERCHANT_CREATE_ROUTE;
+    }
+
+    public static String merchantUpdateRoute() {
+        return MERCHANT_UPDATE_ROUTE;
+    }
+
+    public static String merchantDeleteRoute() {
+        return MERCHANT_DELETE_ROUTE;
     }
 
     public static String merchantGenerateQr() {

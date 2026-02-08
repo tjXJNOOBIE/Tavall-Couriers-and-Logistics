@@ -9,139 +9,40 @@
 </head>
 <body>
 
-<div class="scan-overlay fade-in">
-    <div class="scan-topbar">
-        <span class="text-white font-mono text-xs opacity-70">TAVALL CAM v1.0</span>
-        <a class="scan-close" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverDashboard()}}">
-            <i data-lucide="x" class="w-8 h-8"></i>
-        </a>
-    </div>
-
-    <div class="scan-frame">
-        <div class="scan-video-wrap">
-            <video id="live-feed" autoplay muted playsinline></video>
-            <div id="ai-overlay" class="scan-ai-overlay"></div>
-            <div class="scan-guides">
-                <div class="scan-line"></div>
-                <div class="scan-corner tl"></div>
-                <div class="scan-corner tr"></div>
-                <div class="scan-corner bl"></div>
-                <div class="scan-corner br"></div>
-            </div>
-            <canvas id="frame-buffer" style="display:none;"></canvas>
+<div class="scan-overlay fade-in" data-scan-mode="driver">
+    <div class="scan-popup">
+        <div class="scan-topbar">
+            <span class="text-white font-mono text-xs opacity-70">TAVALL CAM v1.0</span>
+            <a class="scan-close" th:href="@{/dashboard/driver}">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </a>
         </div>
-        <div class="scan-caption">Align QR code within frame</div>
-        <div class="scan-source">Tavall Couriers and Logistics Camera Tool</div>
-    </div>
 
-    <div class="scan-panel">
-        <div class="scan-panel-card">
-            <div class="scan-panel-header">
-                <div>
-                    <div class="text-sm font-bold text-slate-700">Selected Label</div>
-                    <div class="text-xs text-slate-400">Scan and confirm the next delivery state.</div>
-                </div>
-                <button class="btn-outline-small" id="btn-toggle-source" type="button">Switch to Screen Share</button>
+        <div class="scan-frame">
+            <div class="scan-video-wrap">
+                <video id="live-feed" autoplay muted playsinline></video>
+                <canvas id="frame-buffer" style="display:none;"></canvas>
             </div>
+            <div class="scan-state-overlay">
+                <div id="scan-state-badge" class="scan-state-badge">SEARCHING</div>
+                <div class="scan-state-pulse" aria-hidden="true"></div>
+            </div>
+        </div>
 
-            <div th:if="${transitionStatus != null}" class="alert alert-success mb-2" th:text="${transitionStatus}">
-                Transitioned.
-            </div>
-            <div th:if="${transitionError != null}" class="alert alert-danger mb-2" th:text="${transitionError}">
-                Error.
-            </div>
-
-            <div class="scan-status mono text-slate-400">
-                <div id="status-line">STATUS: READY</div>
-                <div id="data-display" class="text-xs">Awaiting scan data...</div>
-            </div>
-
-            <div th:if="${selectedLabel == null}" class="text-slate-500 text-sm">
-                No label selected. Return to the dashboard and choose a label to scan.
-            </div>
-
-            <div th:if="${selectedLabel != null}" class="scan-detail-grid">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tracking</label>
-                    <div class="scan-field mono" th:text="${selectedLabel.trackingNumber}">TAVALL</div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Recipient</label>
-                    <div class="scan-field" th:text="${selectedLabel.recipientName}">Recipient</div>
-                </div>
-                <div class="scan-field-span">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Address</label>
-                    <div class="scan-field" th:text="${selectedLabel.address}">Address</div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Current State</label>
-                    <div class="scan-field" th:text="${selectedLabel.deliveryState}">LABEL_CREATED</div>
-                </div>
-                <div class="scan-field-span">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Saved Label</label>
-                    <div class="scan-field scan-label-preview">
-                        <iframe class="scan-label-frame"
-                                th:src="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelPdf(selectedLabel.uuid)}}"
-                                title="Shipping label preview"
-                                loading="lazy"></iframe>
-                    </div>
-                    <a class="text-link scan-label-link"
-                       th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).shippingLabelPdf(selectedLabel.uuid)}}"
-                       target="_blank" rel="noopener">Open full label</a>
-                </div>
-            </div>
-
-            <div class="scan-actions">
-                <button class="btn-primary" id="btn-open-transition" type="button"
-                        th:disabled="${selectedLabel == null}">
-                    Confirm Transition
-                </button>
-                <a class="btn-ghost" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverDashboard()}}">Finish</a>
-            </div>
+        <div class="scan-actions scan-camera-actions">
+            <button id="btn-toggle-source" class="scan-toggle" type="button">Switch to Screen Share</button>
         </div>
     </div>
 </div>
 
-<dialog id="transitionModal" class="modal">
-    <form class="modal-card" method="post" th:action="@{${T(org.tavall.couriers.api.web.endpoints.Routes).driverTransitionPackage()}}">
-        <input type="hidden" th:if="${_csrf != null}"
-               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <h3 class="modal-title">Update Status</h3>
-        <p class="text-slate-500 text-sm">Select the next allowed delivery state.</p>
-
-        <input type="hidden" name="uuid" th:value="${selectedLabel != null ? selectedLabel.uuid : ''}"/>
-
-        <div class="form-group">
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1" for="nextState">Next State</label>
-            <select class="w-full p-3 border border-slate-200 rounded-lg outline-none" id="nextState" name="nextState" required>
-                <option value="" disabled selected>Select a state</option>
-                <option th:each="state : ${allStates}"
-                        th:value="${state}"
-                        th:text="${state}"
-                        th:disabled="${!#sets.contains(allowedTransitions, state)}">
-                </option>
-            </select>
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn-primary" type="submit">Confirm Update</button>
-            <button class="btn-ghost" type="button" id="btn-close-transition">Cancel</button>
-        </div>
-    </form>
-</dialog>
-
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.configHandshake = /*[[@{/internal/api/v1/config/handshake}]]*/ "/internal/api/v1/config/handshake";
+</script>
 <script src="/js/camera.js" defer></script>
 <script>
     lucide.createIcons();
-    (function () {
-        const modal = document.getElementById("transitionModal");
-        const openBtn = document.getElementById("btn-open-transition");
-        const closeBtn = document.getElementById("btn-close-transition");
-        if (!modal || !openBtn || !closeBtn) return;
-
-        openBtn.addEventListener("click", () => modal.showModal());
-        closeBtn.addEventListener("click", () => modal.close());
-    })();
 </script>
 
 </body>

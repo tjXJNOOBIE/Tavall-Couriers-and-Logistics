@@ -1,38 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title th:text="${title}">Home</title>
 
     <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- CSRF meta (works when Spring Security is enabled) -->
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
 
-    <style>
-        .page-subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .home-hero {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .home-hero .hero-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--text-main);
-            line-height: 1.1;
-        }
-
-        .home-hero .hero-desc {
-            color: var(--text-muted);
-            max-width: 60ch;
-        }
-
+        <style>
         .home-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -40,59 +20,17 @@
             margin-top: 0.5rem;
         }
 
-        .home-actions .btn,
-        .home-actions a.btn {
-            padding: 0.95rem 1rem;
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            font-weight: 650;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            min-height: 3.2rem;
-        }
-
-        .btn-secondary {
-            background: var(--bg-surface);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-body);
-        }
-
-        .btn-secondary:disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
-        }
-
-        .home-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .mini-card {
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: var(--bg-surface);
-            box-shadow: var(--shadow-sm);
-            padding: 1rem;
-        }
-
-        .mini-title {
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-        }
-
-        .mini-text {
-            color: var(--text-muted);
+        .home-actions .btn-primary,
+        .home-actions .btn-secondary {
+            width: 100%;
+            min-height: 3.1rem;
             font-size: 0.95rem;
-            line-height: 1.35;
+        }
+
+        @media (max-width: 640px) {
+            .home-actions {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Toast styles still live here for now.
@@ -154,12 +92,6 @@
             width: 0%;
             background: var(--accent);
         }
-
-        @media (max-width: 860px) {
-            .home-grid {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 
@@ -170,57 +102,53 @@
 <main class="main-content fade-in">
     <div class="container">
 
-        <section class="card">
-            <div class="card-header">
-                <h1 class="card-title">Home</h1>
-                <span class="badge badge-neutral">DEV</span>
+        <section class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl fade-in border border-slate-100">
+            <div class="text-center mb-8">
+                <div class="text-sm font-bold text-slate-400 uppercase mb-2">Tavall Couriers</div>
+                <div class="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="truck" class="text-amber-600 w-8 h-8"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-800">Operations Hub</h1>
+                <p class="text-slate-500 text-sm">Launch the dashboard or track a shipment.</p>
             </div>
 
-            <div class="home-hero">
-                <div class="hero-title">Tavall Couriers Control Panel</div>
-                <div class="hero-desc">
-                    This is the landing zone. From here you can jump into the dashboard or (eventually) register new accounts.
-                </div>
+            <div class="home-actions">
+                <button id="registerBtn" class="btn-secondary" type="button">
+                    Register
+                </button>
 
-                <div class="home-actions">
-                    <button id="registerBtn" class="btn btn-secondary" type="button">
-                        Register
-                    </button>
-
-                    <a class="btn btn-primary" th:href="@{${T(org.tavall.couriers.api.web.endpoints.Routes).dashboard()}}">
-                        Dashboard
-                    </a>
-                </div>
+                <a class="btn-primary" th:href="@{/dashboard}">
+                    Dashboard
+                </a>
             </div>
 
-            <div class="home-grid">
-                <div class="mini-card">
-                    <div class="mini-title">Quick Status</div>
-                    <div class="mini-text">
-                        App is up, templates render, CSS loads, and the server is not screaming.
-                    </div>
-                </div>
-
-                <div class="mini-card">
-                    <div class="mini-title">Next Steps</div>
-                    <div class="mini-text">
-                        Hook dashboard widgets, add account provisioning, and keep tightening security.
-                    </div>
-                </div>
+            <div class="mt-6 text-center">
+                <a th:href="@{/tracking}"
+                   class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                    Track a shipment instead?
+                </a>
             </div>
-
         </section>
 
     </div>
 </main>
 
 <!-- Toasts (shared) -->
-<div th:replace="constants/toasts :: registerToast"></div>
+<div th:replace="~{constants/toasts :: registerToast}"></div>
 
 <!-- Footer (shared) -->
-<div th:replace="constants/footer :: footer"></div>
+<div th:replace="~{constants/footer :: footer}"></div>
 
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.register = /*[[@{/api/register}]]*/ "/api/register";
+</script>
 <script defer src="/js/home.js"></script>
+<script>
+    lucide.createIcons();
+</script>
 
 </body>
 </html>
+

@@ -1,13 +1,14 @@
 package org.tavall.couriers.api.web.user;
 
-
-
 import org.tavall.couriers.api.web.user.permission.Role;
 import org.tavall.couriers.api.web.user.permission.UserPermissions;
 
-import java.security.Permission;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 public class UserAccount {
 

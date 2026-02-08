@@ -19,7 +19,16 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                     <h3 class="font-bold text-slate-700">User Management</h3>
-                    <button class="bg-slate-900 text-white text-xs px-3 py-1.5 rounded hover-scale transition" type="button">Add User</button>
+                    <button class="bg-slate-900 text-white text-xs px-3 py-1.5 rounded hover-scale transition"
+                            type="button" id="openAddUser">
+                        Add User
+                    </button>
+                </div>
+                <div th:if="${addStatus != null}" class="alert alert-success mb-4" th:text="${addStatus}">
+                    User created.
+                </div>
+                <div th:if="${addError != null}" class="alert alert-danger mb-4" th:text="${addError}">
+                    Failed to create user.
                 </div>
                 <div th:each="user : ${adminUsers}" class="flex items-center justify-between p-4 border-b border-slate-100">
                     <div class="flex items-center gap-3">
@@ -54,6 +63,40 @@
     </div>
 </main>
 
+<dialog id="addUserModal" class="modal">
+    <form class="modal-card" method="post" th:action="@{/dashboard/superuser}">
+        <input type="hidden" th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <h3 class="modal-title">Add User</h3>
+        <p class="text-slate-500 text-sm">Create a new user account.</p>
+
+        <div class="form-group">
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1" for="newUsername">Username</label>
+            <input id="newUsername" name="username" type="text"
+                   class="w-full p-3 border border-slate-200 rounded-lg outline-none"
+                   placeholder="e.g. demo-user" required>
+        </div>
+        <div class="form-group">
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1" for="newRole">Role</label>
+            <select id="newRole" name="role" class="w-full p-3 border border-slate-200 rounded-lg outline-none">
+                <option th:each="role : ${allRoles}"
+                        th:value="${role}"
+                        th:text="${role}">USER</option>
+            </select>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-primary" type="submit">Create User</button>
+            <button class="btn-ghost" type="button" id="closeAddUser">Cancel</button>
+        </div>
+    </form>
+</dialog>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+</script>
+<script defer src="/js/admin-users.js"></script>
 <script>
     lucide.createIcons();
 </script>

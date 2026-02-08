@@ -28,6 +28,11 @@ public enum MerchantDashboardEndpoints implements AppEndpoint {
     // "To complete scanning, there should be a button to complete the scanning process"
     COMPLETE_BATCH_SESSION("/internal/api/v1/merchant/scan/batch/complete", "POST"),
 
+    ROUTES_PAGE("/dashboard/merchant/routes", "GET"),
+    CREATE_ROUTE("/internal/api/v1/merchant/routes/create", "POST"),
+    UPDATE_ROUTE("/internal/api/v1/merchant/routes/update", "POST"),
+    DELETE_ROUTE("/internal/api/v1/merchant/routes/delete", "POST"),
+
     // Merchant shipment library
     SHIPMENTS_PAGE("/dashboard/merchant/shipments", "GET");
 
@@ -39,6 +44,10 @@ public enum MerchantDashboardEndpoints implements AppEndpoint {
     public static final String DASHBOARD_PATH = "/dashboard/merchant";
     public static final String CREATE_SHIPMENT_PAGE_PATH = "/dashboard/merchant/create-shipment";
     public static final String SCAN_PAGE_PATH = "/dashboard/merchant/scan";
+    public static final String ROUTES_PAGE_PATH = "/dashboard/merchant/routes";
+    public static final String CREATE_ROUTE_PATH = "/internal/api/v1/merchant/routes/create";
+    public static final String UPDATE_ROUTE_PATH = "/internal/api/v1/merchant/routes/update";
+    public static final String DELETE_ROUTE_PATH = "/internal/api/v1/merchant/routes/delete";
 
     private final String endpoint;
     private final String method;

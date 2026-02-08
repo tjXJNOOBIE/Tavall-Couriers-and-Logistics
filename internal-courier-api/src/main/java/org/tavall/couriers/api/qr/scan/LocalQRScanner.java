@@ -12,9 +12,11 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,6 +45,35 @@ public class LocalQRScanner {
         } catch (IOException e) {
             return Optional.empty();
         }
+    }
+
+    public Optional<UUID> scanForQrCode(byte[] rawBytes) {
+        if (rawBytes == null || rawBytes.length == 0) {
+            return Optional.empty();
+        }
+
+        if (isPdf(rawBytes)) {
+            return scanPdfForQrCode(rawBytes);
+        }
+
+        return scanImageForQrCode(rawBytes);
+    }
+
+    private Optional<UUID> scanImageForQrCode(byte[] imageBytes) {
+        try (ByteArrayInputStream input = new ByteArrayInputStream(imageBytes)) {
+            BufferedImage image = ImageIO.read(input);
+            return decodeImage(image);
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+
+    private boolean isPdf(byte[] rawBytes) {
+        if (rawBytes.length < 5) {
+            return false;
+        }
+        String header = new String(rawBytes, 0, 5, StandardCharsets.US_ASCII);
+        return header.startsWith("%PDF-");
     }
     private Optional<UUID> decodeImage(BufferedImage image) {
         if (image == null) return Optional.empty();

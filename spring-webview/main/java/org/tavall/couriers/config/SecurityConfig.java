@@ -35,12 +35,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // You have a login page at /dashboard/login, so let people reach it.
+                // Allow public entry pages; protect dashboards and redirect unauth users home.
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",                      // public home, splash style
                                 "/dashboard/login",       // GET login page
-                                "/dashboard",             // dash home, same as /dashboard/login
                                 "/tracking",              // public tracking entry
                                 "/tracking/**",           // public tracking detail
                                 "/css/**",
@@ -64,13 +63,23 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/dashboard/login?logout=true")
                 )
 
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/"))
+                )
+
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
+                )
+
                 // Make unauthenticated visitors exist but have NO roles
                 .anonymous(anon -> anon
                         .principal("guest")
                 )
 
-                // keep defaults
-                .csrf(Customizer.withDefaults());
+                // keep defaults, but allow camera frame uploads
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/internal/api/v1/stream/frame")
+                );
 
         return http.build();
     }

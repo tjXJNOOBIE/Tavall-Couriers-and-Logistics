@@ -34,6 +34,7 @@
 
         <spring.framework.version>7.0.3</spring.framework.version>
         <spring.boot.version>4.0.2</spring.boot.version>
+        <jackson.version>2.20.1</jackson.version>
 
         <!-- JUnit 6: platform artifacts share the same version number -->
         <junit.jupiter.version>6.0.2</junit.jupiter.version>
@@ -64,6 +65,13 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
                 <version>${spring.framework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -253,7 +261,6 @@
                         <useFile>false</useFile>
                         <trimStackTrace>false</trimStackTrace>
                         <enableOutErrElements>true</enableOutErrElements>
-                        <useJUnitPlatform>true</useJUnitPlatform>
                     </configuration>
                 </plugin>
                 <plugin>

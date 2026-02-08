@@ -1,7 +1,11 @@
 (async function() {
+    const endpoints = window.APP && window.APP.endpoints ? window.APP.endpoints : null;
+    if (!endpoints || !endpoints.configHandshake) {
+        throw new Error("Missing endpoint: configHandshake");
+    }
+
     // --- 1. THE CONFIG HANDSHAKE ---
-    // The only hardcoded path we allow. Everything else comes from Java.
-    const CONFIG_ENDPOINT = '/internal/api/v1/config/handshake';
+    const CONFIG_ENDPOINT = endpoints.configHandshake;
 
     let config = null;
     let API_STREAM_FRAME = null;
@@ -28,18 +32,20 @@
     // --- 2. YOUR ORIGINAL LOGIC (Unchanged, just using the new var) ---
 
     const video = document.getElementById('live-feed');
-    const statusLine = document.getElementById('status-line');
-    const dataDisplay = document.getElementById('data-display');
-    const overlay = document.getElementById('ai-overlay');
     const toggleBtn = document.getElementById('btn-toggle-source');
+    const scanRoot = document.querySelector('[data-scan-mode]');
+    const scanMode = scanRoot ? scanRoot.getAttribute('data-scan-mode') : null;
+    const scanFrame = document.querySelector('.scan-frame');
+    const stateBadge = document.getElementById('scan-state-badge');
 
     if (!video) {
         return;
     }
 
-    let consecutiveMisses = 0;
     let currentStream = null;
     let isScreenShare = false;
+    const LOOP_INTERVAL_MS = 1000;
+    const STATE_CLASSES = ['is-searching', 'is-analyzing', 'is-found', 'is-error'];
 
     // --- STREAM MANAGEMENT ---
 
@@ -47,7 +53,12 @@
         try {
             stopCurrentStream();
             const constraints = {
-                video: { facingMode: "environment", width: { ideal: 1920 } },
+                video: {
+                    facingMode: "environment",
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    frameRate: { ideal: 30, max: 60 }
+                },
                 audio: false
             };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -61,7 +72,12 @@
         try {
             stopCurrentStream();
             const stream = await navigator.mediaDevices.getDisplayMedia({
-                video: { cursor: "always" },
+                video: {
+                    cursor: "always",
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    frameRate: { ideal: 30, max: 60 }
+                },
                 audio: false
             });
             handleStreamSuccess(stream, true);
@@ -79,14 +95,6 @@
         if (toggleBtn) {
             toggleBtn.innerText = isScreen ? "SWITCH TO CAMERA" : "SWITCH TO SCREEN SHARE";
         }
-        if (statusLine) {
-            statusLine.innerText = isScreen ? "STATUS: SCREEN CAPTURE ACTIVE" : "STATUS: CAMERA ACTIVE";
-            statusLine.style.color = "#aaa";
-        }
-        if (overlay) {
-            overlay.style.borderLeftColor = "#444";
-        }
-
         stream.getVideoTracks()[0].onended = () => {
             if (isScreen) startCamera();
         };
@@ -109,66 +117,37 @@
 
         const loop = () => {
             if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-                setTimeout(loop, 500); return;
-            }
-
-            const isIdle = consecutiveMisses >= 5;
-            const interval = isIdle ? 4000 : 1000;
-
-            if (!isIdle) {
-                if (statusLine) {
-                    statusLine.innerText = "STATUS: ANALYZING...";
-                    statusLine.style.color = "yellow";
-                }
-                if (overlay) {
-                    overlay.style.borderLeftColor = "yellow";
-                }
+                setTimeout(loop, 500);
+                return;
             }
 
             window.getCurrentFrameBlob(blob => {
+                setCameraState('ANALYZING');
                 const formData = new FormData();
                 formData.append('image', blob, 'frame.png');
+                if (scanMode) {
+                    formData.append('scanMode', scanMode);
+                }
 
                 // USING THE SERVER-PROVIDED ENDPOINT
                 fetch(API_STREAM_FRAME, { method: 'POST', body: formData })
-                    .then(r => r.json())
-                    .then(data => {
-                        const state = data.cameraState || data.status;
-
-                        if (state === "SEARCHING" || state === "ERROR" || state === "IDLE") {
-                            consecutiveMisses++;
-                            if (isIdle) {
-                                if (statusLine) {
-                                    statusLine.innerText = "STATUS: IDLE (LOW POWER)";
-                                    statusLine.style.color = "#888";
-                                }
-                                if (overlay) {
-                                    overlay.style.borderLeftColor = "#888";
-                                }
-                            }
-                        } else {
-                            consecutiveMisses = 0;
-                            if (statusLine) {
-                                statusLine.innerText = "TARGET ACQUIRED: " + state;
-                                statusLine.style.color = "#0f0";
-                            }
-                            if (overlay) {
-                                overlay.style.borderLeftColor = "#0f0";
-                            }
-                            if (dataDisplay) {
-                                dataDisplay.innerHTML = `
-                                <span style="color: cyan">UUID:</span> ${data.uuid || 'N/A'}<br>
-                                <span style="color: cyan">TRK:</span>  ${data.trackingNumber || 'N/A'}<br>
-                                <span style="color: cyan">TO:</span>   ${data.name || ''}<br>
-                                <span style="color: #aaa">${data.address || ''}</span><br>
-                                <span style="color: orange">NOTE:</span> ${data.notes || 'OK'}
-                            `;
-                            }
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error("Frame upload failed");
                         }
-                        setTimeout(loop, interval);
+                        return r.json();
+                    })
+                    .then(payload => {
+                        if (payload && payload.cameraState) {
+                            setCameraState(payload.cameraState, payload.notes, payload.geminiResponseState);
+                        } else {
+                            setCameraState('ANALYZING', null, null);
+                        }
+                        setTimeout(loop, LOOP_INTERVAL_MS);
                     })
                     .catch(e => {
                         console.error(e);
+                        setCameraState('ERROR', 'Frame upload failed');
                         setTimeout(loop, 5000);
                     });
             });
@@ -178,13 +157,7 @@
 
     function handleError(msg, err) {
         console.error(err);
-        if (statusLine) {
-            statusLine.innerText = "ERROR: " + msg;
-            statusLine.style.color = "red";
-        }
-        if (overlay) {
-            overlay.style.borderLeftColor = "red";
-        }
+        setCameraState('ERROR', msg);
     }
 
     // --- INITIALIZATION ---
@@ -208,6 +181,46 @@
     };
 
     // Ignite (Only after config is loaded)
+    setCameraState('SEARCHING');
     startCamera();
+
+    function setCameraState(state, note, geminiState) {
+        if (!scanFrame || !stateBadge) {
+            return;
+        }
+        const normalized = (state || 'SEARCHING').toUpperCase();
+        const className = `is-${normalized.toLowerCase()}`;
+        scanFrame.classList.remove(...STATE_CLASSES);
+        scanFrame.classList.add(className);
+        stateBadge.textContent = normalized;
+        if (geminiState) {
+            stateBadge.dataset.geminiState = geminiState;
+        } else {
+            delete stateBadge.dataset.geminiState;
+        }
+        if (note) {
+            const stateNote = geminiState ? `Gemini: ${geminiState}` : null;
+            stateBadge.title = [note, stateNote].filter(Boolean).join(" | ");
+        } else {
+            if (geminiState) {
+                stateBadge.title = `Gemini: ${geminiState}`;
+            } else {
+                stateBadge.removeAttribute('title');
+            }
+        }
+
+        if (normalized === 'FOUND') {
+            triggerPulse();
+        }
+    }
+
+    function triggerPulse() {
+        if (!scanFrame) {
+            return;
+        }
+        scanFrame.classList.remove('pulse');
+        void scanFrame.offsetWidth;
+        scanFrame.classList.add('pulse');
+    }
 
 })();

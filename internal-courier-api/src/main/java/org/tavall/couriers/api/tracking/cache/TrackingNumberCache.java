@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.tracking.cache;
 
 
+import org.springframework.stereotype.Component;
 import org.tavall.couriers.api.cache.abstracts.AbstractCache;
 import org.tavall.couriers.api.cache.enums.CacheDomain;
 import org.tavall.couriers.api.cache.enums.CacheSource;
@@ -12,9 +13,8 @@ import org.tavall.couriers.api.cache.maps.CacheMap;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.web.entities.tracking.TrackingNumberMetaDataEntity;
 
+@Component
 public class TrackingNumberCache extends AbstractCache<TrackingNumberCache, TrackingNumberMetaDataEntity> {
-
-    public static final TrackingNumberCache INSTANCE = new TrackingNumberCache();
     private ICacheKey<TrackingNumberCache> cacheKey;
     private ICacheValue<?> cacheValue;
 
@@ -50,7 +50,7 @@ public class TrackingNumberCache extends AbstractCache<TrackingNumberCache, Trac
         if (trackingData != null) {
             // Create the key specifically for this tracking instance
             this.cacheKey = (ICacheKey<TrackingNumberCache>) createKey(
-                    INSTANCE,
+                    this,
                     this.getCacheType(),
                     this.getCacheDomain(),
                     this.getSource(),
@@ -88,10 +88,13 @@ public class TrackingNumberCache extends AbstractCache<TrackingNumberCache, Trac
     }
 
     public boolean containsTrackingKey() {
-        if (this.cacheKey != null) {
-            return CacheMap.getCacheMap().containsKey(getTrackingCacheKey());
+        if (this.cacheKey == null) {
+            Log.warn("Tracking cache key missing; cache is empty.");
+            return false;
         }
-        return false;
+        boolean contains = CacheMap.getCacheMap().containsKey(getTrackingCacheKey());
+        Log.info("Tracking cache key present: " + contains);
+        return contains;
     }
 
 }

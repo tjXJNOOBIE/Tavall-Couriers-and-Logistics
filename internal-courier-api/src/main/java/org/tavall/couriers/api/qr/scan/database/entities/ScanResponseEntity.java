@@ -7,7 +7,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
+import org.tavall.couriers.api.qr.scan.state.CameraState;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -25,7 +25,7 @@ public class ScanResponseEntity implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "camera_state", nullable = false, length = 40)
-    private LiveCameraState cameraState;
+    private CameraState cameraState;
 
     @Column(name = "tracking_number", length = 64)
     private String trackingNumber;
@@ -62,7 +62,7 @@ public class ScanResponseEntity implements Serializable {
 
     public ScanResponseEntity(
             String uuid,
-            LiveCameraState cameraState,
+            CameraState cameraState,
             String trackingNumber,
             String name,
             String address,
@@ -95,11 +95,11 @@ public class ScanResponseEntity implements Serializable {
         this.uuid = uuid;
     }
 
-    public LiveCameraState getCameraState() {
+    public CameraState getCameraState() {
         return cameraState;
     }
 
-    public void setCameraState(LiveCameraState cameraState) {
+    public void setCameraState(CameraState cameraState) {
         this.cameraState = cameraState;
     }
 
@@ -183,3 +183,4 @@ public class ScanResponseEntity implements Serializable {
         this.notes = notes;
     }
 }
+

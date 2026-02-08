@@ -13,7 +13,7 @@
 //import org.tavall.gemini.clients.Gemini3ImageClient;
 //import org.tavall.gemini.clients.response.Gemini3Response;
 //import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
-//import org.tavall.couriers.api.qr.scan.state.LiveCameraState;
+//import org.tavall.couriers.api.qr.scan.state.CameraState;
 //import org.tavall.couriers.api.qr.scan.cache.ScanCacheService;
 //import tools.jackson.databind.ObjectMapper;
 //
@@ -73,7 +73,7 @@
 //
 //        assertAll("ScanResponse Data Integrity",
 //                () -> assertNotNull(response.cameraState(), "Camera State cannot be null"),
-//                () -> assertEquals(LiveCameraState.FOUND, response.cameraState(), "Expected state to be FOUND"),
+//                () -> assertEquals(CameraState.FOUND, response.cameraState(), "Expected state to be FOUND"),
 //                () -> assertEquals("TRK-GOOGLE-9988", response.trackingNumber(), "Tracking Number mismatch")
 //        );
 //    }
@@ -95,7 +95,7 @@
 //
 //        ScanResponse result = future.get().getResponse();
 //
-//        assertEquals(LiveCameraState.FOUND, result.cameraState());
+//        assertEquals(CameraState.FOUND, result.cameraState());
 //        assertEquals(1, testService.seenBytes[0], "Byte array was not cloned!");
 //    }
 //
@@ -117,7 +117,7 @@
 //
 //        // This assertion passes now because we fixed the service to return a Response, not null
 //        assertNotNull(result, "Result should not be null on error");
-//        assertEquals(LiveCameraState.ERROR, result.cameraState(), "State should be ERROR");
+//        assertEquals(CameraState.ERROR, result.cameraState(), "State should be ERROR");
 //        assertTrue(result.notes().contains("boom"), "Notes should contain error message");
 //    }
 //    @Test
@@ -151,7 +151,7 @@
 //        ScanResponse response = resultWrapper.getResponse();
 //
 //        assertNotNull(response, "Response should not be null");
-//        assertEquals(LiveCameraState.FOUND, response.cameraState(), "State should be FOUND");
+//        assertEquals(CameraState.FOUND, response.cameraState(), "State should be FOUND");
 //
 //        ICacheKey<ScanCacheService> cacheKey = ScanCacheService.INSTANCE.getScanCacheKey();
 //        assertTrue(ScanCacheService.INSTANCE.containsScanKey(),
@@ -185,7 +185,7 @@
 //            this.seenBytes = frameData;
 //            // Return Dummy Success
 //            return new Gemini3Response<>(new ScanResponse(
-//                    "uuid-test", LiveCameraState.FOUND, "TRK", null, null, null, null, null
+//                    "uuid-test", CameraState.FOUND, "TRK", null, null, null, null, null
 //            ));
 //        }
 //    }
