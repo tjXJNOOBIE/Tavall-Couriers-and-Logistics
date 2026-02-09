@@ -121,19 +121,31 @@ public class QRShippingLabelCombiner {
                 drawText(content, FONT_BOLD, 12, margin + 5, topY - 28, "TAVALL COURIERS HQ");
                 drawText(content, FONT_REG, 8, margin + 5, topY - 42, "123 Java Stream Blvd, Colton, CA 92324");
 
-                // Top Right: Date & Weight
-                drawText(content, FONT_BOLD, 14, margin + 310, topY - 20, "1 LBS");
-                drawText(content, FONT_REG, 10, margin + 310, topY - 35, DATE_FMT.format(data.getDeliverBy()));
+                // Top Right: Weight & Deliver By (labels for OCR clarity)
+                drawText(content, FONT_BOLD, 10, margin + 310, topY - 18, "WEIGHT:");
+                drawText(content, FONT_REG, 12, margin + 370, topY - 18, "TBD");
+                drawText(content, FONT_BOLD, 10, margin + 310, topY - 36, "DELIVER BY:");
+                drawText(content, FONT_REG, 10, margin + 390, topY - 36, DATE_FMT.format(data.getDeliverBy()));
 
                 // --- 2. SHIP TO ---
                 float shipToY = topY - 80;
                 drawText(content, FONT_BOLD, 10, margin + 20, shipToY, "SHIP TO:");
 
-                drawText(content, FONT_REG, 14, margin + 40, shipToY - 30, data.getRecipientName());
-                drawText(content, FONT_REG, 14, margin + 40, shipToY - 50, data.getAddress());
-                drawText(content, FONT_REG, 14, margin + 40, shipToY - 70,
-                        String.format("%s, %s %s", data.getCity(), data.getState(), data.getZipCode()));
-                drawText(content, FONT_REG, 14, margin + 40, shipToY - 90, data.getCountry());
+                float lineY = shipToY - 24;
+                float lineGap = 18;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "Recipient Name: " + safe(data.getRecipientName()));
+                lineY -= lineGap;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "Address: " + safe(data.getAddress()));
+                lineY -= lineGap;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "City: " + safe(data.getCity()));
+                lineY -= lineGap;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "State: " + safe(data.getState()));
+                lineY -= lineGap;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "Zip: " + safe(data.getZipCode()));
+                lineY -= lineGap;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "Country: " + safe(data.getCountry()));
+                lineY -= lineGap;
+                drawText(content, FONT_REG, 12, margin + 40, lineY, "Phone: " + safe(data.getPhoneNumber()));
 
                 // --- 3. QR IMAGE (Embedded in label) ---
                 try {
@@ -156,7 +168,7 @@ public class QRShippingLabelCombiner {
                     drawText(content, FONT_BOLD, 16, margin + 20, trackY - 25, "G");
                 }
 
-                drawText(content, FONT_REG, 10, margin + 150, trackY - 10, "TRACKING #:");
+                drawText(content, FONT_REG, 10, margin + 150, trackY - 10, "TRACKING NUMBER:");
                 drawText(content, FONT_BOLD, 18, margin + 150, trackY - 30, data.getTrackingNumber());
 
                 // --- 5. FOOTER (Scanned Data) ---
@@ -199,6 +211,10 @@ public class QRShippingLabelCombiner {
         content.newLineAtOffset(x, y);
         content.showText(text != null ? text : "");
         content.endText();
+    }
+
+    private String safe(String value) {
+        return value != null ? value : "";
     }
 
 }

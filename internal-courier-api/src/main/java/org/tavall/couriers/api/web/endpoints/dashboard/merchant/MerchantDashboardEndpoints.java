@@ -32,6 +32,9 @@ public enum MerchantDashboardEndpoints implements AppEndpoint {
     CREATE_ROUTE("/internal/api/v1/merchant/routes/create", "POST"),
     UPDATE_ROUTE("/internal/api/v1/merchant/routes/update", "POST"),
     DELETE_ROUTE("/internal/api/v1/merchant/routes/delete", "POST"),
+    ADD_ROUTE_STOPS("/internal/api/v1/merchant/routes/stops/add", "POST"),
+    ASSIGN_ROUTE_DRIVER("/internal/api/v1/merchant/routes/assign", "POST"),
+    ROUTE_DETAILS("/dashboard/merchant/routes/{routeId}/details", "GET"),
 
     // Merchant shipment library
     SHIPMENTS_PAGE("/dashboard/merchant/shipments", "GET");
@@ -48,6 +51,9 @@ public enum MerchantDashboardEndpoints implements AppEndpoint {
     public static final String CREATE_ROUTE_PATH = "/internal/api/v1/merchant/routes/create";
     public static final String UPDATE_ROUTE_PATH = "/internal/api/v1/merchant/routes/update";
     public static final String DELETE_ROUTE_PATH = "/internal/api/v1/merchant/routes/delete";
+    public static final String ADD_ROUTE_STOPS_PATH = "/internal/api/v1/merchant/routes/stops/add";
+    public static final String ASSIGN_ROUTE_DRIVER_PATH = "/internal/api/v1/merchant/routes/assign";
+    public static final String ROUTE_DETAILS_PATH = "/dashboard/merchant/routes/{routeId}/details";
 
     private final String endpoint;
     private final String method;

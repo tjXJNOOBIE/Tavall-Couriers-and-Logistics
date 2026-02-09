@@ -6,8 +6,6 @@ import org.tavall.couriers.api.delivery.state.DeliveryState;
 import java.util.*;
 
 public class DeliveryStateManager {
-    private static final Map<DeliveryState, Set<DeliveryState>> ALLOWED_TRANSITIONS = buildAllowedTransitions();
-
     private DeliveryState currentState;
     private final List<DeliveryState> history;
     //TODO: Better scope the override logic
@@ -95,7 +93,7 @@ public class DeliveryStateManager {
     }
 
     private Set<DeliveryState> getAllowedNextStatesInternal(Map<DeliveryState, Set<DeliveryState>> overrides) {
-        Set<DeliveryState> base = ALLOWED_TRANSITIONS.get(currentState);
+        Set<DeliveryState> base = currentState.allowedTransitions();
         Set<DeliveryState> result = (base == null || base.isEmpty())
                 ? EnumSet.noneOf(DeliveryState.class)
                 : EnumSet.copyOf(base);
@@ -114,35 +112,4 @@ public class DeliveryStateManager {
         return result;
     }
 
-    private static Map<DeliveryState, Set<DeliveryState>> buildAllowedTransitions() {
-        Map<DeliveryState, Set<DeliveryState>> transitions = new EnumMap<>(DeliveryState.class);
-
-        transitions.put(DeliveryState.LABEL_CREATED,
-                EnumSet.of(DeliveryState.IN_TRANSIT, DeliveryState.IN_HQ, DeliveryState.ON_HOLD, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.IN_HQ,
-                EnumSet.of(DeliveryState.IN_TRANSIT, DeliveryState.IN_MIDDLEMAN, DeliveryState.ON_HOLD, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.IN_MIDDLEMAN,
-                EnumSet.of(DeliveryState.IN_TRANSIT, DeliveryState.ON_HOLD, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.IN_TRANSIT,
-                EnumSet.of(DeliveryState.OUT_FOR_DELIVERY, DeliveryState.IN_HQ, DeliveryState.IN_MIDDLEMAN,
-                        DeliveryState.ON_HOLD, DeliveryState.RETRY, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.OUT_FOR_DELIVERY,
-                EnumSet.of(DeliveryState.DELIVERED, DeliveryState.RETRY, DeliveryState.ON_HOLD, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.RETRY,
-                EnumSet.of(DeliveryState.OUT_FOR_DELIVERY, DeliveryState.IN_TRANSIT, DeliveryState.ON_HOLD, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.ON_HOLD,
-                EnumSet.of(DeliveryState.IN_TRANSIT, DeliveryState.IN_HQ, DeliveryState.IN_MIDDLEMAN,
-                        DeliveryState.OUT_FOR_DELIVERY, DeliveryState.CANCELLED));
-
-        transitions.put(DeliveryState.DELIVERED, EnumSet.noneOf(DeliveryState.class));
-        transitions.put(DeliveryState.CANCELLED, EnumSet.noneOf(DeliveryState.class));
-
-        return Collections.unmodifiableMap(transitions);
-    }
 }

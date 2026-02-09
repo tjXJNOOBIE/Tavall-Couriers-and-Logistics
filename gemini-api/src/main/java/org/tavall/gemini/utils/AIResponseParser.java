@@ -1,16 +1,11 @@
 package org.tavall.gemini.utils;
 
+
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
 
-/**
- * Utility class for parsing and converting raw string data into various data types.
- * Provides methods to handle default values, bounds, and conversions for strings, numbers,
- * booleans, enums, collections, maps, JSON, and instants.
- */
 public class AIResponseParser {
-
     public AIResponseParser(){
 
     }
@@ -49,7 +44,7 @@ public class AIResponseParser {
     public static String parseString(String raw, String fallback) {
         return raw != null && !raw.trim().isEmpty() ? raw.trim() : fallback;
     }
-    
+
     /**
      * Parses a raw string and ensures the result does not exceed a specified maximum length.
      * If the raw string is null or empty, the fallback value is returned. If the parsed
@@ -65,7 +60,7 @@ public class AIResponseParser {
         String parsed = parseString(raw, fallback);
         return parsed != null && parsed.length() <= maxLength ? parsed : fallback;
     }
-    
+
     /**
      * Parses the given raw string into an integer. If the parsing fails (e.g., due to the input not being
      * a valid number), the specified fallback value is returned instead.
@@ -77,7 +72,7 @@ public class AIResponseParser {
     public static int parseInt(String raw, int fallback) {
         return tryAndCatch(() -> Integer.parseInt(raw.trim()), fallback);
     }
-    
+
     /**
      * Parses a string into an integer, ensuring the parsed value falls within a specified range.
      * If the parsed value is outside the range or the input is invalid, returns a fallback value.
@@ -92,7 +87,7 @@ public class AIResponseParser {
         int value = parseInt(raw, fallback);
         return value >= min && value <= max ? value : fallback;
     }
-    
+
     /**
      * Parses the given string into a long value. If the string cannot be parsed,
      * the specified fallback value is returned.
@@ -105,7 +100,7 @@ public class AIResponseParser {
     public static long parseLong(String raw, long fallback) {
         return tryAndCatch(() -> Long.parseLong(raw.trim()), fallback);
     }
-    
+
     /**
      * Parses a string and attempts to convert it to a double value. If the conversion fails
      * due to an exception (e.g., NumberFormatException), the provided fallback value is returned.
@@ -117,7 +112,7 @@ public class AIResponseParser {
     public static double parseDouble(String raw, double fallback) {
         return tryAndCatch(() -> Double.parseDouble(raw.trim()), fallback);
     }
-    
+
     /**
      * Parses a string to a double value while ensuring it falls within a specified range.
      * If the parsed value is outside the range or the string cannot be parsed, a fallback value is returned.
@@ -132,7 +127,7 @@ public class AIResponseParser {
         double value = parseDouble(raw, fallback);
         return value >= min && value <= max ? value : fallback;
     }
-    
+
     /**
      * Parses the given string into a boolean value. The method recognizes certain
      * strings such as "true", "1", "yes" (case-insensitive) as true values, and
@@ -153,7 +148,7 @@ public class AIResponseParser {
             return fallback;
         }, fallback);
     }
-    
+
     // ======\\ Enums \\======
 
     /**
@@ -169,7 +164,7 @@ public class AIResponseParser {
     public static <T extends Enum<T>> T parseEnum(String raw, Class<T> enumType, T fallback) {
         return tryAndCatch(() -> Enum.valueOf(enumType, raw.trim().toUpperCase().replace(" ", "_")), fallback);
     }
-    
+
     /**
      * Parses a delimited string into a list of Enum constants of the specified type.
      * The method splits the input string using delimiters such as commas, semicolons, or whitespace
@@ -192,7 +187,7 @@ public class AIResponseParser {
             return result;
         }, Collections.emptyList());
     }
-    
+
     //====== Numeric Lists ======\\
 
     /**
@@ -215,7 +210,7 @@ public class AIResponseParser {
             return result;
         }, Collections.emptyList());
     }
-    
+
     /**
      * Parses a delimited string into a list of Long values.
      * The input string is split based on delimiters such as commas, semicolons, or whitespace.
@@ -235,7 +230,7 @@ public class AIResponseParser {
             return result;
         }, Collections.emptyList());
     }
-    
+
     /**
      * Parses a string containing a list of numbers into a list of Double values.
      * The input string is split using delimiters such as commas, semicolons, or whitespace.
@@ -256,7 +251,7 @@ public class AIResponseParser {
             return result;
         }, Collections.emptyList());
     }
-    
+
     //====== String Lists ======\\
 
     /**
@@ -279,7 +274,7 @@ public class AIResponseParser {
             return result;
         }, Collections.emptyList());
     }
-    
+
     //====== Maps ======\\
 
     /**

@@ -16,6 +16,7 @@ public enum DriverDashboardEndpoints implements AppEndpoint {
     public static final String DASHBOARD_PATH = "/dashboard/driver";
     public static final String CHECK_LABEL_AVAILABILITY_PATH = "/internal/api/v1/driver/label/check";
     public static final String SCAN_PAGE_PATH = "/dashboard/driver/scan";
+    public static final String STATE_PAGE_PATH = "/dashboard/driver/state";
     public static final String CREATE_LABEL_PAGE_PATH = "/dashboard/driver/create-label";
     public static final String CREATE_LABEL_PATH = "/internal/api/v1/driver/label/create";
     public static final String TRANSITION_PACKAGE_PATH = "/internal/api/v1/driver/package/transition";

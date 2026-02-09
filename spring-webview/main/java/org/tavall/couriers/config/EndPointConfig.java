@@ -4,6 +4,7 @@ package org.tavall.couriers.config;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.tavall.couriers.api.utils.StringCaseUtil;
+import org.tavall.couriers.api.web.camera.CameraOptions;
 import org.tavall.couriers.api.web.endpoints.camera.CameraFeedEndpoints;
 import org.tavall.couriers.api.web.endpoints.config.ClientConfigEndpoints;
 
@@ -31,8 +32,18 @@ public class EndPointConfig {
         endpointMap.put("systemStatus", "/internal/api/v1/control/status");
         endpointMap.put("systemToggle", "/internal/api/v1/control/toggle");
 
+        Map<String, Object> cameraConfig = Map.of(
+                "defaultModeKey", CameraOptions.DEFAULT_MODE_KEY,
+                "modes", CameraOptions.modesByKey().entrySet().stream()
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry -> entry.getValue().toMap()
+                        ))
+        );
+
         return Map.of(
                 "endpoints", endpointMap,
+                "cameraConfig", cameraConfig,
                 "timeouts", Map.of(
                         "pollIntervalIdle", 4000,
                         "pollIntervalActive", 1000

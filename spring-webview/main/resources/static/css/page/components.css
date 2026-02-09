@@ -54,6 +54,7 @@
     background-color: var(--primary);
     color: var(--text-inverse);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
 }
 .btn-primary:hover {
     background-color: var(--primary-hover);
@@ -62,11 +63,11 @@
 
 .btn-secondary {
     align-items: center;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
+    background: var(--alt-button);
+    border: none;
     border-radius: 0.75rem;
     box-shadow: var(--shadow-sm);
-    color: var(--text-main);
+    color: var(--text-inverse);
     cursor: pointer;
     display: inline-flex;
     font-weight: 700;
@@ -78,7 +79,7 @@
 }
 
 .btn-secondary:hover {
-    background: var(--bg-body);
+    background: var(--alt-button-hover);
 }
 
 .btn-secondary:disabled {
@@ -133,3 +134,9 @@
 }
 .badge-success { background-color: #dcfce7; color: #15803d; }
 .badge-neutral { background-color: #f1f5f9; color: #475569; }
+
+/* Footer */
+.app-footer .footer-note {
+    padding: 1rem 0;
+    font-size: 0.9rem;
+}

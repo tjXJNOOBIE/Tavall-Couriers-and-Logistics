@@ -95,6 +95,34 @@ public class ScanResponseSchema  {
                 .nullable(true)
                 .build());
 
+        Map<String, Schema> functionArgs = new HashMap<>();
+        functionArgs.put("uuid", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("trackingNumber", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("name", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("address", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("city", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("state", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("zipCode", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("country", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("phoneNumber", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+        functionArgs.put("deadline", Schema.builder().type(Type.Known.STRING).nullable(true).build());
+
+        Map<String, Schema> functionCallProps = new HashMap<>();
+        functionCallProps.put("name", Schema.builder()
+                .type(Type.Known.STRING)
+                .description("Function name to call, if any.")
+                .build());
+        functionCallProps.put("arguments", Schema.builder()
+                .type(Type.Known.OBJECT)
+                .properties(functionArgs)
+                .build());
+
+        properties.put("functionCall", Schema.builder()
+                .type(Type.Known.OBJECT)
+                .properties(functionCallProps)
+                .nullable(true)
+                .build());
+
         return Schema.builder()
                 .type(Type.Known.OBJECT)
                 .properties(properties)

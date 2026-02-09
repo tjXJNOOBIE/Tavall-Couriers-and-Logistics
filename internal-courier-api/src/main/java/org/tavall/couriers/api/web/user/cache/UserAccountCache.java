@@ -20,6 +20,7 @@ public class UserAccountCache extends AbstractCache<UserAccountCache, UserAccoun
 
     private ICacheKey<UserAccountCache> cacheKey;
     private ICacheValue<?> cacheValue;
+    private volatile boolean primed;
 
     public UserAccountCache() {
         super();
@@ -52,9 +53,48 @@ public class UserAccountCache extends AbstractCache<UserAccountCache, UserAccoun
             return;
         }
 
+        ensureCacheKey();
         this.cacheValue = createValue(account);
         CacheMap.getCacheMap().add(cacheKey, cacheValue);
+        primed = true;
         Log.success("User account registered in cache: " + account.getUsername());
+    }
+
+    public void primeCache(List<UserAccount> accounts) {
+        ensureCacheKey();
+        if (accounts == null) {
+            primed = true;
+            return;
+        }
+        for (UserAccount account : accounts) {
+            if (account == null) {
+                continue;
+            }
+            this.cacheValue = createValue(account);
+            CacheMap.getCacheMap().add(cacheKey, cacheValue);
+        }
+        primed = true;
+        Log.success("User account cache primed with " + accounts.size() + " users.");
+    }
+
+    public List<UserAccount> getAllUsers() {
+        ensureCacheKey();
+        List<ICacheValue<?>> bucket = CacheMap.getCacheMap().getBucket(cacheKey);
+        if (bucket.isEmpty()) {
+            return List.of();
+        }
+        List<UserAccount> users = new java.util.ArrayList<>();
+        for (ICacheValue<?> wrapper : bucket) {
+            UserAccount value = CacheMap.getCacheMap().unwrap(wrapper, UserAccount.class);
+            if (value != null) {
+                users.add(value);
+            }
+        }
+        return users;
+    }
+
+    public boolean isPrimed() {
+        return primed;
     }
 
     public UserAccount findById(UUID id) {
@@ -73,10 +113,7 @@ public class UserAccountCache extends AbstractCache<UserAccountCache, UserAccoun
     }
 
     public boolean containsUserKey() {
-        if (this.cacheKey == null) {
-            Log.warn("User account cache key missing; cache is empty.");
-            return false;
-        }
+        ensureCacheKey();
         boolean contains = CacheMap.getCacheMap().containsKey(this.cacheKey);
         Log.info("User account cache key present: " + contains);
         return contains;
@@ -84,7 +121,7 @@ public class UserAccountCache extends AbstractCache<UserAccountCache, UserAccoun
 
     public void removeUser(UserAccount account) {
         if (account == null) return;
-        if (this.cacheKey == null) return;
+        ensureCacheKey();
         CacheMap.getCacheMap().removeValue(createValue(account));
         Log.info("User account removed from cache: " + account.getUsername());
     }
@@ -92,6 +129,7 @@ public class UserAccountCache extends AbstractCache<UserAccountCache, UserAccoun
 
 
     private UserAccount findFirstMatch(UserPredicate predicate, String hint) {
+        ensureCacheKey();
         List<ICacheValue<?>> bucket = CacheMap.getCacheMap().getBucket(cacheKey);
         if (bucket.isEmpty()) {
             Log.info("User account cache empty for lookup: " + hint);
@@ -108,6 +146,19 @@ public class UserAccountCache extends AbstractCache<UserAccountCache, UserAccoun
 
         Log.info("User account cache miss: " + hint);
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void ensureCacheKey() {
+        if (this.cacheKey == null) {
+            this.cacheKey = (ICacheKey<UserAccountCache>) createKey(
+                    this,
+                    CacheType.MEMORY,
+                    CacheDomain.USER,
+                    CacheSource.USER_ACCOUNT_SERVICE,
+                    CacheVersion.V1_0
+            );
+        }
     }
 
     private interface UserPredicate {

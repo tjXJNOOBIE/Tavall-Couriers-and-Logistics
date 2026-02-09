@@ -1,6 +1,7 @@
 package org.tavall.couriers.api.web.service.route;
 
 import org.springframework.stereotype.Service;
+import org.tavall.couriers.api.concurrent.AsyncTask;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.route.cache.RouteCacheService;
 import org.tavall.couriers.api.web.entities.DeliveryRouteEntity;
@@ -13,22 +14,24 @@ import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class DeliveryRouteService {
 
     private static final String STATUS_PLANNED = "PLANNED";
+    private static final double DEFAULT_RADIUS_MILES = 50.0;
+    private static final int DEFAULT_MAX_STOPS = 30;
 
     private final DeliveryRouteRepository routeRepository;
     private final DeliveryRouteStopRepository stopRepository;
     private final ShippingLabelMetaDataService shippingService;
     private final RoutePlannerService routePlanner;
     private final RouteCacheService routeCache;
+    private final GoogleMapsRouteBuilder routeLinkBuilder = new GoogleMapsRouteBuilder();
 
     public DeliveryRouteService(DeliveryRouteRepository routeRepository,
                                 DeliveryRouteStopRepository stopRepository,
@@ -62,13 +65,41 @@ public class DeliveryRouteService {
 
     public DeliveryRouteEntity createRouteFromAllLabels() {
         List<ShippingLabelMetaDataEntity> labels = shippingService.getAllShipmentLabels();
-        return createRoute(labels);
+        return createRoute(labels, null, null, null, null);
     }
 
-    public DeliveryRouteEntity createRoute(List<ShippingLabelMetaDataEntity> labels) {
+    public DeliveryRouteEntity createRouteFromLabels(List<String> labelUuids,
+                                                     UUID assignedDriver,
+                                                     Instant deadline,
+                                                     Double radiusMiles,
+                                                     Integer maxStops) {
+        if (labelUuids == null || labelUuids.isEmpty()) {
+            return null;
+        }
+        List<ShippingLabelMetaDataEntity> labels = new ArrayList<>();
+        for (String uuid : labelUuids) {
+            if (uuid == null || uuid.isBlank()) {
+                continue;
+            }
+            ShippingLabelMetaDataEntity label = shippingService.findByUuid(uuid);
+            if (label != null) {
+                labels.add(label);
+            }
+        }
+        return createRoute(labels, assignedDriver, deadline, radiusMiles, maxStops);
+    }
+
+    public DeliveryRouteEntity createRoute(List<ShippingLabelMetaDataEntity> labels,
+                                           UUID assignedDriver,
+                                           Instant deadline,
+                                           Double radiusMiles,
+                                           Integer maxStops) {
         if (labels == null || labels.isEmpty()) {
             return null;
         }
+
+        double resolvedRadius = radiusMiles != null && radiusMiles > 0 ? radiusMiles : DEFAULT_RADIUS_MILES;
+        int resolvedMaxStops = maxStops != null && maxStops > 0 ? maxStops : DEFAULT_MAX_STOPS;
 
         Map<String, ShippingLabelMetaDataEntity> labelMap = new HashMap<>();
         for (ShippingLabelMetaDataEntity label : labels) {
@@ -77,37 +108,37 @@ public class DeliveryRouteService {
             }
         }
 
-        RoutePlan plan = routePlanner.planRoute(labels);
-        List<String> orderedUuids = new ArrayList<>();
-        if (plan != null && plan.orderedUuids() != null) {
-            orderedUuids.addAll(plan.orderedUuids());
-        }
-
-        Set<String> seen = new HashSet<>();
+        RoutePlan plan = routePlanner.planRoute(labels, resolvedRadius, resolvedMaxStops);
         List<String> normalized = new ArrayList<>();
-        for (String uuid : orderedUuids) {
-            if (uuid == null || !labelMap.containsKey(uuid) || seen.contains(uuid)) {
-                continue;
+        if (plan != null && plan.orderedUuids() != null) {
+            for (String uuid : plan.orderedUuids()) {
+                if (uuid == null || !labelMap.containsKey(uuid) || normalized.size() >= resolvedMaxStops) {
+                    continue;
+                }
+                normalized.add(uuid);
             }
-            normalized.add(uuid);
-            seen.add(uuid);
         }
         for (ShippingLabelMetaDataEntity label : labels) {
-            if (label != null && label.getUuid() != null && !seen.contains(label.getUuid())) {
-                normalized.add(label.getUuid());
-                seen.add(label.getUuid());
+            if (label == null || label.getUuid() == null || normalized.size() >= resolvedMaxStops) {
+                continue;
             }
+            normalized.add(label.getUuid());
         }
 
         String routeId = generateRouteId();
         Instant now = Instant.now();
+        Instant resolvedDeadline = resolveDeadline(labels, deadline);
+        String routeLink = resolveRouteLink(normalized, labelMap);
         DeliveryRouteEntity route = new DeliveryRouteEntity(
                 routeId,
                 STATUS_PLANNED,
                 normalized.size(),
                 now,
                 now,
-                plan != null ? plan.notes() : null
+                plan != null ? plan.notes() : null,
+                assignedDriver,
+                resolvedDeadline,
+                routeLink
         );
 
         routeRepository.save(route);
@@ -145,10 +176,119 @@ public class DeliveryRouteService {
         return routeRepository.save(route);
     }
 
+    public DeliveryRouteEntity addStops(String routeId, List<String> labelUuids) {
+        if (routeId == null || routeId.isBlank() || labelUuids == null || labelUuids.isEmpty()) {
+            return null;
+        }
+        DeliveryRouteEntity route = findRoute(routeId);
+        if (route == null) {
+            return null;
+        }
+
+        List<String> normalized = new ArrayList<>();
+        Map<String, ShippingLabelMetaDataEntity> metadataLookup = new HashMap<>();
+        for (String uuid : labelUuids) {
+            if (uuid == null) {
+                continue;
+            }
+            String trimmed = uuid.trim();
+            if (trimmed.isBlank()) {
+                continue;
+            }
+            ShippingLabelMetaDataEntity label = shippingService.findByUuid(trimmed);
+            if (label == null) {
+                continue;
+            }
+            normalized.add(trimmed);
+            metadataLookup.putIfAbsent(trimmed, label);
+        }
+
+        if (normalized.isEmpty()) {
+            return null;
+        }
+
+        Instant now = Instant.now();
+        int existingCount = getRouteStops(routeId).size();
+        List<DeliveryRouteStopEntity> newStops = buildStops(routeId, normalized, now, existingCount + 1);
+        stopRepository.saveAll(newStops);
+
+        List<DeliveryRouteStopEntity> allStops = getRouteStops(routeId);
+        routeCache.registerStops(routeId, allStops);
+
+        List<String> allUuids = new ArrayList<>();
+        for (DeliveryRouteStopEntity stop : allStops) {
+            if (stop == null) {
+                continue;
+            }
+            String stopUuid = stop.getLabelUuid();
+            if (stopUuid == null) {
+                continue;
+            }
+            allUuids.add(stopUuid);
+            metadataLookup.computeIfAbsent(stopUuid, shippingService::findByUuid);
+        }
+
+        route.setLabelCount(allStops.size());
+        route.setUpdatedAt(now);
+        String newRouteLink = resolveRouteLink(allUuids, metadataLookup);
+        route.setRouteLink(newRouteLink != null ? newRouteLink : route.getRouteLink());
+        DeliveryRouteEntity saved = routeRepository.save(route);
+        routeCache.registerRoute(saved);
+        Log.info("Route " + routeId + " added stops: " + normalized.size() + " (total " + saved.getLabelCount() + ")");
+        return saved;
+    }
+
+    public DeliveryRouteEntity assignDriver(String routeId, UUID driverId) {
+        DeliveryRouteEntity route = findRoute(routeId);
+        if (route == null) {
+            return null;
+        }
+        route.setAssignedDrivers(driverId);
+        route.setUpdatedAt(Instant.now());
+        DeliveryRouteEntity updated = routeRepository.save(route);
+        routeCache.registerRoute(updated);
+        Log.info("Driver assigned to route " + routeId + ": " + (driverId != null ? driverId : "none"));
+        return updated;
+    }
+
+    public void addStopAsync(String routeId, String labelUuid) {
+        if (routeId == null || routeId.isBlank() || labelUuid == null || labelUuid.isBlank()) {
+            return;
+        }
+        CompletableFuture<Void> future = AsyncTask.runFuture(() -> {
+            addStops(routeId, List.of(labelUuid));
+            return null;
+        }, AsyncTask.ScopeOptions.defaults().withName("route-stop-add"));
+        future.exceptionally(ex -> {
+            Log.error("Failed to add stop async for route " + routeId + ": " + ex.getMessage());
+            Log.exception(ex);
+            return null;
+        });
+        Log.info("Scheduled async stop add for route " + routeId);
+    }
+
+    public double getDefaultRadiusMiles() {
+        return DEFAULT_RADIUS_MILES;
+    }
+
+    public int getDefaultMaxStops() {
+        return DEFAULT_MAX_STOPS;
+    }
+
     private List<DeliveryRouteStopEntity> buildStops(String routeId, List<String> uuids, Instant now) {
+        return buildStops(routeId, uuids, now, 1);
+    }
+
+    private List<DeliveryRouteStopEntity> buildStops(String routeId,
+                                                    List<String> uuids,
+                                                    Instant now,
+                                                    int startingOrder) {
         List<DeliveryRouteStopEntity> stops = new ArrayList<>();
-        int order = 1;
+        int order = Math.max(1, startingOrder);
         for (String uuid : uuids) {
+            if (uuid == null || uuid.isBlank()) {
+                continue;
+            }
             stops.add(new DeliveryRouteStopEntity(
                     UUID.randomUUID().toString(),
                     routeId,
@@ -163,5 +303,81 @@ public class DeliveryRouteService {
 
     private String generateRouteId() {
         return "RTE-" + UUID.randomUUID();
+    }
+
+    private Instant resolveDeadline(List<ShippingLabelMetaDataEntity> labels, Instant override) {
+        if (override != null) {
+            return override;
+        }
+        Instant earliest = null;
+        if (labels == null) {
+            return null;
+        }
+        for (ShippingLabelMetaDataEntity label : labels) {
+            if (label == null || label.getDeliverBy() == null) {
+                continue;
+            }
+            if (earliest == null || label.getDeliverBy().isBefore(earliest)) {
+                earliest = label.getDeliverBy();
+            }
+        }
+        return earliest;
+    }
+
+    private String resolveRouteLink(List<String> uuids, Map<String, ShippingLabelMetaDataEntity> labelMap) {
+        if (uuids == null || uuids.isEmpty() || labelMap == null || labelMap.isEmpty()) {
+            return null;
+        }
+        List<String> addresses = new ArrayList<>();
+        if (RouteConstants.HQ_START_ADDRESS != null && !RouteConstants.HQ_START_ADDRESS.isBlank()) {
+            addresses.add(RouteConstants.HQ_START_ADDRESS);
+        }
+        for (String uuid : uuids) {
+            ShippingLabelMetaDataEntity label = labelMap.get(uuid);
+            if (label == null) {
+                continue;
+            }
+            String formatted = formatStopAddress(label);
+            if (!formatted.isBlank()) {
+                addresses.add(formatted);
+            }
+        }
+        if (addresses.isEmpty()) {
+            return null;
+        }
+        GoogleMapsRouteBuilder.RouteLinkResult result = routeLinkBuilder.buildRouteLink(addresses);
+        return result != null ? result.routeUrl() : null;
+    }
+
+    private String formatStopAddress(ShippingLabelMetaDataEntity label) {
+        if (label == null) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        appendAddressPart(builder, label.getAddress());
+        appendAddressPart(builder, label.getCity());
+        appendAddressPart(builder, label.getState());
+        appendZipCode(builder, label.getZipCode());
+        return builder.toString().trim();
+    }
+
+    private void appendAddressPart(StringBuilder builder, String part) {
+        if (part == null || part.isBlank()) {
+            return;
+        }
+        if (builder.length() > 0) {
+            builder.append(", ");
+        }
+        builder.append(part.trim());
+    }
+
+    private void appendZipCode(StringBuilder builder, String zip) {
+        if (zip == null || zip.isBlank()) {
+            return;
+        }
+        if (builder.length() > 0) {
+            builder.append(" ");
+        }
+        builder.append(zip.trim());
     }
 }

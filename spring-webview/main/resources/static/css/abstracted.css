@@ -1,0 +1,16 @@
+/**
+ * Abstracted design system entrypoint.
+ * Holds tokens + global components so templates share a single source of truth.
+ */
+
+/* Tokens & base primitives */
+@import url('variables.css');
+@import url('base.css');
+
+/* Global layout + chrome */
+@import url('page/header.css');
+@import url('page/background.css');
+
+/* Reusable components */
+@import url('page/components.css');
+

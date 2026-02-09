@@ -12,6 +12,7 @@
     const frame = document.getElementById("scanModalFrame");
     const closeBtn = document.getElementById("scanModalClose");
     const backdrop = document.getElementById("scanModalBackdrop");
+    const panel = modal ? modal.querySelector(".scan-modal-panel") : null;
 
     if (!modal || !frame) return;
 
@@ -60,6 +61,24 @@
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
             closeModal();
+        }
+    });
+
+    window.addEventListener("message", (event) => {
+        if (event.origin !== window.location.origin) return;
+        if (frame && event.source !== frame.contentWindow) return;
+        if (event.data && (event.data.type === "scanModalClose" || event.data.type === "driverScanFound")) {
+            closeModal();
+        }
+        if (event.data && event.data.type === "scanModalResize") {
+            const height = Number(event.data.height) || 0;
+            if (height <= 0) return;
+            const maxHeight = Math.floor(window.innerHeight * 0.92);
+            const target = Math.min(height, maxHeight);
+            frame.style.height = `${target}px`;
+            if (panel) {
+                panel.style.height = `${target}px`;
+            }
         }
     });
 })();

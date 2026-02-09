@@ -10,7 +10,6 @@ import org.tavall.couriers.api.web.endpoints.Routes;
 import org.tavall.couriers.api.web.user.permission.Role;
 
 import java.util.List;
-
 @Controller
 public class DashboardLoginPageController {
 
@@ -19,7 +18,7 @@ public class DashboardLoginPageController {
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication instanceof AnonymousAuthenticationToken) {
-            return "redirect:" + Routes.home();
+            return "redirect:" + Routes.dashboardLoginHome();
         }
 
         if (hasRole(authentication, Role.SUPERUSER)) {
@@ -32,7 +31,12 @@ public class DashboardLoginPageController {
             return "redirect:" + Routes.driverDashboard();
         }
 
-        return "redirect:" + Routes.dashboardHomeAlias();
+        return "redirect:" + Routes.home();
+    }
+
+    @GetMapping(Routes.DASHBOARD_HOME_ALIAS)
+    public String dashboardHomeAlias(Model model, Authentication authentication) {
+        return dashboardHome(model, authentication);
     }
 
     @GetMapping(Routes.DASHBOARD_LOGIN_HOME)

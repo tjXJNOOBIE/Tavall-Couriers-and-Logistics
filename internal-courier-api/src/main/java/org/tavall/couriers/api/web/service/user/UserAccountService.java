@@ -1,7 +1,10 @@
 package org.tavall.couriers.api.web.service.user;
 
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
+import org.tavall.couriers.api.concurrent.AsyncTask;
+import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.web.user.UserAccount;
 import org.tavall.couriers.api.web.user.UserAccountEntity;
 import org.tavall.couriers.api.web.user.UserAccountRepository;
@@ -13,20 +16,41 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class UserAccountService {
 
+    private static final Map<String, UUID> DEFAULT_USER_IDS = Map.of(
+            "driver", UUID.fromString("11111111-1111-1111-1111-111111111111"),
+            "merchant", UUID.fromString("22222222-2222-2222-2222-222222222222"),
+            "superuser", UUID.fromString("33333333-3333-3333-3333-333333333333"),
+            "user", UUID.fromString("44444444-4444-4444-4444-444444444444")
+    );
+
+    private static final Map<String, Set<Role>> DEFAULT_USER_ROLES = Map.of(
+            "driver", EnumSet.of(Role.DRIVER),
+            "merchant", EnumSet.of(Role.MERCHANT),
+            "superuser", EnumSet.of(Role.SUPERUSER),
+            "user", EnumSet.of(Role.USER)
+    );
 
     private final UserAccountRepository repo;
     private final UserAccountCache userCache;
+    private final AtomicBoolean priming = new AtomicBoolean(false);
 
     public UserAccountService(UserAccountRepository repo, UserAccountCache userCache) {
         this.repo = repo;
         this.userCache = userCache;
+    }
+
+    @PostConstruct
+    public void warmCaches() {
+        primeCacheFromDatabase();
     }
 
     public UserAccountEntity getOrCreateFromOAuthSubject(String subject, String username) {
@@ -35,30 +59,52 @@ public class UserAccountService {
 
         UserAccount cached = userCache.findByExternalSubject(subject);
         if (cached != null) {
+            Log.info("User cache hit for subject: " + subject);
             return toEntity(cached);
         }
 
         UserAccountEntity existing = repo.findByExternalSubject(subject).orElse(null);
         if (existing != null) {
+            Log.info("User loaded from database: " + existing.getUsername());
             userCache.registerUser(toDomain(existing));
             return existing;
         }
 
         UserAccountEntity created = new UserAccountEntity(
-                UUID.randomUUID(),
+                resolveDefaultId(username),
                 subject,
                 username,
                 true,
-                EnumSet.of(Role.USER),
+                resolveDefaultRoles(username),
                 Instant.now()
         );
-        UserAccountEntity saved = repo.save(created);
-        userCache.registerUser(toDomain(saved));
-        return saved;
+        persistAsync(created);
+        Log.success("User account created: " + created.getUsername());
+        userCache.registerUser(toDomain(created));
+        return created;
     }
 
     public List<UserAccountEntity> getAllUsers() {
-        return repo.findAll();
+        List<UserAccount> cached = userCache.getAllUsers();
+        if (!cached.isEmpty() || userCache.isPrimed()) {
+            return cached.stream().map(this::toEntity).toList();
+        }
+        primeCacheAsync();
+        Log.info("User cache priming in background; returning cached users.");
+        return List.of();
+    }
+
+    public UserAccountEntity findByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        UserAccount cached = userCache.findByUsername(username);
+        if (cached != null || userCache.isPrimed()) {
+            return toEntity(cached);
+        }
+        primeCacheAsync();
+        Log.info("User cache priming in background; username lookup deferred: " + username);
+        return null;
     }
 
     public UserAccountEntity createUser(String username, Set<Role> roles) {
@@ -94,9 +140,10 @@ public class UserAccountService {
                 assignedRoles,
                 Instant.now()
         );
-        UserAccountEntity saved = repo.save(created);
-        userCache.registerUser(toDomain(saved));
-        return saved;
+        persistAsync(created);
+        Log.success("User account created: " + created.getUsername());
+        userCache.registerUser(toDomain(created));
+        return created;
     }
 
     public UserAccountEntity promoteToDriver(UUID actorId, UUID targetUserId) {
@@ -108,9 +155,10 @@ public class UserAccountService {
         roles.add(Role.DRIVER);
 
         target.setRoles(roles);
-        UserAccountEntity saved = repo.save(target);
-        userCache.registerUser(toDomain(saved));
-        return saved;
+        persistAsync(target);
+        Log.success("User promoted to driver: " + target.getUsername());
+        userCache.registerUser(toDomain(target));
+        return target;
     }
 
     public UserAccountEntity demoteFromDriver(UUID actorId, UUID targetUserId) {
@@ -122,9 +170,10 @@ public class UserAccountService {
         roles.remove(Role.DRIVER);
 
         target.setRoles(roles);
-        UserAccountEntity saved = repo.save(target);
-        userCache.registerUser(toDomain(saved));
-        return saved;
+        persistAsync(target);
+        Log.success("User demoted from driver: " + target.getUsername());
+        userCache.registerUser(toDomain(target));
+        return target;
     }
 
     private UserAccountEntity require(UUID id) {
@@ -141,6 +190,55 @@ public class UserAccountService {
         if (!actor.hasPermission(permission)) {
             throw new SecurityException("Missing permission: " + permission);
         }
+    }
+
+    public void flushUser(String username) {
+        if (username == null || username.isBlank()) {
+            return;
+        }
+        UserAccount cached = userCache.findByUsername(username);
+        if (cached == null) {
+            return;
+        }
+        persistAsync(toEntity(cached));
+        userCache.removeUser(cached);
+        Log.info("User cache flushed: " + username);
+    }
+
+    private void primeCacheFromDatabase() {
+        try {
+            List<UserAccountEntity> users = repo.findAll();
+            List<UserAccount> domains = users.stream().map(this::toDomain).toList();
+            userCache.primeCache(domains);
+            Log.success("User account cache primed from database.");
+        } catch (Exception ex) {
+            Log.warn("Unable to prime user cache: " + ex.getMessage());
+        }
+    }
+
+    private void primeCacheAsync() {
+        if (!priming.compareAndSet(false, true)) {
+            return;
+        }
+        AsyncTask.runFuture(() -> {
+            try {
+                primeCacheFromDatabase();
+            } finally {
+                priming.set(false);
+            }
+            return null;
+        });
+    }
+
+    private void persistAsync(UserAccountEntity entity) {
+        if (entity == null) {
+            return;
+        }
+        AsyncTask.runFuture(() -> {
+            repo.save(entity);
+            Log.info("User account persisted async: " + entity.getUsername());
+            return null;
+        });
     }
 
     private UserAccount toDomain(UserAccountEntity entity) {
@@ -172,5 +270,22 @@ public class UserAccountService {
                 account.getRoles(),
                 account.createdAt()
         );
+    }
+
+    private UUID resolveDefaultId(String username) {
+        if (username == null) {
+            return UUID.randomUUID();
+        }
+        String key = username.trim().toLowerCase(Locale.ROOT);
+        return DEFAULT_USER_IDS.getOrDefault(key, UUID.randomUUID());
+    }
+
+    private Set<Role> resolveDefaultRoles(String username) {
+        if (username == null) {
+            return EnumSet.of(Role.USER);
+        }
+        String key = username.trim().toLowerCase(Locale.ROOT);
+        Set<Role> roles = DEFAULT_USER_ROLES.get(key);
+        return roles == null ? EnumSet.of(Role.USER) : EnumSet.copyOf(roles);
     }
 }

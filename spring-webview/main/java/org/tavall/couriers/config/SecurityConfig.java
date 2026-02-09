@@ -1,9 +1,7 @@
 package org.tavall.couriers.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,9 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.tavall.couriers.api.web.permission.PermissionMapper;
 import org.tavall.couriers.api.web.endpoints.dashboard.DefaultDashboardEndpoints;
-import org.tavall.couriers.api.web.service.user.UserAccountService;
 import org.tavall.couriers.api.web.user.permission.Role;
 
 
@@ -24,12 +20,6 @@ import org.tavall.couriers.api.web.user.permission.Role;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
-    @Autowired
-    private UserAccountService userService;
-    private PermissionMapper permissionMapper;
-
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,6 +29,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/",                      // public home, splash style
+                                "/dashboard",             // dashboard entry (guest redirects to login)
+                                "/dashboard/home",        // alias entry
                                 "/dashboard/login",       // GET login page
                                 "/tracking",              // public tracking entry
                                 "/tracking/**",           // public tracking detail
@@ -64,7 +56,14 @@ public class SecurityConfig {
                 )
 
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> response.sendRedirect("/"))
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String path = request.getRequestURI();
+                            if (path != null && path.startsWith("/dashboard")) {
+                                response.sendRedirect("/dashboard/login");
+                            } else {
+                                response.sendRedirect("/");
+                            }
+                        })
                 )
 
                 .headers(headers -> headers

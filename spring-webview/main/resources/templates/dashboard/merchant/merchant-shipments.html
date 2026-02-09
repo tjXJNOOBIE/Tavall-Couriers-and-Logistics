@@ -41,13 +41,19 @@
                     <div th:each="label : ${labels}" class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                         <div class="flex justify-between items-start">
                             <div>
-                                <div class="text-xs font-bold text-slate-500" th:text="${label.deliveryState}">LABEL_CREATED</div>
-                                <div class="text-sm font-bold text-slate-700 mt-1" th:text="${label.trackingNumber}">TAVALL</div>
-                                <div class="text-xs text-slate-500 mt-1" th:text="${label.recipientName}">Recipient</div>
-                                <div class="text-xs text-slate-400" th:text="${label.city + ', ' + label.state}">City, State</div>
+                                <div class="text-xs font-bold text-slate-500"
+                                     th:text="${label.deliveryState != null ? label.deliveryState.displayName() : 'N/A'}"></div>
+                                <div class="text-sm font-bold text-slate-700 mt-1" th:text="${label.trackingNumber}"></div>
+                                <div class="text-xs text-slate-500 mt-1" th:text="${label.recipientName}"></div>
+                                <div class="text-xs text-slate-400" th:text="${label.city + ', ' + label.state}"></div>
+                                <div class="text-xs text-slate-500 mt-1"
+                                     th:text="${label.deliverBy != null ? 'DEADLINE: ' + #temporals.format(label.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <a class="text-link" th:href="@{/shipping-labels/{uuid}/pdf(uuid=${label.uuid})}" target="_blank" rel="noopener">View Label PDF</a>
+                                <a class="text-link"
+                                   th:if="${label.trackingNumber != null}"
+                                   th:href="@{/tracking/{trackingNumber}(trackingNumber=${label.trackingNumber})}">Track</a>
                                 <a class="text-link"
                                    th:href="@{/shipping-labels/{uuid}(uuid=${label.uuid})}"
                                    data-label-popup="true">Open Details</a>
@@ -63,7 +69,7 @@
                                     <option value="" disabled>Select new state</option>
                                     <option th:each="state : ${allStates}"
                                             th:value="${state}"
-                                            th:text="${state}"
+                                            th:text="${state.displayName()}"
                                             th:selected="${label.deliveryState == state}"></option>
                                 </select>
                                 <button class="btn-primary" type="submit">Update Shipment</button>
@@ -88,23 +94,11 @@
     lucide.createIcons();
 </script>
 
-<div id="scanModal" class="scan-modal" hidden>
-    <div id="scanModalBackdrop" class="scan-modal-backdrop"></div>
-    <div class="scan-modal-panel">
-        <button id="scanModalClose" class="scan-modal-close" type="button" aria-label="Close scanner">
-            ×
-        </button>
-        <iframe id="scanModalFrame"
-                class="scan-modal-frame"
-                title="Scanner"
-                allow="camera; microphone; display-capture"
-                loading="lazy"></iframe>
-</div>
-</div>
+<div th:replace="~{constants/camera-modal :: cameraModal('scanModal','scanModalFrame','scanModalClose','scanModalBackdrop')}"></div>
 
 <div id="labelModal" class="scan-modal label-popup-modal" hidden>
     <div id="labelModalBackdrop" class="scan-modal-backdrop"></div>
-    <div class="scan-modal-panel label-popup-panel">
+    <div class="scan-modal-panel label-popup-panel tavall-popup-panel">
         <iframe id="labelModalFrame"
                 class="scan-modal-frame label-popup-frame"
                 title="Label details"

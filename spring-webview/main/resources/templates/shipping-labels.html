@@ -8,16 +8,10 @@
 
 <body>
 
-<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
-
 <main class="main-content fade-in">
     <div class="container">
 
         <section class="card">
-            <div class="label-popup-topbar">
-                <button class="label-popup-close" type="button" id="embeddedBackBtn">Back</button>
-            </div>
-
             <div class="mt-2">
                 <div class="form-group">
                     <label class="form-label">Selected Shipment</label>
@@ -33,57 +27,67 @@
                     <div class="label-popup-details-grid">
                         <div class="form-group">
                             <label class="form-label">UUID</label>
-                            <div class="form-input mono" th:text="${selected.uuid}">uuid</div>
+                            <div class="form-input mono" th:text="${selected.uuid}"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Tracking Number</label>
-                            <div class="form-input mono" th:text="${selected.trackingNumber}">tracking</div>
+                            <div class="form-input mono" th:text="${selected.trackingNumber}"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Recipient</label>
-                            <div class="form-input" th:text="${selected.recipientName}">recipient</div>
+                            <div class="form-input" th:text="${selected.recipientName}"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Phone</label>
-                            <div class="form-input mono" th:text="${selected.phoneNumber}">phone</div>
+                            <div class="form-input mono" th:text="${selected.phoneNumber}"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Address</label>
-                            <div class="form-input" th:text="${selected.address}">address</div>
+                            <div class="form-input" th:text="${selected.address}"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">City / State / Zip</label>
                             <div class="form-input"
                                  th:text="${selected.city + ', ' + selected.state + ' ' + selected.zipCode}">
-                                city, state zip
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Country</label>
-                            <div class="form-input" th:text="${selected.country}">country</div>
+                            <div class="form-input" th:text="${selected.country}"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Priority</label>
-                            <div class="form-input mono" th:text="${selected.priority}">priority</div>
+                            <div class="form-input mono" th:text="${selected.priority}"></div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Deliver By</label>
-                            <div class="form-input mono"
-                                 th:text="${selected.deliverBy != null ? selected.deliverBy.toString() : 'N/A'}">
-                                deliverBy
-                            </div>
+                    <div class="form-group">
+                        <label class="form-label">Deliver By</label>
+                        <div class="form-input mono"
+                             th:text="${selected.deliverBy != null ? 'DEADLINE: ' + #temporals.format(selected.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Delivery Notes</label>
+                        <div class="form-input text-slate-700">
+                            <span th:if="${selected != null and deliveryNotes != null}"
+                                  th:text="${deliveryNotes}">Notes will appear here.</span>
+                            <span th:if="${selected != null and deliveryNotes == null}"
+                                  class="text-slate-500">Waiting for data...</span>
+                            <span th:if="${selected == null}" class="text-slate-400">Select a label to view notes.</span>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Delivery State</label>
-                            <div class="form-input mono"
-                                 th:text="${selected.deliveryState != null ? selected.deliveryState : 'N/A'}">
-                                state
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Delivery State</label>
+                        <div class="form-input">
+                                <span class="badge badge-neutral"
+                                      th:text="${selected.deliveryState != null ? selected.deliveryState.displayName() : 'N/A'}">STATE</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="label-popup-topbar">
+                <button class="label-popup-close" type="button" id="embeddedBackBtn">Close</button>
+            </div>
         </section>
 
     </div>

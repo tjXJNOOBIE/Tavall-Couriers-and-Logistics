@@ -21,13 +21,36 @@ public record ScanResponse(String uuid,
         String trackingNumber,
         String name,
         String address,
-        String city,        // NEW
-        String state,       // NEW
-        String zipCode,     // NEW
-        String country,     // NEW
+        String city,
+        String state,
+        String zipCode,
+        String country,
         String phoneNumber,
         Instant deadline,
-        String notes) {
+        String notes,
+        String intakeStatus,
+        boolean pendingIntake,
+        boolean existingLabel) {
+
+    public ScanResponse {
+    }
+
+    public ScanResponse(String uuid,
+                        CameraState cameraState,
+                        GeminiResponseState geminiResponseState,
+                        String trackingNumber,
+                        String name,
+                        String address,
+                        String city,
+                        String state,
+                        String zipCode,
+                        String country,
+                        String phoneNumber,
+                        Instant deadline,
+                        String notes) {
+        this(uuid, cameraState, geminiResponseState, trackingNumber, name, address, city, state, zipCode, country,
+                phoneNumber, deadline, notes, null, false, false);
+    }
 
 
     public boolean isMissingCriticalData(ScanResponse raw) {

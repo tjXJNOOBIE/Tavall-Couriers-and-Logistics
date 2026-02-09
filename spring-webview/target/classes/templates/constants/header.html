@@ -3,7 +3,9 @@
 <body>
 <header class="navbar" th:fragment="header(userName, userRole)">
     <a class="brand" th:href="@{/}" aria-label="Tavall Couriers home">
-        <span class="brand-logo" aria-hidden="true"></span>
+        <span class="brand-logo" aria-hidden="true">
+            <span class="brand-logo-icon"></span>
+        </span>
         <span class="brand-text">Tavall <span>Couriers</span></span>
     </a>
 
@@ -12,38 +14,47 @@
              th:with="
                 role=${userRole != null ? userRole : ''},
                 roleLabel=${(role != null && !#strings.isEmpty(role)) ? role : 'GUEST'},
-                title=${role == 'DRIVER' ? 'Driver Console'
-                       : role == 'MERCHANT' ? 'Merchant Console'
-                       : role == 'SUPERUSER' ? 'Superuser Console'
-                       : role == 'ADMIN' ? 'Admin Console'
-                       : (userName != null && !#strings.isEmpty(userName) ? userName : 'Tavall Couriers')},
-                detail=${(role == 'DRIVER' or role == 'MERCHANT' or role == 'SUPERUSER' or role == 'ADMIN')
-                        ? (userName != null && !#strings.isEmpty(userName) ? userName : roleLabel)
-                        : roleLabel}">
-            <div class="user-name" th:text="${title}">Dev Mode</div>
-            <div class="user-role" th:text="${detail}">LOCAL</div>
+                title=${(userName != null && !#strings.isEmpty(userName)) ? userName : 'Tavall Couriers'}">
+            <div class="user-name" th:text="${title}">Tavall Couriers</div>
+            <div class="user-role" th:text="${roleLabel}">GUEST</div>
         </div>
         <button class="btn-icon" id="userMenuToggle" aria-label="User menu" aria-controls="userMenu" aria-expanded="false" type="button">&#9776;</button>
     </div>
 
     <div id="userMenu" class="user-tray" aria-hidden="true">
         <div class="user-tray-panel">
-            <div class="user-tray-header">
-                <div>
-                    <div class="user-tray-title">Session</div>
-                    <p class="user-tray-sub"
-                       th:text="${(userRole != null && userRole != 'GUEST') ? 'Signed in as ' + userName : 'Browsing as guest'}">
-                        Signed in.
-                    </p>
-                </div>
-                <button class="btn-secondary" type="button" id="userMenuClose">Close</button>
-            </div>
-
             <div class="user-tray-links">
                 <div class="user-tray-section-title">Quick Links</div>
                 <a class="user-tray-link" th:href="@{/}">Home</a>
-                <a class="user-tray-link" th:href="@{/dashboard}">Dashboard</a>
                 <a class="user-tray-link" th:href="@{/tracking}">Tracking</a>
+                <a class="user-tray-link"
+                   th:if="${userRole == 'DRIVER' or userRole == 'MERCHANT' or userRole == 'SUPERUSER' or userRole == 'ADMIN'}"
+                   th:href="@{/dashboard}">Dashboard</a>
+                <a class="user-tray-link"
+                   th:if="${userRole == null || userRole == 'GUEST'}"
+                   th:href="@{/dashboard/login}">Dashboard Login</a>
+            </div>
+
+            <div class="user-tray-links" th:if="${userRole == 'DRIVER'}">
+                <div class="user-tray-section-title">Driver Tools</div>
+                <a class="user-tray-link" th:href="@{/dashboard/driver}">Driver Hub</a>
+                <a class="user-tray-link" th:href="@{/dashboard/driver/scan}">Scan Package</a>
+                <a class="user-tray-link" th:href="@{/dashboard/driver/create-label}">New Label</a>
+            </div>
+
+            <div class="user-tray-links" th:if="${userRole == 'MERCHANT'}">
+                <div class="user-tray-section-title">Merchant Tools</div>
+                <a class="user-tray-link" th:href="@{/dashboard/merchant}">Merchant Hub</a>
+                <a class="user-tray-link" th:href="@{/dashboard/merchant/scan}">Scan Intake</a>
+                <a class="user-tray-link" th:href="@{/dashboard/merchant/shipments}">Shipments</a>
+                <a class="user-tray-link" th:href="@{/dashboard/merchant/routes}">Routes</a>
+            </div>
+
+            <div class="user-tray-links" th:if="${userRole == 'SUPERUSER' or userRole == 'ADMIN'}">
+                <div class="user-tray-section-title">Admin Tools</div>
+                <a class="user-tray-link" th:href="@{/dashboard/superuser}">Admin Console</a>
+                <a class="user-tray-link" th:href="@{/dashboard/admin/users}">Manage Users</a>
+                <a class="user-tray-link" th:href="@{/dashboard/merchant/shipments}">Shipments</a>
             </div>
 
             <div class="user-tray-actions">

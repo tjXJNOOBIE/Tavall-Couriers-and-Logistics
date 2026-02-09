@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="cameraModal(modalId, frameId, closeId, backdropId)"
+     th:id="${modalId}"
+     class="scan-modal camera-modal"
+     hidden>
+    <div th:id="${backdropId}" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel scan-camera-panel camera-modal-panel">
+        <iframe th:id="${frameId}"
+                class="scan-modal-frame scan-camera-frame camera-modal-frame"
+                title="Scanner"
+                allow="camera; microphone; display-capture"
+                loading="lazy"></iframe>
+    </div>
+</div>
+</body>
+</html>

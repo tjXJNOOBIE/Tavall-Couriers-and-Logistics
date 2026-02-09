@@ -24,8 +24,8 @@
 
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div th:if="${createdLabel != null}" class="alert alert-success mb-4">
-                    Label created for <span th:text="${createdLabel.recipientName}">Recipient</span>.
-                    Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}">TAVALL</span>
+                    Label created for <span th:text="${createdLabel.recipientName}"></span>.
+                    Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}"></span>
                 </div>
 
                 <form th:action="@{/internal/api/v1/driver/label/create}" th:object="${shipment}" method="post" class="space-y-4">
@@ -67,15 +67,16 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">UUID</label>
-                        <div class="scan-field mono" th:text="${createdLabel.uuid}">uuid</div>
+                        <div class="scan-field mono" th:text="${createdLabel.uuid}"></div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
-                        <div class="scan-field mono" th:text="${createdLabel.trackingNumber}">tracking</div>
+                        <div class="scan-field mono" th:text="${createdLabel.trackingNumber}"></div>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Delivery State</label>
-                        <div class="scan-field" th:text="${createdLabel.deliveryState}">LABEL_CREATED</div>
+                        <div class="scan-field"
+                             th:text="${createdLabel.deliveryState != null ? createdLabel.deliveryState.displayName() : 'N/A'}"></div>
                     </div>
                 </div>
             </div>

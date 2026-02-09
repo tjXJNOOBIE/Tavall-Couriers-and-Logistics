@@ -82,8 +82,9 @@
     });
 
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
-            closeModal();
-        }
+        if (event.key !== "Escape") return;
+        const { modal } = getElements();
+        if (!modal || modal.hasAttribute("hidden")) return;
+        closeModal();
     });
 })();

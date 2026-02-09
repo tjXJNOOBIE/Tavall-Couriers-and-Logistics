@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
+import org.tavall.couriers.api.web.camera.CameraOptions;
 import org.tavall.couriers.api.web.endpoints.Routes;
 import org.tavall.couriers.api.web.service.camera.CameraPageService;
 import org.tavall.couriers.api.web.service.camera.CameraScanResult;
@@ -25,6 +26,7 @@ public class CameraPageController {
     @PostMapping(Routes.CAMERA_STREAM_FRAME)
     public ResponseEntity<ScanResponse> receiveFrame(@RequestParam("image") MultipartFile image,
                                                      @RequestParam(value = "scanMode", required = false) String scanMode,
+                                                     @RequestParam(value = "routeId", required = false) String routeId,
                                                      Authentication authentication) {
         if (image == null || image.isEmpty()) {
             Log.warn("[CameraPage] Empty frame upload rejected.");
@@ -33,10 +35,11 @@ public class CameraPageController {
 
         try {
             byte[] snapshot = image.getBytes();
-            Log.info("[CameraPage] Frame received (" + snapshot.length + " bytes, mode=" + (scanMode == null ? "default" : scanMode) + ").");
-            CameraScanResult result = cameraPageService.handleFrame(snapshot, scanMode, authentication);
+            CameraOptions options = CameraOptions.fromMode(scanMode);
+            Log.info("[CameraPage] Frame received (" + snapshot.length + " bytes, mode=" + options.mode() + ").");
+            CameraScanResult result = cameraPageService.handleFrame(snapshot, options, authentication, routeId);
             if (result != null && result.forbidden()) {
-                Log.warn("[CameraPage] Scan forbidden for mode=" + (scanMode == null ? "default" : scanMode) + ".");
+                Log.warn("[CameraPage] Scan forbidden for mode=" + options.mode() + ".");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result.response());
             }
             if (result != null && result.response() != null) {

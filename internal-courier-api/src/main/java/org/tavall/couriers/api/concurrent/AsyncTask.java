@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.tavall.couriers.api.console.Log;
 
 public class AsyncTask {
 
@@ -141,6 +142,7 @@ public class AsyncTask {
 
         Objects.requireNonNull(task, "task");
         ScopeOptions opt = (options == null) ? ScopeOptions.defaults() : options;
+        Log.info("AsyncTask runAsync start: " + taskLabel(task, opt) + " on " + Thread.currentThread().getName());
 
         try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.<T>anySuccessfulResultOrThrow(), configFn(opt))) {
             scope.fork(task::call);
@@ -166,6 +168,8 @@ public class AsyncTask {
         Objects.requireNonNull(tasks, "tasks");
         if (tasks.isEmpty()) return List.of();
         ScopeOptions opt = (options == null) ? ScopeOptions.defaults() : options;
+        Log.info("AsyncTask runMultipleAsync start: " + taskLabel(null, opt) + " count=" + tasks.size()
+                + " on " + Thread.currentThread().getName());
 
         try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.<T>allSuccessfulOrThrow(), configFn(opt))) {
             for (var task : tasks) {
@@ -289,6 +293,8 @@ public class AsyncTask {
         if (tasks.isEmpty()) throw new IllegalArgumentException("tasks must not be empty");
 
         ScopeOptions opt = (options == null) ? ScopeOptions.defaults() : options;
+        Log.info("AsyncTask runAnySuccessAsync start: " + taskLabel(null, opt) + " count=" + tasks.size()
+                + " on " + Thread.currentThread().getName());
 
         try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.<T>anySuccessfulResultOrThrow(), configFn(opt))) {
             for (var task : tasks) {
@@ -307,6 +313,7 @@ public class AsyncTask {
 
         CompletableFuture<T> future = new CompletableFuture<>();
 
+        Log.info("AsyncTask runFuture scheduled: " + taskLabel(task, opt));
         newThread(opt.name != null ? opt.name : "async-task", () -> {
             try {
                 // Important: scope owner thread must be the same thread that calls open/join/close.
@@ -330,7 +337,9 @@ public class AsyncTask {
     public static Thread newThread(String baseName, Runnable runnable) {
 
         String name = baseName + "-" + VT_COUNTER.incrementAndGet();
-        return Thread.ofVirtual().name(name).start(runnable);
+        Thread thread = Thread.ofVirtual().name(name).start(runnable);
+        Log.info("AsyncTask thread started: " + name);
+        return thread;
     }
 
 
@@ -351,5 +360,15 @@ public class AsyncTask {
             if (opt.timeout != null) c = c.withTimeout(opt.timeout);
             return c;
         };
+    }
+
+    private static String taskLabel(Callable<?> task, ScopeOptions opt) {
+        if (opt != null && opt.name != null && !opt.name.isBlank()) {
+            return opt.name;
+        }
+        if (task == null) {
+            return "async-batch";
+        }
+        return task.getClass().getSimpleName();
     }
 }

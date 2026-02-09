@@ -11,121 +11,193 @@
 
 <header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
+
 <main class="main-content fade-in">
     <div class="container">
-        <div class="max-w-2xl mx-auto fade-in">
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-6">
-                <h1 class="text-2xl font-bold text-slate-800 mb-1">Driver Console</h1>
-                <p class="text-slate-500 text-sm">Shift ID: #8821 • Vehicle: Van-402 • <span th:text="${currentUserName}">Driver</span></p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a th:href="@{/dashboard/driver/create-label}"
-                   class="bg-blue-600 text-white p-6 rounded-2xl shadow-lg shadow-blue-200 cursor-pointer hover-scale transition active-scale">
-                    <div class="flex justify-between items-start mb-4">
-                        <i data-lucide="tag" class="w-8 h-8 opacity-80"></i>
-                        <span class="bg-blue-500 px-2 py-1 rounded text-xs font-bold">New</span>
-                    </div>
-                    <h3 class="text-xl font-bold">Create Label</h3>
-                    <p class="text-blue-100 text-sm mt-1">Create a label for scanning (Demo Only)</p>
-                </a>
-
-                <a th:href="@{/dashboard/driver/scan(uuid=${firstReadyLabel != null ? firstReadyLabel.uuid : ''})}"
-                   class="bg-slate-800 text-white p-6 rounded-2xl shadow-lg shadow-slate-200 cursor-pointer hover-scale transition active-scale"
-                   data-scan-popup="true">
-                    <div class="flex justify-between items-start mb-4">
-                        <i data-lucide="qr-code" class="w-8 h-8 opacity-80"></i>
-                        <span class="bg-slate-700 px-2 py-1 rounded text-xs font-bold">Action</span>
-                    </div>
-                    <h3 class="text-xl font-bold">Scan Package</h3>
-                    <p class="text-slate-400 text-sm mt-1">Update package status via QR.</p>
-                </a>
-            </div>
-
-            <div class="mt-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">Pre-Scan Queue</h3>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div th:if="${!hasReadyLabels}" class="p-4 text-sm text-slate-500">
-                        No labels are ready to scan yet. Create one to continue.
-                    </div>
-                    <div th:each="label : ${readyLabels}" class="p-4 border-b border-slate-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                <i data-lucide="package" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}">TAVALL-XXXX</div>
-                                <div class="text-xs text-slate-400" th:text="${label.recipientName}">Recipient</div>
-                            </div>
-                        </div>
-                        <a class="text-blue-500 hover:text-blue-700 text-sm font-medium"
-                           th:href="@{/dashboard/driver/scan(uuid=${label.uuid})}">
-                            Scan
-                        </a>
-                    </div>
+        <div class="max-w-4xl mx-auto fade-in">
+            <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 mb-1">Driver Hub</h1>
+                    <p class="text-slate-500 text-sm">Signed in as <span th:text="${currentUserName}">Driver</span></p>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <a class="btn-primary shadow-sm hover-scale"
+                       th:href="@{/dashboard/driver/scan}"
+                       data-scan-popup="true">
+                        <i data-lucide="qr-code"></i>
+                        Scan Package
+                    </a>
+                    <a class="btn-outline-small" th:href="@{/purchase}">
+                        Customer Demo Flow
+                    </a>
                 </div>
             </div>
 
-            <div class="mt-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">All Labels</h3>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div th:if="${#lists.isEmpty(labels)}" class="p-4 text-sm text-slate-500">
-                        No labels found. Create one to start your flow.
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-800">
+                            <i data-lucide="tag" class="text-slate-400"></i>
+                            New Label
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400 uppercase">Create</span>
                     </div>
-                    <div th:each="label : ${labels}" class="p-4 border-b border-slate-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
-                                <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}">TAVALL-XXXX</div>
-                                <div class="text-xs text-slate-400" th:text="${label.deliveryState}">LABEL_CREATED</div>
-                            </div>
-                        </div>
-                        <a class="text-link"
-                           th:href="@{/shipping-labels/{uuid}(uuid=${label.uuid})}"
-                           data-label-popup="true">
-                            Open details
+                    <p class="text-sm text-slate-500 mb-4">Generate a label or jump into scanning.</p>
+
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <a th:href="@{/dashboard/merchant/scan}"
+                           data-scan-popup="true"
+                           class="btn-primary gap-2 hover-scale">
+                            <i data-lucide="tag" class="w-4 h-4"></i>
+                            Create Label
+                        </a>
+                        <a th:href="@{/dashboard/driver/create-label}"
+                           class="btn-secondary gap-2 hover-scale">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            Manual Label
                         </a>
                     </div>
+                    <p class="text-xs text-slate-400 mt-3">
+                        Label creation is usually reserved for merchants, but the demo keeps it available.
+                    </p>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                        <h3 class="font-bold text-lg text-slate-800">Route Scan Queue</h3>
+                        <span th:if="${usingRouteQueue}" class="text-xs font-bold text-slate-400 uppercase"
+                              th:text="${preScanRouteId != null ? 'Route ' + preScanRouteId : 'Active Route'}">Route</span>
+                    </div>
+                    <div class="scan-queue-list">
+                        <div th:if="${#lists.isEmpty(preScanLabels)}" class="text-sm text-slate-500">
+                            No labels are queued for scan yet.
+                        </div>
+                        <div th:if="${#lists.isEmpty(preScanLabels) && !#lists.isEmpty(availableRoutes)}"
+                             class="route-select-card">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Select a Route</div>
+                            <p class="text-sm text-slate-500">Pick a route to load your pre-scan queue.</p>
+                            <form method="get" th:action="@{/dashboard/driver}" class="route-select-form">
+                                <select name="routeId" class="route-select-input">
+                                    <option value="">Choose a route</option>
+                                    <option th:each="route : ${availableRoutes}"
+                                            th:value="${route.routeId}"
+                                            th:text="${route.routeId}">Route</option>
+                                </select>
+                                <button class="btn-secondary" type="submit">Load Route</button>
+                            </form>
+                        </div>
+                        <div th:each="label : ${preScanLabels}" class="scan-queue-card">
+                            <div class="scan-queue-top">
+                                <span class="scan-queue-status">READY</span>
+                                <a class="scan-queue-link" th:href="@{/dashboard/driver/scan}" data-scan-popup="true">Scan</a>
+                            </div>
+                            <div class="scan-queue-title" th:text="${label.trackingNumber}"></div>
+                            <div class="scan-queue-sub" th:text="${label.recipientName}"></div>
+                            <div class="scan-queue-sub"
+                                 th:text="${label.city + (label.state != null ? ', ' + label.state : '')}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-800">
+                            <i data-lucide="qr-code" class="text-slate-400"></i>
+                            Scan Package
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400 uppercase">State</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4">Scan a label QR to update delivery state.</p>
+                    <a class="btn-primary gap-2 hover-scale"
+                       th:href="@{/dashboard/driver/scan}"
+                       data-scan-popup="true">
+                        <i data-lucide="scan" class="w-4 h-4"></i>
+                        Open Scanner
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </main>
 
+
 <script th:inline="javascript">
     window.APP = window.APP || {};
     window.APP.endpoints = window.APP.endpoints || {};
     window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
     window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+    window.APP.endpoints.driverStateBase = /*[[@{/dashboard/driver/state}]]*/ "/dashboard/driver/state";
 </script>
-<script defer src="/js/label-popup.js"></script>
 <script defer src="/js/scan-popup.js"></script>
 <script>
     lucide.createIcons();
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("stateModal");
+        const frame = document.getElementById("stateModalFrame");
+        const backdrop = document.getElementById("stateModalBackdrop");
+        const stateBase = window.APP && window.APP.endpoints && window.APP.endpoints.driverStateBase
+            ? window.APP.endpoints.driverStateBase
+            : "/dashboard/driver/state";
+        const TRANSITION_MS = 220;
+
+        if (!modal || !frame) return;
+
+        function openState(uuid) {
+            if (!uuid) return;
+            const target = `${stateBase}?uuid=${encodeURIComponent(uuid)}`;
+            frame.src = target;
+            modal.removeAttribute("hidden");
+            document.body.classList.add("scan-modal-open");
+            requestAnimationFrame(() => modal.classList.add("open"));
+        }
+
+        function closeState() {
+            modal.classList.remove("open");
+            document.body.classList.remove("scan-modal-open");
+            setTimeout(() => {
+                frame.src = "about:blank";
+                modal.setAttribute("hidden", "hidden");
+            }, TRANSITION_MS);
+        }
+
+        if (backdrop) {
+            backdrop.addEventListener("click", closeState);
+        }
+
+        window.addEventListener("message", (event) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data && event.data.type === "driverScanFound" && event.data.uuid) {
+                setTimeout(() => openState(event.data.uuid), TRANSITION_MS);
+            }
+            if (event.data && event.data.type === "stateModalClose") {
+                closeState();
+            }
+            if (event.data && event.data.type === "stateModalResize") {
+                const height = Number(event.data.height) || 0;
+                if (height > 0) {
+                    const maxHeight = Math.floor(window.innerHeight * 0.92);
+                    const target = Math.min(height, maxHeight);
+                    frame.style.height = `${target}px`;
+                }
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
+                closeState();
+            }
+        });
+    });
 </script>
 
-<div id="scanModal" class="scan-modal" hidden>
-    <div id="scanModalBackdrop" class="scan-modal-backdrop"></div>
-    <div class="scan-modal-panel">
-        <button id="scanModalClose" class="scan-modal-close" type="button" aria-label="Close scanner">
-            ×
-        </button>
-        <iframe id="scanModalFrame"
-                class="scan-modal-frame"
-                title="Scanner"
-                allow="camera; microphone; display-capture"
-                loading="lazy"></iframe>
-</div>
-</div>
+<div th:replace="~{constants/camera-modal :: cameraModal('scanModal','scanModalFrame','scanModalClose','scanModalBackdrop')}"></div>
 
-<div id="labelModal" class="scan-modal label-popup-modal" hidden>
-    <div id="labelModalBackdrop" class="scan-modal-backdrop"></div>
-    <div class="scan-modal-panel label-popup-panel">
-        <iframe id="labelModalFrame"
-                class="scan-modal-frame label-popup-frame"
-                title="Label details"
+<div id="stateModal" class="scan-modal state-popup-modal" hidden>
+    <div id="stateModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel state-popup-panel tavall-popup-panel">
+        <iframe id="stateModalFrame"
+                class="scan-modal-frame state-popup-frame"
+                title="State change"
                 loading="lazy"></iframe>
     </div>
 </div>

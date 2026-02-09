@@ -31,6 +31,7 @@ public enum UserPermissions {
     ROUTE_VIEW,
     ROUTE_EDIT,
     ROUTE_DELETE,
+    ROUTE_ASSIGN,
 
     DELIVERY_TRANSITION_BASIC,
     DELIVERY_TRANSITION_ANY,

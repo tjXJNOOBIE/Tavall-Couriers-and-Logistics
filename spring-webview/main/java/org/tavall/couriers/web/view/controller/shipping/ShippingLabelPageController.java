@@ -10,6 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.tavall.couriers.api.qr.scan.cache.ScanCacheService;
+import org.tavall.couriers.api.qr.scan.cache.ScanErrorCacheService;
+import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
 import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
 import org.tavall.couriers.api.web.endpoints.Routes;
 import org.tavall.couriers.api.web.service.shipping.ShippingLabelDocumentService;
@@ -17,6 +20,7 @@ import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -24,11 +28,17 @@ public class ShippingLabelPageController {
 
     private final ShippingLabelMetaDataService shippingService;
     private final ShippingLabelDocumentService documentService;
+    private final ScanCacheService scanCache;
+    private final ScanErrorCacheService scanErrorCache;
 
     public ShippingLabelPageController(ShippingLabelMetaDataService shippingService,
-                                       ShippingLabelDocumentService documentService) {
+                                       ShippingLabelDocumentService documentService,
+                                       ScanCacheService scanCache,
+                                       ScanErrorCacheService scanErrorCache) {
         this.shippingService = shippingService;
         this.documentService = documentService;
+        this.scanCache = scanCache;
+        this.scanErrorCache = scanErrorCache;
     }
 
     @GetMapping(Routes.SHIPPING_LABELS)
@@ -81,7 +91,39 @@ public class ShippingLabelPageController {
         model.addAttribute("labels", labels);
         model.addAttribute("selected", selected);
         model.addAttribute("selectedUuid", uuid);
+        model.addAttribute("deliveryNotes", findDeliveryNotes(selected));
 
         return "shipping-labels";
+    }
+
+    private String findDeliveryNotes(ShippingLabelMetaDataEntity selected) {
+        if (selected == null) {
+            return null;
+        }
+        List<ScanResponse> responses = new ArrayList<>();
+        responses.addAll(scanCache.getRecentResponses(10));
+        responses.addAll(scanErrorCache.getRecentErrors(5));
+        String uuid = selected.getUuid();
+        String trackingNumber = selected.getTrackingNumber();
+        for (ScanResponse response : responses) {
+            if (response == null) {
+                continue;
+            }
+            if (!matchesScanTarget(response, uuid, trackingNumber)) {
+                continue;
+            }
+            String notes = response.notes();
+            if (notes != null && !notes.isBlank()) {
+                return notes;
+            }
+        }
+        return null;
+    }
+
+    private boolean matchesScanTarget(ScanResponse response, String uuid, String trackingNumber) {
+        if (uuid != null && uuid.equals(response.uuid())) {
+            return true;
+        }
+        return trackingNumber != null && trackingNumber.equals(response.trackingNumber());
     }
 }

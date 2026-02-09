@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Manual Label</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<main class="main-content fade-in">
+    <div class="container">
+        <section class="card">
+            <div class="mt-2">
+                <h2 class="text-2xl font-bold text-slate-800">Manual Label</h2>
+                <p class="text-slate-500 text-sm">Enter recipient details to generate a new label.</p>
+
+                <div th:if="${createdLabel != null}" class="alert alert-success mt-4">
+                    Label created for <span th:text="${createdLabel.recipientName}"></span>.
+                    Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}"></span>
+                </div>
+
+                <form th:action="@{/internal/api/v1/merchant/shipment/create}"
+                      th:object="${shipment}"
+                      method="post"
+                      class="space-y-4 mt-4">
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="source" value="popup"/>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Recipient Name"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:field="*{recipientName}" required>
+                        <input type="text" placeholder="Phone"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:field="*{phoneNumber}">
+                    </div>
+
+                    <input type="text" placeholder="Address Line 1"
+                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                           th:field="*{address}" required>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <input type="text" placeholder="City"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:field="*{city}" required>
+                        <input type="text" placeholder="State"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:field="*{state}" required>
+                        <input type="text" placeholder="Zip"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:field="*{zipCode}" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Country"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:field="*{country}" value="USA" required>
+                        <input type="date" name="deliverByDate"
+                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <select name="initialState"
+                                class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none">
+                            <option th:each="state : ${allStates}" th:value="${state}" th:text="${state}"></option>
+                        </select>
+                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                            <input type="checkbox" th:field="*{priority}">
+                            Priority shipment
+                        </label>
+                    </div>
+
+                    <div class="label-form-actions">
+                        <button class="btn-primary" type="submit">Generate Label &amp; QR</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="label-popup-topbar">
+                <button class="label-popup-close" type="button" id="embeddedBackBtn">Close</button>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    (function () {
+        if (window.self === window.top) return;
+        document.body.classList.add("label-popup-embedded");
+        document.documentElement.classList.add("label-popup-embedded");
+
+        const close = () => {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: "labelModalClose" }, window.location.origin);
+                return;
+            }
+            window.history.back();
+        };
+
+        const closeBtn = document.getElementById("embeddedBackBtn");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", close);
+        }
+
+        const postHeight = () => {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: "labelModalResize", height }, window.location.origin);
+        };
+        window.addEventListener("load", postHeight);
+        window.addEventListener("resize", postHeight);
+        setTimeout(postHeight, 0);
+    })();
+</script>
+</body>
+</html>

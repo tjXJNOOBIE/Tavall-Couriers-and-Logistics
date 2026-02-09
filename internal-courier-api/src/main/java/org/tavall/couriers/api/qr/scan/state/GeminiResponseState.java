@@ -14,4 +14,15 @@ public enum GeminiResponseState {
     RESPONDING,
     COMPLETE,
     ERROR
+
+    ;
+
+    public String displayName() {
+        return switch (this) {
+            case IDLE -> "Idle";
+            case RESPONDING -> "Responding";
+            case COMPLETE -> "Complete";
+            case ERROR -> "Error";
+        };
+    }
 }

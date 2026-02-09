@@ -20,6 +20,7 @@ public final class Routes {
     public static final String LOGIN = PageViewEndpoints.LOGIN_PATH;
     public static final String TRACKING_PAGE = PageViewEndpoints.TRACKING_PATH;
     public static final String TRACKING_DETAIL_TEMPLATE = PageViewEndpoints.TRACKING_DETAIL_PATH;
+    public static final String PURCHASE = PageViewEndpoints.PURCHASE_PATH;
 
     // Dashboard views
     public static final String DASHBOARD = DefaultDashboardEndpoints.DASHBOARD_HOME_PATH;
@@ -34,6 +35,7 @@ public final class Routes {
     // Driver dashboard
     public static final String DRIVER_DASHBOARD = DriverDashboardEndpoints.DASHBOARD_PATH;
     public static final String DRIVER_SCAN_PAGE = DriverDashboardEndpoints.SCAN_PAGE_PATH;
+    public static final String DRIVER_STATE_PAGE = DriverDashboardEndpoints.STATE_PAGE_PATH;
     public static final String DRIVER_CREATE_LABEL_PAGE = DriverDashboardEndpoints.CREATE_LABEL_PAGE_PATH;
     public static final String DRIVER_CREATE_LABEL = DriverDashboardEndpoints.CREATE_LABEL_PATH;
     public static final String DRIVER_TRANSITION_PACKAGE = DriverDashboardEndpoints.TRANSITION_PACKAGE_PATH;
@@ -51,6 +53,9 @@ public final class Routes {
     public static final String MERCHANT_CREATE_ROUTE = MerchantDashboardEndpoints.CREATE_ROUTE_PATH;
     public static final String MERCHANT_UPDATE_ROUTE = MerchantDashboardEndpoints.UPDATE_ROUTE_PATH;
     public static final String MERCHANT_DELETE_ROUTE = MerchantDashboardEndpoints.DELETE_ROUTE_PATH;
+    public static final String MERCHANT_ADD_ROUTE_STOPS = MerchantDashboardEndpoints.ADD_ROUTE_STOPS_PATH;
+    public static final String MERCHANT_ASSIGN_ROUTE_DRIVER = MerchantDashboardEndpoints.ASSIGN_ROUTE_DRIVER_PATH;
+    public static final String MERCHANT_ROUTE_DETAILS = MerchantDashboardEndpoints.ROUTE_DETAILS_PATH;
 
     // Superuser dashboard
     public static final String SUPERUSER_DASHBOARD = SuperUserDashboardEndpoints.DASHBOARD_PATH;
@@ -92,6 +97,10 @@ public final class Routes {
 
     public static String trackingPage() {
         return TRACKING_PAGE;
+    }
+
+    public static String purchasePage() {
+        return PURCHASE;
     }
 
     public static String trackingDetail(String trackingNumber) {
@@ -210,6 +219,10 @@ public final class Routes {
         return DRIVER_SCAN_PAGE;
     }
 
+    public static String driverStatePage() {
+        return DRIVER_STATE_PAGE;
+    }
+
     public static String driverCreateLabelPage() {
         return DRIVER_CREATE_LABEL_PAGE;
     }
@@ -272,6 +285,18 @@ public final class Routes {
 
     public static String merchantDeleteRoute() {
         return MERCHANT_DELETE_ROUTE;
+    }
+
+    public static String merchantAddRouteStops() {
+        return MERCHANT_ADD_ROUTE_STOPS;
+    }
+
+    public static String merchantAssignRouteDriver() {
+        return MERCHANT_ASSIGN_ROUTE_DRIVER;
+    }
+
+    public static String merchantRouteDetails(String routeId) {
+        return MERCHANT_ROUTE_DETAILS.replace("{routeId}", routeId);
     }
 
     public static String merchantGenerateQr() {

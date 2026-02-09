@@ -23,7 +23,8 @@ public enum Role {
     DRIVER(EnumSet.of(
             UserPermissions.DELIVERY_TRANSITION_BASIC,
             UserPermissions.SHIPMENT_VIEW,
-            UserPermissions.USER_VIEW_SELF)),
+            UserPermissions.USER_VIEW_SELF,
+            UserPermissions.MERCHANT_INTAKE_SCAN)),
 
     MERCHANT(EnumSet.of(
             UserPermissions.SHIPMENT_CREATE,
@@ -34,6 +35,7 @@ public enum Role {
             UserPermissions.ROUTE_VIEW,
             UserPermissions.ROUTE_EDIT,
             UserPermissions.ROUTE_DELETE,
+            UserPermissions.ROUTE_ASSIGN,
             UserPermissions.USER_PROMOTE_TO_DRIVER,
             UserPermissions.USER_DEMOTE_FROM_DRIVER)),
 

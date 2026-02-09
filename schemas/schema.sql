@@ -52,7 +52,9 @@ CREATE TABLE courier_schemas.delivery_routes (
                                                  label_count integer NOT NULL,
                                                  created_at timestamptz NOT NULL,
                                                  updated_at timestamptz,
-                                                 notes text
+                                                 notes text,
+                                                 assigned_drivers uuid,
+                                                 deadline timestamptz
 );
 
 CREATE TABLE courier_schemas.delivery_route_stops (
@@ -73,7 +75,8 @@ CREATE TABLE courier_schemas.delivery_route_stops (
 
 CREATE TABLE courier_schemas.tracking_number_metadata (
                                           tracking_number varchar(64) PRIMARY KEY,
-                                          qr_uuid uuid NOT NULL
+                                          qr_uuid uuid NOT NULL,
+                                          delivery_state delivery_state
 );
 
 -- Indexes

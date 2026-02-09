@@ -9,11 +9,30 @@
 
     let config = null;
     let API_STREAM_FRAME = null;
+    const scanRoot = document.querySelector('[data-camera-mode-key]');
+    const cameraModeKey = scanRoot ? scanRoot.getAttribute('data-camera-mode-key') : null;
+    const routeId = scanRoot ? scanRoot.getAttribute('data-route-id') : null;
+    let loadedCameraOptions = null;
+    let cameraType = 'INTAKE';
+    let scanModeValue = null;
 
     try {
         const response = await fetch(CONFIG_ENDPOINT);
         if (!response.ok) throw new Error("Config handshake failed");
         config = await response.json();
+
+        const cameraConfig = config.cameraConfig || {};
+        window.APP.cameraConfig = cameraConfig;
+        const cameraModes = cameraConfig.modes || {};
+        const defaultModeKey = cameraConfig.defaultModeKey;
+        const fallbackKeys = cameraModes ? Object.keys(cameraModes) : [];
+        const resolvedKey = cameraModeKey || defaultModeKey || (fallbackKeys.length ? fallbackKeys[0] : null);
+        loadedCameraOptions = resolvedKey ? cameraModes[resolvedKey] : null;
+        if (!loadedCameraOptions && fallbackKeys.length) {
+            loadedCameraOptions = cameraModes[fallbackKeys[0]];
+        }
+        cameraType = loadedCameraOptions?.type || 'INTAKE';
+        scanModeValue = loadedCameraOptions?.mode || null;
 
         // Hydrate our constants from the server
         API_STREAM_FRAME = config.endpoints.streamFrame;
@@ -33,10 +52,12 @@
 
     const video = document.getElementById('live-feed');
     const toggleBtn = document.getElementById('btn-toggle-source');
-    const scanRoot = document.querySelector('[data-scan-mode]');
-    const scanMode = scanRoot ? scanRoot.getAttribute('data-scan-mode') : null;
     const scanFrame = document.querySelector('.scan-frame');
     const stateBadge = document.getElementById('scan-state-badge');
+    const frameBuffer = document.getElementById('frame-buffer');
+    const frameCtx = frameBuffer ? frameBuffer.getContext('2d', { willReadFrequently: true }) : null;
+    const dataOverlay = document.querySelector('.scan-data-overlay');
+    const dataFlash = dataOverlay ? dataOverlay.querySelector('.scan-data-flash') : null;
 
     if (!video) {
         return;
@@ -44,8 +65,19 @@
 
     let currentStream = null;
     let isScreenShare = false;
-    const LOOP_INTERVAL_MS = 1000;
+    const LOOP_INTERVAL_MS = 900;
+    const BUSY_INTERVAL_MS = 1600;
+    const MIN_UPLOAD_GAP_MS = 850;
+    const COOLDOWN_MS = 5000;
     const STATE_CLASSES = ['is-searching', 'is-analyzing', 'is-found', 'is-error'];
+    let lastUploadAt = 0;
+    let lastGeminiState = null;
+    let lastCameraState = null;
+    let cooldownUntil = 0;
+    let lastFoundUuid = null;
+    let lastFlashKey = null;
+    let lastFlashAt = 0;
+    let flashTimer = null;
 
     // --- STREAM MANAGEMENT ---
 
@@ -121,12 +153,31 @@
                 return;
             }
 
+            const now = Date.now();
+            if (cooldownUntil && now < cooldownUntil) {
+                setTimeout(loop, LOOP_INTERVAL_MS);
+                return;
+            }
+
+            if (now - lastUploadAt < MIN_UPLOAD_GAP_MS) {
+                setTimeout(loop, LOOP_INTERVAL_MS);
+                return;
+            }
+
             window.getCurrentFrameBlob(blob => {
-                setCameraState('ANALYZING');
+                if (!blob) {
+                    setCameraState('ERROR', 'Frame capture failed');
+                    setTimeout(loop, 500);
+                    return;
+                }
+                lastUploadAt = Date.now();
                 const formData = new FormData();
                 formData.append('image', blob, 'frame.png');
-                if (scanMode) {
-                    formData.append('scanMode', scanMode);
+                if (scanModeValue) {
+                    formData.append('scanMode', scanModeValue);
+                }
+                if (routeId) {
+                    formData.append('routeId', routeId);
                 }
 
                 // USING THE SERVER-PROVIDED ENDPOINT
@@ -139,14 +190,52 @@
                     })
                     .then(payload => {
                         if (payload && payload.cameraState) {
+                            lastCameraState = payload.cameraState;
+                            lastGeminiState = payload.geminiResponseState || null;
                             setCameraState(payload.cameraState, payload.notes, payload.geminiResponseState);
                         } else {
-                            setCameraState('ANALYZING', null, null);
+                            const fallbackState = lastCameraState || 'SEARCHING';
+                            lastCameraState = fallbackState;
+                            lastGeminiState = null;
+                            setCameraState(fallbackState, null, null);
                         }
-                        setTimeout(loop, LOOP_INTERVAL_MS);
+
+                        if (payload && payload.cameraState === "FOUND") {
+                            const now = Date.now();
+                            if (cameraType === "QR_SCAN" && payload.uuid) {
+                                const isEmbedded = window.parent && window.parent !== window;
+                                const shouldNotify = payload.uuid !== lastFoundUuid || now >= cooldownUntil;
+                                lastFoundUuid = payload.uuid;
+                                cooldownUntil = now + COOLDOWN_MS;
+                                if (shouldNotify) {
+                                    if (isEmbedded) {
+                                        window.parent.postMessage({ type: "driverScanFound", uuid: payload.uuid }, window.location.origin);
+                                    } else {
+                                        window.location.href = `/dashboard/driver/state?uuid=${encodeURIComponent(payload.uuid)}`;
+                                    }
+                                    return;
+                                }
+                            } else if (cameraType === "ROUTE") {
+                                const isEmbedded = window.parent && window.parent !== window;
+                                if (isEmbedded) {
+                                    window.parent.postMessage({ type: "routeScanResult", routeId, payload }, window.location.origin);
+                                }
+                                cooldownUntil = now + COOLDOWN_MS;
+                            } else {
+                                cooldownUntil = now + COOLDOWN_MS;
+                            }
+                            handleLiveFlash(payload);
+                        }
+
+                        const delay = (lastGeminiState === "RESPONDING" || lastCameraState === "ANALYZING")
+                            ? BUSY_INTERVAL_MS
+                            : LOOP_INTERVAL_MS;
+                        setTimeout(loop, delay);
                     })
                     .catch(e => {
                         console.error(e);
+                        lastCameraState = "ERROR";
+                        lastGeminiState = "ERROR";
                         setCameraState('ERROR', 'Frame upload failed');
                         setTimeout(loop, 5000);
                     });
@@ -173,11 +262,14 @@
     }
 
     window.getCurrentFrameBlob = function(callback) {
-        const canvas = document.getElementById('frame-buffer');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        canvas.toBlob(callback, 'image/png');
+        if (!frameBuffer || !frameCtx || !video.videoWidth || !video.videoHeight) {
+            callback(null);
+            return;
+        }
+        frameBuffer.width = video.videoWidth;
+        frameBuffer.height = video.videoHeight;
+        frameCtx.drawImage(video, 0, 0);
+        frameBuffer.toBlob(callback, 'image/png');
     };
 
     // Ignite (Only after config is loaded)
@@ -212,6 +304,60 @@
         if (normalized === 'FOUND') {
             triggerPulse();
         }
+    }
+
+    function handleLiveFlash(payload) {
+        if (!dataOverlay || !dataFlash || !payload) {
+            return;
+        }
+        const tone = payload.cameraState === "ERROR" ? "error" : "success";
+        dataOverlay.classList.toggle('error', tone === "error");
+
+        const lines = [];
+        if (tone === "error") {
+            const note = payload.notes || "Verification failed";
+            lines.push(note);
+        } else {
+            if (payload.name) {
+                lines.push(payload.name);
+            }
+            const addressParts = [payload.address, payload.city, payload.state, payload.zipCode]
+                .filter(Boolean)
+                .map(part => String(part).trim())
+                .filter(part => part.length);
+            if (addressParts.length) {
+                lines.push(addressParts.join(', '));
+            }
+            if (payload.trackingNumber) {
+                lines.push(`Tracking: ${payload.trackingNumber}`);
+            }
+            if (!lines.length) {
+                lines.push("Address verified");
+            }
+        }
+
+        const key = payload.uuid || payload.trackingNumber || payload.notes || Math.random().toString();
+        const now = Date.now();
+        if (key && key === lastFlashKey && now - lastFlashAt < 1400) {
+            return;
+        }
+        lastFlashKey = key;
+        lastFlashAt = now;
+
+        dataFlash.innerHTML = '';
+        lines.forEach((line) => {
+            const div = document.createElement('div');
+            div.className = 'scan-data-line';
+            div.textContent = line;
+            dataFlash.appendChild(div);
+        });
+        dataOverlay.classList.add('show');
+        if (flashTimer) {
+            clearTimeout(flashTimer);
+        }
+        flashTimer = setTimeout(() => {
+            dataOverlay.classList.remove('show');
+        }, tone === "error" ? 2000 : 1400);
     }
 
     function triggerPulse() {

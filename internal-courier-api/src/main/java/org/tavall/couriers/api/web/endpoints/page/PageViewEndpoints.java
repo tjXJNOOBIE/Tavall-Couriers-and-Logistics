@@ -15,12 +15,14 @@ public enum PageViewEndpoints implements AppEndpoint {
     HOME("/", "GET"),
     LOGIN("/login", "GET"),
     TRACKING("/tracking", "GET"),
-    TRACKING_DETAIL("/tracking/{trackingNumber}", "GET");
+    TRACKING_DETAIL("/tracking/{trackingNumber}", "GET"),
+    PURCHASE("/purchase", "GET");
 
     public static final String HOME_PATH = "/";
     public static final String LOGIN_PATH = "/login";
     public static final String TRACKING_PATH = "/tracking";
     public static final String TRACKING_DETAIL_PATH = "/tracking/{trackingNumber}";
+    public static final String PURCHASE_PATH = "/purchase";
 
     private final String endpoint;
     private final String method;

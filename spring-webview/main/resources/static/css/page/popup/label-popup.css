@@ -20,7 +20,7 @@
 .label-popup-topbar {
     display: none;
     justify-content: flex-end;
-    margin-bottom: 0.5rem;
+    margin-top: 1rem;
 }
 
 .label-popup-close {
@@ -36,8 +36,7 @@
 
 .label-popup-embedded .label-popup-topbar {
     display: flex;
-    position: sticky;
-    top: 0;
+    position: static;
     z-index: 10;
 }
 

@@ -91,7 +91,8 @@ class DatabaseEntitiesIntegrationTest {
 
         TrackingNumberMetaDataEntity trackingMeta = new TrackingNumberMetaDataEntity(
                 "TRACK-10001",
-                qrUuid
+                qrUuid,
+                DeliveryState.IN_TRANSIT
         );
 
         ScanResponseEntity scanResponse = new ScanResponseEntity(
@@ -131,6 +132,7 @@ class DatabaseEntitiesIntegrationTest {
                 entityManager.find(TrackingNumberMetaDataEntity.class, "TRACK-10001");
         assertThat(loadedTracking).isNotNull();
         assertThat(loadedTracking.getQrUuid()).isEqualTo(qrUuid);
+        assertThat(loadedTracking.getDeliveryState()).isEqualTo(DeliveryState.IN_TRANSIT);
 
         ScanResponseEntity loadedScan =
                 entityManager.find(ScanResponseEntity.class, scanResponse.getUuid());

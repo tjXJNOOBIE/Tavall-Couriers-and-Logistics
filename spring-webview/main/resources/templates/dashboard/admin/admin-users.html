@@ -25,7 +25,8 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
                     <h3 class="font-bold text-slate-700">Team Directory</h3>
-                    <span class="text-xs text-slate-400">Demo view</span>
+                    <span class="text-xs text-slate-400"
+                          th:text="${#lists.size(adminUsers)} + ' users'">0 users</span>
                 </div>
 
                 <div th:if="${#lists.isEmpty(adminUsers)}" class="p-4 text-sm text-slate-500">

@@ -21,11 +21,7 @@
                 </div>
                 <div class="flex gap-2">
                     <a class="btn-outline-small" th:href="@{/dashboard/merchant}">Back to Hub</a>
-                    <form method="post" th:action="@{/internal/api/v1/merchant/routes/create}">
-                        <input type="hidden" th:if="${_csrf != null}"
-                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                        <button class="btn-primary" type="submit">Create Route</button>
-                    </form>
+                    <button class="btn-primary" type="button" data-route-create-open="true">Create Route</button>
                 </div>
             </div>
 
@@ -35,10 +31,20 @@
             <div th:if="${routeError != null}" class="alert alert-danger mb-4" th:text="${routeError}">
                 Route update failed.
             </div>
+            <div id="routeProcessing" class="scan-queue-card scan-queue-processing mb-4" hidden>
+                <div class="scan-queue-top">
+                    <div class="scan-queue-status">Processing</div>
+                    <div class="scan-queue-meta">Route link</div>
+                </div>
+                <div class="scan-queue-title">Generating... give us a few seconds..</div>
+                <div class="scan-queue-sub" id="routeProcessingDetail">Preparing route link.</div>
+                <div class="scan-queue-progress"></div>
+            </div>
+            <div id="routeScanStatus" class="text-sm text-slate-600 mb-4" hidden></div>
 
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-lg mb-4 text-slate-800">Routes</h3>
+<div class="grid grid-cols-1 gap-6">
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <h3 class="font-bold text-lg mb-4 text-slate-800">Routes</h3>
                     <div th:if="${#lists.isEmpty(routes)}" class="text-sm text-slate-500">
                         No routes created yet.
                     </div>
@@ -46,81 +52,735 @@
                         <div th:each="route : ${routes}" class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
                             <div class="flex justify-between items-start gap-3">
                                 <div>
-                                    <div class="text-xs font-bold text-slate-500" th:text="${route.status}">PLANNED</div>
-                                    <div class="text-sm font-bold text-slate-700 mt-1" th:text="${route.routeId}">RTE-</div>
+                                    <div class="text-xs font-bold text-slate-500" th:text="${route.status}"></div>
+                                    <div class="text-sm font-bold text-slate-700 mt-1" th:text="${route.routeId}"></div>
                                     <div class="text-xs text-slate-500 mt-1">
-                                        <span th:text="${route.labelCount}">0</span> stops
+                                        <span th:text="${route.labelCount}"></span> stops
                                     </div>
+                                    <div class="text-xs text-slate-500 mt-1"
+                                         th:text="${route.deadline != null ? 'DEADLINE: ' + #temporals.format(route.deadline, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                                    <div class="text-xs text-slate-400 mt-1"
+                                         th:text="${route.assignedDrivers != null ? 'Driver: ' + (driverLookup[route.assignedDrivers] != null ? driverLookup[route.assignedDrivers] : route.assignedDrivers) : 'Driver: Unassigned'}"></div>
                                 </div>
-                                <div class="flex flex-col items-end gap-2">
-                                    <a class="text-link" th:href="@{/dashboard/merchant/routes(routeId=${route.routeId})}">View</a>
-                                    <form method="post" th:action="@{/internal/api/v1/merchant/routes/delete}">
-                                        <input type="hidden" th:if="${_csrf != null}"
-                                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                                        <input type="hidden" name="routeId" th:value="${route.routeId}"/>
-                                        <button class="text-link text-red-500" type="submit">Delete</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-lg mb-4 text-slate-800">Route Details</h3>
-                    <div th:if="${selectedRoute == null}" class="text-sm text-slate-500">
-                        Select a route to view its stops.
-                    </div>
-                    <div th:if="${selectedRoute != null}" class="space-y-4">
-                        <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                            <div class="text-xs font-bold text-slate-500">Route ID</div>
-                            <div class="text-sm font-bold text-slate-700" th:text="${selectedRoute.routeId}">RTE-</div>
-                            <div class="text-xs text-slate-500">Stops: <span th:text="${selectedRoute.labelCount}">0</span></div>
-                        </div>
-
-                        <form method="post" th:action="@{/internal/api/v1/merchant/routes/update}" class="space-y-3">
-                            <input type="hidden" th:if="${_csrf != null}"
-                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                            <input type="hidden" name="routeId" th:value="${selectedRoute.routeId}"/>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <input type="text" name="status" placeholder="Status"
-                                       class="w-full p-3 border border-slate-200 rounded-lg outline-none"
-                                       th:value="${selectedRoute.status}">
-                                <input type="text" name="notes" placeholder="Notes"
-                                       class="w-full p-3 border border-slate-200 rounded-lg outline-none"
-                                       th:value="${selectedRoute.notes}">
-                            </div>
-                            <button class="btn-outline-small" type="submit">Update Route</button>
-                        </form>
-
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-400 uppercase mb-3 tracking-wider">Stops</h4>
-                            <div th:if="${#lists.isEmpty(selectedStops)}" class="text-sm text-slate-500">
-                                No stops assigned.
-                            </div>
-                            <div th:if="${!#lists.isEmpty(selectedStops)}" class="space-y-3">
-                                <div th:each="stop, iter : ${selectedStops}" class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                                    <div th:with="label=${labelLookup[stop.labelUuid]}">
-                                        <div class="text-xs font-bold text-slate-500">Stop <span th:text="${iter.count}">1</span></div>
-                                        <div class="text-sm font-bold text-slate-700"
-                                             th:text="${label != null ? label.trackingNumber : stop.labelUuid}">TAVALL</div>
-                                        <div class="text-xs text-slate-500"
-                                             th:text="${label != null ? label.recipientName : 'Label unavailable'}">Recipient</div>
-                                        <div class="text-xs text-slate-400"
-                                             th:text="${label != null ? label.city + ', ' + label.state : ''}">City, State</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                <div class="route-actions">
+                                <a class="btn-primary route-action"
+                                   th:href="@{/dashboard/merchant/routes/{routeId}/details(routeId=${route.routeId})}"
+                                   data-label-popup="true">View</a>
+                                <button class="btn-primary route-action"
+                                        type="button"
+                                        data-route-scan-open="true"
+                                        th:attr="data-route-id=${route.routeId}">
+                                    Scan &amp; Add
+                                </button>
+                                    <button class="btn-primary route-action"
+                                            type="button"
+                                            data-route-assign-open="true"
+                                            th:attr="data-route-id=${route.routeId}">
+                                        Assign Driver
+                                    </button>
+                    <form method="post" th:action="@{/internal/api/v1/merchant/routes/delete}">
+                        <input type="hidden" th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <input type="hidden" name="routeId" th:value="${route.routeId}"/>
+                        <button class="btn-secondary route-action"
+                                type="button"
+                                data-route-delete="true"
+                                th:attr="data-route-id=${route.routeId}">
+                            Delete
+                        </button>
+                    </form>
                 </div>
             </div>
+        </div>
+                    </div>
+                </div>
+
+</div>
         </div>
     </div>
 </main>
 
+<script defer src="/js/label-popup.js"></script>
+
+
 <script>
-    lucide.createIcons();
+    document.addEventListener("DOMContentLoaded", () => {
+        const TRANSITION_MS = 220;
+
+        const openModal = (modal) => {
+            if (!modal) return;
+            modal.removeAttribute("hidden");
+            document.body.classList.add("scan-modal-open");
+            requestAnimationFrame(() => modal.classList.add("open"));
+        };
+
+        const closeModal = (modal) => {
+            if (!modal) return;
+            modal.classList.remove("open");
+            document.body.classList.remove("scan-modal-open");
+            setTimeout(() => {
+                modal.setAttribute("hidden", "hidden");
+            }, TRANSITION_MS);
+        };
+
+        const createModal = document.getElementById("routeCreateModal");
+        const routeProcessing = document.getElementById("routeProcessing");
+        const routeProcessingDetail = document.getElementById("routeProcessingDetail");
+        const createStep1 = createModal ? createModal.querySelector("[data-route-create-step=\"1\"]") : null;
+        const createStep2 = createModal ? createModal.querySelector("[data-route-create-step=\"2\"]") : null;
+        const createNext = createModal ? createModal.querySelector("[data-route-create-next]") : null;
+        const createBack = createModal ? createModal.querySelector("[data-route-create-back]") : null;
+        const createSearch = createModal ? createModal.querySelector("[data-route-create-search]") : null;
+        const createSelectedCount = createModal ? createModal.querySelector("[data-route-create-selected-count]") : null;
+        const createDeadline = createModal ? createModal.querySelector("input[name=\"deadline\"]") : null;
+        const createDriver = createModal ? createModal.querySelector("select[name=\"assignedDriver\"]") : null;
+        const createRadius = createModal ? createModal.querySelector("input[name=\"radiusMiles\"]") : null;
+        const createMaxStops = createModal ? createModal.querySelector("input[name=\"maxStops\"]") : null;
+        const createSummaryDeadline = createModal ? createModal.querySelector("[data-route-create-summary=\"deadline\"]") : null;
+        const createSummaryDriver = createModal ? createModal.querySelector("[data-route-create-summary=\"driver\"]") : null;
+        const createSummaryRadius = createModal ? createModal.querySelector("[data-route-create-summary=\"radius\"]") : null;
+        const createSummaryMaxStops = createModal ? createModal.querySelector("[data-route-create-summary=\"maxStops\"]") : null;
+        const createError = createModal ? createModal.querySelector("[data-route-create-error]") : null;
+        const createSubmit = createModal ? createModal.querySelector("[data-route-create-submit]") : null;
+        const routeScanModal = document.getElementById("routeScanModal");
+        const routeScanBackdrop = document.getElementById("routeScanBackdrop");
+        const routeScanFrame = document.getElementById("routeScanFrame");
+        const routeScanClose = document.getElementById("routeScanClose");
+        const routeScanConfirmModal = document.getElementById("routeScanConfirmModal");
+        const routeScanConfirmBackdrop = document.getElementById("routeScanConfirmBackdrop");
+        const routeScanSummary = document.querySelector("[data-route-scan-summary]");
+        const routeScanDecline = document.querySelector("[data-route-scan-decline]");
+        const routeScanConfirm = document.querySelector("[data-route-scan-confirm]");
+        const routeScanStatus = document.getElementById("routeScanStatus");
+        let activeRouteId = null;
+        let pendingRoutePayload = null;
+
+        const setCreateStep = (step) => {
+            if (!createStep1 || !createStep2) return;
+            if (step === 2) {
+                createStep1.setAttribute("hidden", "hidden");
+                createStep2.removeAttribute("hidden");
+            } else {
+                createStep2.setAttribute("hidden", "hidden");
+                createStep1.removeAttribute("hidden");
+            }
+        };
+
+        const clearCreateError = () => {
+            if (!createError) return;
+            createError.textContent = "";
+            createError.setAttribute("hidden", "hidden");
+        };
+
+        const showCreateError = (message) => {
+            if (!createError) return;
+            createError.textContent = message;
+            createError.removeAttribute("hidden");
+        };
+
+        const updateCreateSummary = () => {
+            if (createDeadline && createSummaryDeadline) {
+                createSummaryDeadline.textContent = createDeadline.value ? createDeadline.value.replace("T", " ") : "Not set";
+            }
+            if (createDriver && createSummaryDriver) {
+                const selected = createDriver.options[createDriver.selectedIndex];
+                createSummaryDriver.textContent = selected && selected.textContent ? selected.textContent : "Unassigned";
+            }
+            if (createRadius && createSummaryRadius) {
+                createSummaryRadius.textContent = createRadius.value ? `${createRadius.value} miles` : "50 miles";
+            }
+            if (createMaxStops && createSummaryMaxStops) {
+                createSummaryMaxStops.textContent = createMaxStops.value ? `${createMaxStops.value} containers` : "30 containers";
+            }
+        };
+
+        const updateCreateSelectionCount = () => {
+            if (!createModal || !createSelectedCount) return;
+            const checkboxes = createModal.querySelectorAll("input[name=\"labelUuids\"]");
+            let selected = 0;
+            checkboxes.forEach((cb) => {
+                if (cb.checked) selected++;
+            });
+            createSelectedCount.textContent = String(selected);
+            if (createSubmit) {
+                createSubmit.disabled = selected === 0;
+            }
+        };
+
+        const filterCreateStops = (query) => {
+            if (!createModal) return;
+            const normalized = (query || "").trim().toLowerCase();
+            createModal.querySelectorAll("[data-route-stop-option]").forEach((el) => {
+                const haystack = (el.getAttribute("data-search") || "").toLowerCase();
+                const matches = normalized.length === 0 || haystack.includes(normalized);
+                el.style.display = matches ? "" : "none";
+            });
+        };
+
+        const resetCreateWizard = () => {
+            clearCreateError();
+            setCreateStep(1);
+            if (createSearch) {
+                createSearch.value = "";
+            }
+            filterCreateStops("");
+            updateCreateSummary();
+            updateCreateSelectionCount();
+        };
+
+        const updateRouteScanStatus = (message, tone = "info") => {
+            if (!routeScanStatus) return;
+            routeScanStatus.textContent = message || "";
+            routeScanStatus.dataset.tone = tone;
+            routeScanStatus.hidden = !message;
+        };
+
+        const startRouteProcessing = (routeId, message) => {
+            if (!routeProcessing) return;
+            if (routeId) {
+                routeProcessing.dataset.routeId = routeId;
+            }
+            if (routeProcessingDetail && message) {
+                routeProcessingDetail.textContent = message;
+            }
+            routeProcessing.hidden = false;
+        };
+
+        const stopRouteProcessing = () => {
+            if (!routeProcessing) return;
+            routeProcessing.hidden = true;
+            routeProcessing.removeAttribute("data-route-id");
+        };
+
+        const pollRouteLink = (routeId) => {
+            if (!routeId) return;
+            fetch(`/internal/api/v1/merchant/routes/link?routeId=${encodeURIComponent(routeId)}`)
+                .then((res) => res.ok ? res.json() : Promise.reject())
+                .then((payload) => {
+                    if (payload && payload.ready) {
+                        stopRouteProcessing();
+                        return;
+                    }
+                    startRouteProcessing(routeId, "Preparing route link.");
+                    setTimeout(() => pollRouteLink(routeId), 1500);
+                })
+                .catch(() => {
+                    startRouteProcessing(routeId, "Preparing route link.");
+                    setTimeout(() => pollRouteLink(routeId), 2000);
+                });
+        };
+
+        const openRouteConfirm = (payload) => {
+            if (!routeScanConfirmModal) return;
+            pendingRoutePayload = payload;
+            const summaryText = payload && payload.name && payload.address
+                ? `${payload.name} — ${payload.address}${payload.city ? ', ' + payload.city : ''}`
+                : "Waiting for data…";
+            if (routeScanSummary) {
+                routeScanSummary.textContent = summaryText;
+            }
+            openModal(routeScanConfirmModal);
+        };
+
+        const closeRouteConfirm = () => {
+            if (!routeScanConfirmModal) return;
+            pendingRoutePayload = null;
+            closeModal(routeScanConfirmModal);
+        };
+
+        if (createModal) {
+            createModal.addEventListener("change", (event) => {
+                const target = event.target;
+                if (!(target instanceof HTMLInputElement)) return;
+                if (target.name !== "labelUuids") return;
+                updateCreateSelectionCount();
+            });
+        }
+
+        if (createModal) {
+            const createForm = createModal.querySelector("form");
+            if (createForm) {
+                createForm.addEventListener("submit", () => {
+                    closeModal(createModal);
+                    startRouteProcessing(null, "Preparing route link.");
+                });
+            }
+        }
+
+        if (createSearch) {
+            createSearch.addEventListener("input", () => filterCreateStops(createSearch.value));
+        }
+
+        if (createDeadline) {
+            createDeadline.addEventListener("input", updateCreateSummary);
+        }
+
+        if (createDriver) {
+            createDriver.addEventListener("change", updateCreateSummary);
+        }
+
+        if (createRadius) {
+            createRadius.addEventListener("input", updateCreateSummary);
+        }
+
+        if (createMaxStops) {
+            createMaxStops.addEventListener("input", updateCreateSummary);
+        }
+
+        if (routeScanDecline) {
+            routeScanDecline.addEventListener("click", () => closeRouteConfirm());
+        }
+
+        if (routeScanConfirm) {
+            routeScanConfirm.addEventListener("click", () => {
+                if (!pendingRoutePayload || !activeRouteId) {
+                    closeRouteConfirm();
+                    return;
+                }
+                updateRouteScanStatus("Generating… give us a few seconds..", "info");
+                const payload = pendingRoutePayload;
+                const body = new URLSearchParams();
+                body.set("routeId", activeRouteId);
+                if (payload.uuid) body.set("uuid", payload.uuid);
+                if (payload.name) body.set("name", payload.name);
+                if (payload.address) body.set("address", payload.address);
+                if (payload.city) body.set("city", payload.city);
+                if (payload.state) body.set("state", payload.state);
+                if (payload.zipCode) body.set("zip", payload.zipCode);
+                if (payload.country) body.set("country", payload.country);
+                if (payload.phoneNumber) body.set("phone", payload.phoneNumber);
+                if (payload.deadline) body.set("deadline", payload.deadline);
+
+                fetch("/internal/api/v1/merchant/routes/scan/confirm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: body.toString()
+                }).then(res => res.ok ? res.json() : Promise.reject())
+                    .then(() => {
+                        updateRouteScanStatus("Label added to route.", "success");
+                    })
+                    .catch(() => updateRouteScanStatus("Unable to add label to route.", "error"))
+                    .finally(() => closeRouteConfirm());
+            });
+        }
+
+        if (routeScanConfirmBackdrop) {
+            routeScanConfirmBackdrop.addEventListener("click", closeRouteConfirm);
+        }
+
+        if (createNext) {
+            createNext.addEventListener("click", () => {
+                clearCreateError();
+                if (createDeadline && createDeadline.hasAttribute("required") && !createDeadline.value) {
+                    showCreateError("Set a deadline to continue.");
+                    return;
+                }
+                updateCreateSummary();
+                updateCreateSelectionCount();
+                setCreateStep(2);
+            });
+        }
+
+        if (createBack) {
+            createBack.addEventListener("click", () => {
+                clearCreateError();
+                setCreateStep(1);
+            });
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                if (deleteModal && !deleteModal.hasAttribute("hidden")) {
+                    closeDeleteModal();
+                }
+            }
+        });
+
+        const configs = [
+            {
+                openSelector: "[data-route-create-open]",
+                modal: createModal,
+                backdrop: document.getElementById("routeCreateBackdrop"),
+                closeSelector: "[data-route-close=\"create\"]",
+                onOpen: resetCreateWizard
+            },
+            {
+                openSelector: "[data-route-add-open]",
+                modal: document.getElementById("routeAddStopsModal"),
+                backdrop: document.getElementById("routeAddBackdrop"),
+                closeSelector: "[data-route-close=\"add\"]"
+            },
+            {
+                openSelector: "[data-route-assign-open]",
+                modal: document.getElementById("routeAssignModal"),
+                backdrop: document.getElementById("routeAssignBackdrop"),
+                closeSelector: "[data-route-close=\"assign\"]",
+                assignInput: document.getElementById("routeAssignId")
+            },
+            {
+                openSelector: "[data-route-scan-open]",
+                modal: routeScanModal,
+                backdrop: routeScanBackdrop,
+                closeSelector: "#routeScanClose",
+                onOpen: (eventTarget) => {
+                    const routeIdValue = eventTarget && eventTarget.dataset ? eventTarget.dataset.routeId : null;
+                    activeRouteId = routeIdValue;
+                    if (routeScanFrame && routeIdValue) {
+                        routeScanFrame.src = `/dashboard/merchant/routes/${routeIdValue}/scan`;
+                    }
+                    updateRouteScanStatus("");
+                }
+            }
+        ];
+
+        configs.forEach((config) => {
+            const { modal, backdrop, openSelector, closeSelector, assignInput, onOpen } = config;
+            if (!modal) return;
+
+            document.querySelectorAll(openSelector).forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    if (assignInput && btn.dataset.routeId) {
+                        assignInput.value = btn.dataset.routeId;
+                    }
+                    if (typeof onOpen === "function") {
+                        onOpen(btn);
+                    }
+                    openModal(modal);
+                });
+            });
+
+            if (closeSelector) {
+                modal.querySelectorAll(closeSelector).forEach((btn) => {
+                    btn.addEventListener("click", () => closeModal(modal));
+                });
+            }
+
+            if (backdrop) {
+                backdrop.addEventListener("click", () => closeModal(modal));
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key !== "Escape") return;
+            configs.forEach((config) => {
+                if (config.modal && !config.modal.hasAttribute("hidden")) {
+                    closeModal(config.modal);
+                }
+            });
+            if (routeScanConfirmModal && !routeScanConfirmModal.hasAttribute("hidden")) {
+                closeRouteConfirm();
+            }
+        });
+
+        window.addEventListener("message", (event) => {
+            if (!event || event.origin !== window.location.origin) return;
+            const data = event.data;
+            if (!data) return;
+
+            if (routeScanFrame && event.source === routeScanFrame.contentWindow) {
+                if (data.type === "scanModalClose") {
+                    closeModal(routeScanModal);
+                    return;
+                }
+                if (data.type === "scanModalResize") {
+                    return;
+                }
+            }
+
+            if (data.type !== "routeScanResult") return;
+            if (!data.routeId || data.routeId !== activeRouteId) return;
+            const payload = data.payload || {};
+            if (payload.pendingIntake) {
+                openRouteConfirm(payload);
+                return;
+            }
+            if (payload.cameraState === "ERROR") {
+                updateRouteScanStatus(payload.notes || "Scan error", "error");
+                return;
+            }
+            if (payload.existingLabel) {
+                updateRouteScanStatus("Label added to route.", "success");
+            }
+        });
+
+        const deleteModal = document.getElementById("routeDeleteModal");
+        const deleteBackdrop = document.getElementById("routeDeleteBackdrop");
+        const deleteLabel = document.getElementById("routeDeleteLabel");
+        const deleteConfirmBtn = document.getElementById("routeDeleteConfirm");
+        const deleteCancelBtn = document.getElementById("routeDeleteCancel");
+        let pendingDeleteForm = null;
+
+        const openDeleteModal = () => {
+            if (!deleteModal) return;
+            deleteModal.removeAttribute("hidden");
+            document.body.classList.add("scan-modal-open");
+            requestAnimationFrame(() => deleteModal.classList.add("open"));
+        };
+
+        const closeDeleteModal = () => {
+            if (!deleteModal) return;
+            deleteModal.classList.remove("open");
+            document.body.classList.remove("scan-modal-open");
+            setTimeout(() => deleteModal.setAttribute("hidden", "hidden"), 220);
+        };
+
+        document.querySelectorAll("button[data-route-delete]").forEach((btn) => {
+            btn.addEventListener("click", (event) => {
+                event.preventDefault();
+                const form = btn.closest("form");
+                pendingDeleteForm = form;
+                const routeId = btn.dataset.routeId || form?.querySelector("[name=\"routeId\"]")?.value;
+                if (deleteLabel && routeId) {
+                    deleteLabel.textContent = routeId;
+                }
+                openDeleteModal();
+            });
+        });
+
+        if (deleteBackdrop) {
+            deleteBackdrop.addEventListener("click", closeDeleteModal);
+        }
+
+        if (deleteCancelBtn) {
+            deleteCancelBtn.addEventListener("click", closeDeleteModal);
+        }
+
+        if (deleteConfirmBtn) {
+            deleteConfirmBtn.addEventListener("click", () => {
+                if (pendingDeleteForm) {
+                    pendingDeleteForm.submit();
+                }
+                closeDeleteModal();
+            });
+        }
+
+        const routeIdParam = new URLSearchParams(window.location.search).get("routeId");
+        if (routeIdParam) {
+            startRouteProcessing(routeIdParam, "Preparing route link.");
+            pollRouteLink(routeIdParam);
+        }
+
+        lucide.createIcons();
+    });
 </script>
+
+<div id="routeCreateModal" class="scan-modal route-modal" hidden>
+    <div id="routeCreateBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel route-modal-panel tavall-popup-panel">
+        <div class="label-form-header">
+            <h3 class="text-xl font-bold text-slate-800">Build a Route</h3>
+            <p class="text-sm text-slate-500">Add route details, then quickly select shipments.</p>
+        </div>
+        <form method="post" th:action="@{/internal/api/v1/merchant/routes/create}" class="space-y-4">
+            <input type="hidden" th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="alert alert-danger" data-route-create-error="true" hidden></div>
+
+            <div data-route-create-step="1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="form-label">Assign Driver (Optional)</label>
+                        <select name="assignedDriver" class="w-full p-3 border border-slate-200 rounded-lg outline-none">
+                            <option value="">Unassigned</option>
+                            <option th:each="driver : ${drivers}"
+                                    th:value="${driver.userUUID}"
+                                    th:text="${driver.username}">Driver</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Route Deadline</label>
+                        <input type="datetime-local" name="deadline" required
+                               class="w-full p-3 border border-slate-200 rounded-lg outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                    <div>
+                        <label class="form-label">Radius (miles)</label>
+                        <input type="number" min="1" step="1" name="radiusMiles"
+                               th:value="${routeRadiusDefault}"
+                               class="w-full p-3 border border-slate-200 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="form-label">Max Containers</label>
+                        <input type="number" min="1" step="1" name="maxStops"
+                               th:value="${routeMaxDefault}"
+                               class="w-full p-3 border border-slate-200 rounded-lg outline-none">
+                    </div>
+                </div>
+                <div class="label-form-actions">
+                    <button class="btn-secondary" type="button" data-route-close="create">Cancel</button>
+                    <button class="btn-primary" type="button" data-route-create-next="true">Next</button>
+                </div>
+            </div>
+
+            <div data-route-create-step="2" hidden>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Confirmation</div>
+                    <div class="text-sm text-slate-600">
+                        Driver: <span class="font-bold text-slate-800" data-route-create-summary="driver">Unassigned</span>
+                    </div>
+                    <div class="text-sm text-slate-600 mt-1">
+                        Deadline: <span class="font-bold text-slate-800 mono" data-route-create-summary="deadline">Not set</span>
+                    </div>
+                    <div class="text-sm text-slate-600 mt-1">
+                        Radius: <span class="font-bold text-slate-800" data-route-create-summary="radius">50 miles</span>
+                    </div>
+                    <div class="text-sm text-slate-600 mt-1">
+                        Max containers: <span class="font-bold text-slate-800" data-route-create-summary="maxStops">30 containers</span>
+                    </div>
+                    <div class="text-sm text-slate-600 mt-1">
+                        Selected shipments: <span class="font-bold text-slate-800" data-route-create-selected-count="true">0</span>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="form-label">Add Shipments</label>
+                    <input type="text"
+                           class="w-full p-3 border border-slate-200 rounded-lg outline-none mono"
+                           placeholder="Search by tracking, recipient, city, state..."
+                           data-route-create-search="true">
+                    <div class="text-xs text-slate-400 mt-2">
+                        Tip: search and click checkboxes to build a route quickly.
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(availableLabels)}" class="text-sm text-slate-500 mt-4">
+                    No shipments available to route.
+                </div>
+                <div th:if="${!#lists.isEmpty(availableLabels)}" class="space-y-3 mt-4">
+                    <label th:each="label : ${availableLabels}"
+                           data-route-stop-option="true"
+                           class="route-stop-option"
+                           th:attr="data-search=${(label.trackingNumber != null ? label.trackingNumber : '') + ' ' + (label.recipientName != null ? label.recipientName : '') + ' ' + (label.city != null ? label.city : '') + ' ' + (label.state != null ? label.state : '')}">
+                        <input type="checkbox" name="labelUuids" th:value="${label.uuid}" />
+                        <div class="route-stop-details">
+                            <div class="text-xs font-bold text-slate-500"
+                                 th:text="${label.deliveryState != null ? label.deliveryState.displayName() : 'N/A'}"></div>
+                            <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}"></div>
+                            <div class="text-xs text-slate-500" th:text="${label.recipientName}"></div>
+                            <div class="text-xs text-slate-400" th:text="${label.city + ', ' + label.state}"></div>
+                        </div>
+                        <div class="route-stop-deadline"
+                             th:text="${label.deliverBy != null ? 'DEADLINE: ' + #temporals.format(label.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                    </label>
+                </div>
+
+                <div class="label-form-actions">
+                    <button class="btn-secondary" type="button" data-route-create-back="true">Back</button>
+                    <button class="btn-primary" type="submit" data-route-create-submit="true" disabled>Create Route</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="routeAddStopsModal" class="scan-modal route-modal" hidden>
+    <div id="routeAddBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel route-modal-panel tavall-popup-panel">
+        <div class="label-form-header">
+            <h3 class="text-xl font-bold text-slate-800">Add Stops</h3>
+            <p class="text-sm text-slate-500">Select shipments to append to this route.</p>
+        </div>
+        <form method="post" th:action="@{/internal/api/v1/merchant/routes/stops/add}" class="space-y-4">
+            <input type="hidden" th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="routeId" th:value="${selectedRoute != null ? selectedRoute.routeId : ''}"/>
+            <div th:if="${#lists.isEmpty(availableStops)}" class="text-sm text-slate-500">
+                No additional shipments available.
+            </div>
+            <div th:if="${!#lists.isEmpty(availableStops)}" class="space-y-3">
+                <label th:each="label : ${availableStops}"
+                       class="route-stop-option">
+                    <input type="checkbox" name="labelUuids" th:value="${label.uuid}" />
+                    <div class="route-stop-details">
+                        <div class="text-xs font-bold text-slate-500"
+                             th:text="${label.deliveryState != null ? label.deliveryState.displayName() : 'N/A'}"></div>
+                        <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}"></div>
+                        <div class="text-xs text-slate-500" th:text="${label.recipientName}"></div>
+                        <div class="text-xs text-slate-400" th:text="${label.city + ', ' + label.state}"></div>
+                    </div>
+                    <div class="route-stop-deadline"
+                         th:text="${label.deliverBy != null ? 'DEADLINE: ' + #temporals.format(label.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                </label>
+            </div>
+            <div class="label-form-actions">
+                <button class="btn-secondary" type="button" data-route-close="add">Cancel</button>
+                <button class="btn-primary" type="submit">Add Stops</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="routeAssignModal" class="scan-modal route-modal" hidden>
+    <div id="routeAssignBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel route-modal-panel tavall-popup-panel">
+        <div class="label-form-header">
+            <h3 class="text-xl font-bold text-slate-800">Assign Driver</h3>
+            <p class="text-sm text-slate-500">Link a driver to this route.</p>
+        </div>
+        <form method="post" th:action="@{/internal/api/v1/merchant/routes/assign}" class="space-y-4">
+            <input type="hidden" th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" id="routeAssignId" name="routeId" value=""/>
+            <div>
+                <label class="form-label">Assigned Driver</label>
+                <select name="assignedDriver" class="w-full p-3 border border-slate-200 rounded-lg outline-none">
+                    <option value="">Unassigned</option>
+                    <option th:each="driver : ${drivers}"
+                            th:value="${driver.userUUID}"
+                            th:text="${driver.username}">Driver</option>
+                </select>
+            </div>
+            <div class="label-form-actions">
+                <button class="btn-secondary" type="button" data-route-close="assign">Close</button>
+                <button class="btn-primary" type="submit">Save Assignment</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{constants/camera-modal :: cameraModal('routeScanModal','routeScanFrame','routeScanClose','routeScanBackdrop')}"></div>
+
+<div id="routeScanConfirmModal" class="scan-modal route-modal" hidden>
+    <div id="routeScanConfirmBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel tavall-popup-panel">
+        <div class="space-y-3">
+            <div class="text-sm text-slate-600" data-route-scan-summary>Waiting for data…</div>
+            <div class="flex justify-end gap-2">
+                <button class="btn-secondary" type="button" data-route-scan-decline>Decline</button>
+                <button class="btn-primary" type="button" data-route-scan-confirm>Confirm intake &amp; add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="routeDeleteModal" class="scan-modal label-popup-modal" hidden>
+    <div id="routeDeleteBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel tavall-popup-panel">
+        <div class="space-y-4">
+            <div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Confirm delete</div>
+                <div class="text-lg font-bold text-slate-800">Delete route</div>
+            </div>
+            <p class="text-sm text-slate-500">
+                Remove <span class="font-bold text-slate-800" id="routeDeleteLabel">this route</span> permanently?
+            </p>
+            <div class="flex justify-end gap-2">
+                <button id="routeDeleteCancel" class="btn-secondary" type="button">Cancel</button>
+                <button id="routeDeleteConfirm" class="btn-primary" type="button">Delete Route</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="labelModal" class="scan-modal label-popup-modal" hidden>
+    <div id="labelModalBackdrop" class="scan-modal-backdrop"></div>
+    <div class="scan-modal-panel label-popup-panel tavall-popup-panel">
+        <iframe id="labelModalFrame"
+                class="scan-modal-frame label-popup-frame"
+                title="Label details"
+                loading="lazy"></iframe>
+    </div>
+</div>
 </body>
 </html>

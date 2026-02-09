@@ -9,29 +9,38 @@
 </head>
 <body>
 
-<div class="scan-overlay fade-in" data-scan-mode="merchant-intake">
-    <div class="scan-popup">
-        <div class="scan-topbar">
-            <span class="text-white font-mono text-xs opacity-70">POD SCAN v1.0</span>
-            <a class="scan-close" th:href="@{/dashboard/merchant}">
-                <i data-lucide="x" class="w-8 h-8"></i>
-            </a>
-        </div>
+<div class="scan-popup scan-camera-popup fade-in" data-camera-mode-key="merchantIntake">
+    <div class="scan-topbar">
+        <span class="text-white font-mono text-xs opacity-70">POD SCAN v1.0</span>
+    </div>
 
-        <div class="scan-frame">
-            <div class="scan-video-wrap">
-                <video id="live-feed" autoplay muted playsinline></video>
-                <canvas id="frame-buffer" style="display:none;"></canvas>
+    <div class="scan-layout single">
+        <div>
+            <div class="scan-frame">
+                <div class="scan-video-wrap">
+                    <video id="live-feed" autoplay muted playsinline></video>
+                    <canvas id="frame-buffer" style="display:none;"></canvas>
+                </div>
+                <div class="scan-state-overlay">
+                    <div id="scan-state-badge" class="scan-state-badge">SEARCHING</div>
+                    <div class="scan-state-pulse" aria-hidden="true"></div>
+                </div>
+                <div class="scan-data-overlay" aria-live="polite">
+                    <div class="scan-data-flash"></div>
+                </div>
             </div>
-            <div class="scan-state-overlay">
-                <div id="scan-state-badge" class="scan-state-badge">SEARCHING</div>
-                <div class="scan-state-pulse" aria-hidden="true"></div>
-            </div>
-        </div>
 
-        <div class="scan-actions scan-camera-actions">
-            <button id="btn-toggle-source" class="scan-toggle" type="button">Switch to Screen Share</button>
+            <div class="scan-actions scan-camera-actions">
+                <button id="btn-toggle-source" class="scan-toggle" type="button">Switch to Screen Share</button>
+                <button class="btn-secondary scan-close" type="button" data-scan-close="true">Close</button>
+            </div>
         </div>
+    </div>
+
+    <div class="scan-popup-footer">
+        <button class="btn-secondary scan-close" type="button" data-scan-close="true">
+            Close
+        </button>
     </div>
 </div>
 
@@ -43,6 +52,33 @@
 <script src="/js/camera.js" defer></script>
 <script>
     lucide.createIcons();
+    (function () {
+        const closeBtn = document.querySelector("[data-scan-close]");
+        if (!closeBtn) return;
+        const closeTarget = "/dashboard/merchant";
+        const isEmbedded = window.parent && window.parent !== window;
+        if (isEmbedded) {
+            document.body.classList.add("scan-embedded");
+            document.documentElement.classList.add("scan-embedded");
+        }
+        closeBtn.addEventListener("click", () => {
+            if (isEmbedded) {
+                window.parent.postMessage({ type: "scanModalClose" }, window.location.origin);
+                return;
+            }
+            window.location.href = closeTarget;
+        });
+
+        if (isEmbedded) {
+            const postHeight = () => {
+                const height = document.documentElement.scrollHeight;
+                window.parent.postMessage({ type: "scanModalResize", height }, window.location.origin);
+            };
+            window.addEventListener("load", postHeight);
+            window.addEventListener("resize", postHeight);
+            setTimeout(postHeight, 0);
+        }
+    })();
 </script>
 </body>
 </html>

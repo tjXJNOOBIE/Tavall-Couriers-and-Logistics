@@ -1,21 +1,24 @@
 package org.tavall.couriers.api.web.service.shipping;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
+import org.tavall.couriers.api.concurrent.AsyncTask;
+import org.tavall.couriers.api.console.Log;
 import org.tavall.couriers.api.delivery.state.DeliveryState;
 import org.tavall.couriers.api.delivery.state.cache.DeliveryStateCache;
 import org.tavall.couriers.api.qr.cache.QRShippingLabelCache;
-import org.tavall.couriers.api.tracking.TrackingNumberManager;
-import org.tavall.couriers.api.tracking.metadata.TrackingNumberMetaData;
 import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
+import org.tavall.couriers.api.web.entities.tracking.TrackingNumberMetaDataEntity;
 import org.tavall.couriers.api.web.repositories.ShippingLabelMetaDataRepository;
-import org.springframework.scheduling.TaskScheduler;
+import org.tavall.couriers.api.web.service.tracking.TrackingNumberMetaDataService;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.time.Duration;
-import java.time.Instant;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class ShippingLabelMetaDataService {
@@ -25,49 +28,76 @@ public class ShippingLabelMetaDataService {
     private final ShippingLabelMetaDataRepository repository;
     private final QRShippingLabelCache qrShippingLabelCache;
     private final DeliveryStateCache deliveryStateCache;
-    private final TaskScheduler taskScheduler;
+    private final TrackingNumberMetaDataService trackingService;
+    private final AtomicBoolean priming = new AtomicBoolean(false);
 
     public ShippingLabelMetaDataService(ShippingLabelMetaDataRepository repository,
                                         QRShippingLabelCache qrShippingLabelCache,
                                         DeliveryStateCache deliveryStateCache,
-                                        TaskScheduler taskScheduler) {
+                                        TrackingNumberMetaDataService trackingService) {
         this.repository = repository;
         this.qrShippingLabelCache = qrShippingLabelCache;
         this.deliveryStateCache = deliveryStateCache;
-        this.taskScheduler = taskScheduler;
+        this.trackingService = trackingService;
+    }
+
+    @PostConstruct
+    public void warmCaches() {
+        primeCachesFromDatabase();
     }
 
     public List<ShippingLabelMetaDataEntity> getAllShipmentLabels() {
-        return repository.findAll();
+        List<ShippingLabelMetaDataEntity> cached = qrShippingLabelCache.getAllLabels();
+        if (!cached.isEmpty() || qrShippingLabelCache.isPrimed()) {
+            return cached;
+        }
+        primeCachesAsync();
+        return cached;
     }
 
     public ShippingLabelMetaDataEntity findByTrackingNumber(String trackingNumber) {
         if (trackingNumber == null || trackingNumber.isBlank()) {
             return null;
         }
-        return repository.findByTrackingNumber(trackingNumber);
+        String normalized = trackingNumber.trim().toUpperCase(Locale.ROOT);
+        ShippingLabelMetaDataEntity cached = qrShippingLabelCache.findByTrackingNumber(normalized);
+        if (cached != null || qrShippingLabelCache.isPrimed()) {
+            return cached;
+        }
+        primeCachesAsync();
+        return cached;
     }
 
     public List<ShippingLabelMetaDataEntity> findByTrackingNumbers(Collection<String> trackingNumbers) {
         if (trackingNumbers == null || trackingNumbers.isEmpty()) {
             return List.of();
         }
-        return repository.findByTrackingNumberIn(trackingNumbers);
+        List<ShippingLabelMetaDataEntity> cached = qrShippingLabelCache.findByTrackingNumbers(trackingNumbers);
+        if (!cached.isEmpty() || qrShippingLabelCache.isPrimed()) {
+            return cached;
+        }
+        primeCachesAsync();
+        return cached;
     }
 
     public ShippingLabelMetaDataEntity findByUuid(String uuid) {
         if (uuid == null || uuid.isBlank()) {
             return null;
         }
-        return repository.findById(uuid).orElse(null);
+        ShippingLabelMetaDataEntity cached = qrShippingLabelCache.findByUuid(uuid);
+        if (cached != null || qrShippingLabelCache.isPrimed()) {
+            return cached;
+        }
+        primeCachesAsync();
+        return cached;
     }
 
     public ShippingLabelMetaDataEntity createShipment(ShippingLabelMetaDataEntity request, DeliveryState initialState) {
         Objects.requireNonNull(request, "request");
 
         UUID uuid = UUID.randomUUID();
-        TrackingNumberManager trackingManager = new TrackingNumberManager();
-        TrackingNumberMetaData trackingMeta = trackingManager.createTrackingNumber(uuid);
+        TrackingNumberMetaDataEntity trackingMeta = trackingService.createTrackingNumber(uuid);
+        String trackingNumber = trackingMeta != null ? trackingMeta.getTrackingNumber() : uuid.toString();
 
         DeliveryState state = initialState != null
                 ? initialState
@@ -75,7 +105,7 @@ public class ShippingLabelMetaDataService {
 
         ShippingLabelMetaDataEntity entity = new ShippingLabelMetaDataEntity(
                 uuid.toString(),
-                trackingMeta.trackingNumber(),
+                trackingNumber,
                 request.getRecipientName(),
                 request.getPhoneNumber(),
                 request.getAddress(),
@@ -88,6 +118,7 @@ public class ShippingLabelMetaDataService {
                 state
         );
 
+        Log.info("Shipment label created: " + trackingNumber);
         persistAsync(entity, PERSIST_DELAY);
         return entity;
     }
@@ -106,8 +137,8 @@ public class ShippingLabelMetaDataService {
         }
 
         UUID parsedUuid = UUID.fromString(uuid);
-        TrackingNumberManager trackingManager = new TrackingNumberManager();
-        TrackingNumberMetaData trackingMeta = trackingManager.createTrackingNumber(parsedUuid);
+        TrackingNumberMetaDataEntity trackingMeta = trackingService.createTrackingNumber(parsedUuid);
+        String trackingNumber = trackingMeta != null ? trackingMeta.getTrackingNumber() : uuid;
 
         DeliveryState state = initialState != null
                 ? initialState
@@ -115,7 +146,7 @@ public class ShippingLabelMetaDataService {
 
         ShippingLabelMetaDataEntity entity = new ShippingLabelMetaDataEntity(
                 uuid,
-                trackingMeta.trackingNumber(),
+                trackingNumber,
                 request.getRecipientName(),
                 request.getPhoneNumber(),
                 request.getAddress(),
@@ -128,6 +159,7 @@ public class ShippingLabelMetaDataService {
                 state
         );
 
+        Log.info("Shipment label created with UUID: " + uuid);
         persistAsync(entity, PERSIST_DELAY);
         return entity;
     }
@@ -140,26 +172,84 @@ public class ShippingLabelMetaDataService {
         Objects.requireNonNull(uuid, "uuid");
         Objects.requireNonNull(targetState, "targetState");
 
-        ShippingLabelMetaDataEntity entity = repository.findById(uuid).orElse(null);
+        ShippingLabelMetaDataEntity entity = qrShippingLabelCache.findByUuid(uuid);
+        if (entity == null && !qrShippingLabelCache.isPrimed()) {
+            entity = repository.findById(uuid).orElse(null);
+        }
         if (entity == null) {
             return null;
         }
 
         entity.setDeliveryState(targetState);
+        Log.info("Shipment delivery state updated: " + uuid + " -> " + targetState);
         persistAsync(entity, Duration.ZERO);
         return entity;
     }
 
     private void persistAsync(ShippingLabelMetaDataEntity entity, Duration delay) {
         Duration effectiveDelay = delay == null ? Duration.ZERO : delay;
-        taskScheduler.schedule(() -> {
-            registerCaches(entity);
-            repository.save(entity);
-        }, Instant.now().plus(effectiveDelay));
+        registerCaches(entity);
+        AsyncTask.runFuture(() -> {
+            if (!effectiveDelay.isZero()) {
+                Thread.sleep(effectiveDelay.toMillis());
+            }
+            ShippingLabelMetaDataEntity saved = repository.save(entity);
+            Log.info("Shipment label persisted async: " + saved.getUuid());
+            return saved;
+        });
     }
 
     private void registerCaches(ShippingLabelMetaDataEntity entity) {
         qrShippingLabelCache.registerShippingLabel(entity);
         deliveryStateCache.registerDeliveryState(entity);
+    }
+
+    private void registerCaches(Collection<ShippingLabelMetaDataEntity> entities) {
+        if (entities == null || entities.isEmpty()) {
+            return;
+        }
+        for (ShippingLabelMetaDataEntity entity : entities) {
+            if (entity != null) {
+                registerCaches(entity);
+            }
+        }
+    }
+
+    private List<ShippingLabelMetaDataEntity> loadAllFromRepository() {
+        try {
+            return repository.findAll();
+        } catch (Exception ex) {
+            Log.warn("Unable to load shipment labels from database: " + ex.getMessage());
+            return List.of();
+        }
+    }
+
+    private void primeCaches(List<ShippingLabelMetaDataEntity> labels) {
+        qrShippingLabelCache.primeCache(labels);
+        deliveryStateCache.primeCache(labels);
+    }
+
+    private void primeCachesFromDatabase() {
+        List<ShippingLabelMetaDataEntity> loaded = loadAllFromRepository();
+        primeCaches(loaded);
+    }
+
+    private void primeCachesAsync() {
+        if (!priming.compareAndSet(false, true)) {
+            return;
+        }
+        AsyncTask.runFuture(() -> {
+            try {
+                primeCachesFromDatabase();
+                Log.info("Shipment label cache primed async.");
+            } finally {
+                priming.set(false);
+            }
+            return null;
+        });
+    }
+
+    private ShippingLabelMetaDataEntity syncDeliveryState(ShippingLabelMetaDataEntity label) {
+        return label;
     }
 }

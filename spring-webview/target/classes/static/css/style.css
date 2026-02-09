@@ -5,24 +5,17 @@
  * CSS specificity will hunt you down like a debt collector.
  */
 
-/* 1. ABSTRACTS - Variables, Constants, Tokens (No actual CSS output) */
-@import url('variables.css');
+/* 1. ABSTRACTED DESIGN SYSTEM - Tokens + global components */
+@import url('abstracted.css');
 
-/* 2. BASE - Resets, Global typography, Box-sizing */
-@import url('base.css');
-
-/* 3. LAYOUT - The skeleton: Navbar, Main Content Area, Grid system */
-@import url('page/header.css');
-@import url('page/background.css'); /* This handles the main wrappers */
-
-/* 4. COMPONENTS - Reusable UI elements (The LEGO bricks) */
-@import url('page/components.css'); /* Buttons, Cards, Forms, Badges */
-
-/* 5. PAGES - Styles that ONLY apply to specific views */
-@import url('page/templates/page_templates.css');
+/* 2. PAGES - Styles that ONLY apply to specific views */
+@import url('page/templates/home_template.css');
+@import url('page/templates/dashboard_template.css');
+@import url('page/templates/tracking_template.css');
 @import url('page/flow.css');
+@import url('page/popup/popup_template.css');
 @import url('page/popup/camera-popup.css');
 @import url('page/popup/label-popup.css');
 
-/* 6. UTILITIES - High-specificity helper classes (The "God Mode" classes) */
+/* 3. UTILITIES - High-specificity helper classes (The "God Mode" classes) */
 @import url('utils/utils.css');

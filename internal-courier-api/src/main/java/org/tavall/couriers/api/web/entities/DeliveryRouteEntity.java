@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "delivery_routes", schema = "courier_schemas")
@@ -35,6 +36,15 @@ public class DeliveryRouteEntity implements Serializable {
     @Column(name = "notes", columnDefinition = "text")
     private String notes;
 
+    @Column(name = "assigned_drivers", columnDefinition = "uuid")
+    private UUID assignedDrivers;
+
+    @Column(name = "deadline")
+    private Instant deadline;
+
+    @Column(name = "route_link", columnDefinition = "text")
+    private String routeLink;
+
     public DeliveryRouteEntity() {
     }
 
@@ -43,13 +53,19 @@ public class DeliveryRouteEntity implements Serializable {
                                int labelCount,
                                Instant createdAt,
                                Instant updatedAt,
-                               String notes) {
+                               String notes,
+                               UUID assignedDrivers,
+                               Instant deadline,
+                               String routeLink) {
         this.routeId = routeId;
         this.status = status;
         this.labelCount = labelCount;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.notes = notes;
+        this.assignedDrivers = assignedDrivers;
+        this.deadline = deadline;
+        this.routeLink = routeLink;
     }
 
     public String getRouteId() {
@@ -98,5 +114,29 @@ public class DeliveryRouteEntity implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public UUID getAssignedDrivers() {
+        return assignedDrivers;
+    }
+
+    public void setAssignedDrivers(UUID assignedDrivers) {
+        this.assignedDrivers = assignedDrivers;
+    }
+
+    public Instant getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Instant deadline) {
+        this.deadline = deadline;
+    }
+
+    public String getRouteLink() {
+        return routeLink;
+    }
+
+    public void setRouteLink(String routeLink) {
+        this.routeLink = routeLink;
     }
 }

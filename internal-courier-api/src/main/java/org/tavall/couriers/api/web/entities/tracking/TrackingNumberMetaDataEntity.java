@@ -5,7 +5,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -46,4 +45,5 @@ public class TrackingNumberMetaDataEntity implements Serializable {
     public void setQrUuid(UUID qrUuid) {
         this.qrUuid = qrUuid;
     }
+
 }

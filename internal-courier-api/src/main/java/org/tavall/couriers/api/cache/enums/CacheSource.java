@@ -11,6 +11,7 @@ package org.tavall.couriers.api.cache.enums;
 
 public enum CacheSource {
     AI_SCANNER,
+    SCAN_ERROR_TRACKER,
     QR_CODE_GENERATOR,
     TRACKING_NUMBER_GENERATOR,
     DELIVERY_STATE_TRACKER,
