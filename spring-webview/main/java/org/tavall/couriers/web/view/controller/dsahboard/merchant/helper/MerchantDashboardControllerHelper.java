@@ -22,6 +22,7 @@ import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService
 import org.tavall.couriers.api.web.service.user.UserAccountService;
 import org.tavall.couriers.api.web.user.UserAccountEntity;
 import org.tavall.couriers.api.web.user.permission.Role;
+import org.tavall.couriers.web.view.ManualAddressVerificationService;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -46,19 +47,22 @@ public class MerchantDashboardControllerHelper {
     private final GoogleMapsRouteBuilder routeLinkBuilder = new GoogleMapsRouteBuilder();
     private final CameraPageService cameraPageService;
     private final UserAccountService userAccountService;
+    private final ManualAddressVerificationService addressVerificationService;
 
     public MerchantDashboardControllerHelper(ShippingLabelMetaDataService shippingService,
                                              DeliveryRouteService routeService,
                                              ScanCacheService scanCache,
                                              ScanErrorCacheService scanErrorCache,
                                              CameraPageService cameraPageService,
-                                             UserAccountService userAccountService) {
+                                             UserAccountService userAccountService,
+                                             ManualAddressVerificationService addressVerificationService) {
         this.shippingService = shippingService;
         this.routeService = routeService;
         this.scanCache = scanCache;
         this.scanErrorCache = scanErrorCache;
         this.cameraPageService = cameraPageService;
         this.userAccountService = userAccountService;
+        this.addressVerificationService = addressVerificationService;
     }
 
     public String dashboard(Model model, @RequestParam(value = "created", required = false) String createdUuid) {
@@ -134,6 +138,7 @@ public class MerchantDashboardControllerHelper {
                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate deliverByDate,
                                  @RequestParam(value = "initialState", required = false) String initialState,
                                  @RequestParam(value = "source", required = false) String source,
+                                 Model model,
                                  RedirectAttributes redirectAttributes) {
         if (deliverByDate != null) {
             shipment.setDeliverBy(deliverByDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -146,6 +151,15 @@ public class MerchantDashboardControllerHelper {
             } catch (IllegalArgumentException ignored) {
                 state = DeliveryState.LABEL_CREATED;
             }
+        }
+
+        if (!addressVerificationService.isKnownAddress(shipment)) {
+            model.addAttribute("title", "Manual Label");
+            model.addAttribute("shipment", shipment);
+            model.addAttribute("allStates", Arrays.asList(DeliveryState.values()));
+            model.addAttribute("addressError", "Address could not be verified. Please review it and try again.");
+            model.addAttribute("deliverByDate", deliverByDate);
+            return "dashboard/merchant/merchant-create-shipment";
         }
 
         ShippingLabelMetaDataEntity created = shippingService.createShipment(shipment, state);

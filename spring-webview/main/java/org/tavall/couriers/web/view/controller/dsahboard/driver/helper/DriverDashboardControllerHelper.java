@@ -16,6 +16,7 @@ import org.tavall.couriers.api.web.service.route.DeliveryRouteService;
 import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService;
 import org.tavall.couriers.api.web.service.user.UserAccountService;
 import org.tavall.couriers.api.web.user.UserAccountEntity;
+import org.tavall.couriers.web.view.ManualAddressVerificationService;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -32,13 +33,16 @@ public class DriverDashboardControllerHelper {
     private final ShippingLabelMetaDataService shippingService;
     private final DeliveryRouteService routeService;
     private final UserAccountService userAccountService;
+    private final ManualAddressVerificationService addressVerificationService;
 
     public DriverDashboardControllerHelper(ShippingLabelMetaDataService shippingService,
                                            DeliveryRouteService routeService,
-                                           UserAccountService userAccountService) {
+                                           UserAccountService userAccountService,
+                                           ManualAddressVerificationService addressVerificationService) {
         this.shippingService = shippingService;
         this.routeService = routeService;
         this.userAccountService = userAccountService;
+        this.addressVerificationService = addressVerificationService;
     }
 
     public String dashboard(Model model,
@@ -99,9 +103,18 @@ public class DriverDashboardControllerHelper {
     public String createLabel(ShippingLabelMetaDataEntity shipment,
                               @RequestParam(value = "deliverByDate", required = false)
                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate deliverByDate,
+                              Model model,
                               RedirectAttributes redirectAttributes) {
         if (deliverByDate != null) {
             shipment.setDeliverBy(deliverByDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+
+        if (!addressVerificationService.isKnownAddress(shipment)) {
+            model.addAttribute("title", "Create Label");
+            model.addAttribute("shipment", shipment);
+            model.addAttribute("addressError", "Address could not be verified. Please review it and try again.");
+            model.addAttribute("deliverByDate", deliverByDate);
+            return "dashboard/driver/create-shipment";
         }
 
         ShippingLabelMetaDataEntity created = shippingService.createShipment(shipment, DeliveryState.LABEL_CREATED);

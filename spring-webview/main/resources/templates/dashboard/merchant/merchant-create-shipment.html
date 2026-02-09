@@ -19,6 +19,9 @@
                     Label created for <span th:text="${createdLabel.recipientName}"></span>.
                     Tracking: <span th:class="${@dashboardTemplateCss.join('mono')}" th:text="${createdLabel.trackingNumber}"></span>
                 </div>
+                <div th:if="${addressError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mt-4')}">
+                    <span th:text="${addressError}">Address could not be verified.</span>
+                </div>
 
                 <form th:action="@{/internal/api/v1/merchant/shipment/create}"
                       th:object="${shipment}"
@@ -57,7 +60,7 @@
                         <input type="text" placeholder="Country"
                                th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{country}" value="USA" required>
-                        <input type="date" name="deliverByDate"
+                        <input type="date" name="deliverByDate" th:value="${deliverByDate}"
                                th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}">
                     </div>
 

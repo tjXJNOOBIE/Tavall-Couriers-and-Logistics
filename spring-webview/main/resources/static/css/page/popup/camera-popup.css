@@ -1,9 +1,9 @@
 @import url("/internal/api/v1/styles/camera-popup.css");
 
 .state-modal-panel {
-    width: min(520px, 92vw);
+    width: min(920px, 96vw);
     height: auto;
-    max-height: 92vh;
+    max-height: 94vh;
     overflow-y: auto;
     background: #0f172a;
     color: #f8fafc;

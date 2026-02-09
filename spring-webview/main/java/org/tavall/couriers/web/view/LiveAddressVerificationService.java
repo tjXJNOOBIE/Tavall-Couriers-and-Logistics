@@ -3,10 +3,13 @@ package org.tavall.couriers.web.view;
 import com.google.genai.types.Content;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.FunctionCallingConfig;
+import com.google.genai.types.FunctionCallingConfigMode;
 import com.google.genai.types.ImageConfig;
 import com.google.genai.types.MediaResolution;
 import com.google.genai.types.Part;
 import com.google.genai.types.Schema;
+import com.google.genai.types.ToolConfig;
 import com.google.genai.types.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -138,9 +142,9 @@ public class LiveAddressVerificationService {
 
     private String buildAddressVisiblePrompt(ObjectNode node) {
         return """
-            You validate shipping label visibility. Return JSON {"addressVisible": true|false} only.
-            Only return true if the street address, city, state, and zip are clearly present and look real.
-            Do not invent data. If anything is missing or blurry, return false.
+            You detect whether an address is visible on a shipping label. Return JSON {"addressVisible": true|false} only.
+            Only return true if the street address, city, state, and zip are clearly present and legible.
+            Do not validate the address with any external tools. Do not infer missing data.
             Address:
             Street: %s
             City: %s
@@ -221,6 +225,12 @@ public class LiveAddressVerificationService {
                 .mediaResolution(MediaResolution.Known.MEDIA_RESOLUTION_MEDIUM)
                 .responseSchema(liveClient.getSchema())
                 .responseMimeType("application/json")
+                .tools(List.of())
+                .toolConfig(ToolConfig.builder()
+                        .functionCallingConfig(FunctionCallingConfig.builder()
+                                .mode(FunctionCallingConfigMode.Known.NONE)
+                                .build())
+                        .build())
                 .build();
     }
 

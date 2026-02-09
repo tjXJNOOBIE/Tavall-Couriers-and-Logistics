@@ -31,68 +31,64 @@
                             <button th:class="${@flowCss.join('btn-outline-small')}" type="button" id="geminiPurchaseBtn">Add Gemini 3 address</button>
                         </div>
                     </div>
+                    <div th:if="${addressError != null}" th:class="${@flowCss.join('alert alert-danger mb-4')}">
+                        <span th:text="${addressError}">Address could not be verified.</span>
+                    </div>
                     <form method="post" th:action="@{/purchase}" th:class="${@flowCss.join('space-y-4')}">
                         <input type="hidden" th:if="${_csrf != null}"
                                th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                         <div>
                             <label th:class="${@flowCss.join('form-label')}">Customer Name</label>
-                            <input th:class="${@flowCss.join('form-input')}" type="text" name="customerName" placeholder="Alex Johnson" required>
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="customerName" placeholder="Alex Johnson" th:value="${customerName}" required>
                         </div>
                         <div>
                             <label th:class="${@flowCss.join('form-label')}">Phone</label>
-                            <input th:class="${@flowCss.join('form-input')}" type="text" name="customerPhone" placeholder="(555) 010-2026">
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="customerPhone" placeholder="(555) 010-2026" th:value="${customerPhone}">
                         </div>
                         <div>
                             <label th:class="${@flowCss.join('form-label')}">Street Address</label>
-                            <input th:class="${@flowCss.join('form-input')}" type="text" name="address" placeholder="123 Market St" required>
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="address" placeholder="123 Market St" th:value="${address}" required>
                         </div>
                         <div th:class="${@flowCss.join('grid grid-cols-1 gap-3 md:grid-cols-3')}">
                             <div>
                                 <label th:class="${@flowCss.join('form-label')}">City</label>
-                                <input th:class="${@flowCss.join('form-input')}" type="text" name="city" placeholder="San Jose" required>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="city" placeholder="San Jose" th:value="${city}" required>
                             </div>
                             <div>
                                 <label th:class="${@flowCss.join('form-label')}">State</label>
-                                <input th:class="${@flowCss.join('form-input')}" type="text" name="state" placeholder="CA" required>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="state" placeholder="CA" th:value="${state}" required>
                             </div>
                             <div>
                                 <label th:class="${@flowCss.join('form-label')}">Zip</label>
-                                <input th:class="${@flowCss.join('form-input')}" type="text" name="zip" placeholder="95112" required>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="zip" placeholder="95112" th:value="${zip}" required>
                             </div>
                         </div>
                         <div>
                             <label th:class="${@flowCss.join('form-label')}">Country</label>
-                            <input th:class="${@flowCss.join('form-input')}" type="text" name="country" placeholder="USA">
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="country" placeholder="USA" th:value="${country}">
                         </div>
                         <div th:class="${@flowCss.join('grid grid-cols-1 gap-3 md:grid-cols-2')}">
                             <div>
                                 <label th:class="${@flowCss.join('form-label')}">Item</label>
-                                <input th:class="${@flowCss.join('form-input')}" type="text" name="itemName" placeholder="Merch Pack" required>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="itemName" placeholder="Merch Pack" th:value="${itemName}" required>
                             </div>
                             <div>
                                 <label th:class="${@flowCss.join('form-label')}">Quantity</label>
-                                <input th:class="${@flowCss.join('form-input')}" type="number" name="quantity" min="1" value="1">
+                                <input th:class="${@flowCss.join('form-input')}" type="number" name="quantity" min="1" th:value="${quantity != null ? quantity : 1}">
                             </div>
                         </div>
                         <div>
                             <label th:class="${@flowCss.join('form-label')}">Deliver By (optional)</label>
-                            <input th:class="${@flowCss.join('form-input')}" type="datetime-local" name="deliverBy">
+                            <input th:class="${@flowCss.join('form-input')}" type="datetime-local" name="deliverBy" th:value="${deliverBy}">
                         </div>
                         <button th:class="${@flowCss.join('btn-primary w-full')}" type="submit">
                             Generate Print Document
                         </button>
-                        <p th:class="${@flowCss.join('text-xs text-slate-400')}">
-                            No printer needed. This will generate a document and store it in the live system.
-                        </p>
                     </form>
                 </div>
 
                 <div th:class="${@flowCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
                     <h3 th:class="${@flowCss.join('font-bold text-lg mb-4 text-slate-800')}">Print-On-Demand Document</h3>
-                    <div th:if="${createdLabel == null}" th:class="${@flowCss.join('text-sm text-slate-500')}">
-                        Complete the form to generate a customer document.
-                    </div>
-
                     <div th:if="${createdLabel != null}" th:class="${@flowCss.join('space-y-4')}">
                         <div th:class="${@flowCss.join('bg-slate-50 border border-slate-200 rounded-xl p-4')}">
                             <div th:class="${@flowCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider mb-2')}">Order Summary</div>
@@ -111,7 +107,6 @@
                             <div th:class="${@flowCss.join('text-sm text-slate-600 mt-2')}">
                                 Tracking: <span th:class="${@flowCss.join('mono font-bold text-slate-800')}" th:text="${createdLabel.trackingNumber}">TRACK</span>
                             </div>
-                            <div th:class="${@flowCss.join('text-xs text-slate-400 mt-2')}">No QR code attached for the demo document.</div>
                         </div>
 
                         <div th:class="${@flowCss.join('grid grid-cols-1 gap-3 md:grid-cols-2')}">
@@ -122,9 +117,6 @@
                             </a>
                             <a th:class="${@flowCss.join('btn-secondary w-full')}" th:href="@{/purchase}">Restart Demo</a>
                         </div>
-                        <p th:class="${@flowCss.join('text-xs text-slate-400')}">
-                            Intake uses live cache + database logic. Restart resets the demo flow.
-                        </p>
                     </div>
                 </div>
             </div>
@@ -222,6 +214,7 @@
             quantity: form.querySelector("[name=\"quantity\"]")?.value,
             deliverBy: formatDateTime(form.querySelector("[name=\"deliverBy\"]")?.value)
         };
+        const deadlineValue = data.deliverBy ? data.deliverBy : "N/A";
 
         const printWindow = window.open("", "_blank", "width=820,height=900");
         if (!printWindow) return;
@@ -255,7 +248,7 @@
     ${row("State", data.state)}
     ${row("Zip", data.zip)}
     ${row("Country", data.country)}
-    ${row("Deadline", data.deliverBy)}
+    ${row("Deadline", deadlineValue)}
   </div>
   <div class="card">
     <h2>Order</h2>

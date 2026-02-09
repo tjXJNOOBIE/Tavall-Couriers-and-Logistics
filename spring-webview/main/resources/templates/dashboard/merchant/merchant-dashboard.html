@@ -19,7 +19,7 @@
                     <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Merchant Hub</h1>
                     <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Manage shipments and PODs</p>
                 </div>
-                <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/purchase}">
+                <a th:class="${@dashboardTemplateCss.join('btn-outline-large')}" th:href="@{/purchase}">
                     Customer Demo Flow
                 </a>
             </div>
@@ -81,9 +81,6 @@
 
                 <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
                     <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg mb-4 text-slate-800')}">Routes</h3>
-                    <div th:if="${#lists.isEmpty(routeSnapshot)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
-                        No routes scheduled yet.
-                    </div>
                     <div th:if="${!#lists.isEmpty(routeSnapshot)}" th:class="${@dashboardTemplateCss.join('route-snapshot-list')}">
                         <div th:each="route : ${routeSnapshot}" th:class="${@dashboardTemplateCss.join('route-snapshot-card')}">
                             <div th:class="${@dashboardTemplateCss.join('route-snapshot-top')}">
@@ -108,11 +105,6 @@
                 <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
                     <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg mb-4 text-slate-800')}">Scan History</h3>
                     <div th:class="${@dashboardTemplateCss.join('scan-queue-list')}">
-                        <div th:if="${#lists.isEmpty(scanProcessing) && #lists.isEmpty(scanErrors) && #lists.isEmpty(scanQueue)}"
-                             th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
-                            No scan activity yet.
-                        </div>
-
                         <div th:each="processing : ${scanProcessing}" th:class="${@dashboardTemplateCss.join('scan-queue-card scan-queue-processing')}">
                             <div th:class="${@dashboardTemplateCss.join('scan-queue-top')}">
                                 <span th:class="${@dashboardTemplateCss.join('scan-queue-status')}">PROCESSING</span>
@@ -279,10 +271,6 @@
         <div th:class="${@dashboardTemplateCss.join('scan-errors-header')}">
             <h3 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800')}">Resolve Scan Errors</h3>
             <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">Review the most recent scan issues before rescanning.</p>
-        </div>
-
-        <div th:if="${#lists.isEmpty(scanErrors)}" th:class="${@dashboardTemplateCss.join('scan-errors-empty')}">
-            <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" disabled>No scan errors to investigate</button>
         </div>
 
         <div th:if="${!#lists.isEmpty(scanErrors)}" th:class="${@dashboardTemplateCss.join('scan-errors-actions')}">

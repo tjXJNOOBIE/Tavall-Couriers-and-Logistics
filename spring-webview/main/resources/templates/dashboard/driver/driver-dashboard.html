@@ -27,7 +27,7 @@
                         <i data-lucide="qr-code"></i>
                         Scan Package
                     </a>
-                    <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/purchase}">
+                    <a th:class="${@dashboardTemplateCss.join('btn-outline-large')}" th:href="@{/purchase}">
                         Customer Demo Flow
                     </a>
                 </div>
@@ -53,14 +53,14 @@
 
                 <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
                     <div th:class="${@dashboardTemplateCss.join('flex items-center justify-between mb-3 flex-wrap gap-2')}">
-                        <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg text-slate-800')}">Route Scan Queue</h3>
+                        <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg flex items-center gap-2 text-slate-800')}">
+                            <i data-lucide="route" th:class="${@dashboardTemplateCss.join('text-slate-400')}"></i>
+                            Routes
+                        </h3>
                         <span th:if="${usingRouteQueue}" th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}"
                               th:text="${preScanRouteId != null ? 'Route ' + preScanRouteId : 'Active Route'}">Route</span>
                     </div>
                     <div th:class="${@dashboardTemplateCss.join('scan-queue-list')}">
-                        <div th:if="${#lists.isEmpty(preScanLabels)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
-                            No labels are queued for scan yet.
-                        </div>
                         <div th:if="${#lists.isEmpty(preScanLabels) && !#lists.isEmpty(availableRoutes)}"
                              th:class="${@dashboardTemplateCss.join('route-select-card')}">
                             <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider')}">Select a Route</div>
@@ -104,24 +104,15 @@
                         </h3>
                         <span th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}">Create</span>
                     </div>
-                    <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mb-4')}">Generate a label or jump into scanning.</p>
-
-                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-3 md:grid-cols-2')}">
-                        <a th:href="@{/dashboard/merchant/scan}"
-                           data-scan-popup="true"
-                           th:class="${@dashboardTemplateCss.join('btn-primary gap-2 hover-scale')}">
-                            <i data-lucide="tag" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
-                            Create Label
-                        </a>
-                        <a th:href="@{/dashboard/driver/create-label}"
-                           th:class="${@dashboardTemplateCss.join('btn-secondary gap-2 hover-scale')}">
-                            <i data-lucide="edit-3" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
-                            Manual Label
-                        </a>
-                    </div>
-                    <p th:class="${@dashboardTemplateCss.join('text-xs text-slate-400 mt-3')}">
-                        Label creation is usually reserved for merchants, but the demo keeps it available.
-                    </p>
+                    <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mb-2')}">Label creation are only for Merchants.</p>
+                    <form method="post" th:action="@{/dashboard/logout}" th:class="${@dashboardTemplateCss.join('mt-1')}">
+                        <input type="hidden" th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button th:class="${@dashboardTemplateCss.join('text-xs font-semibold text-blue-500 hover:underline')}"
+                                type="submit">
+                            Go to Merchant Dashboard
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

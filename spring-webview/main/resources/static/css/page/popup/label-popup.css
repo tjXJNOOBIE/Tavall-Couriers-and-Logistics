@@ -5,7 +5,7 @@
 }
 
 .label-popup-panel {
-    width: min(720px, 96vw);
+    width: min(960px, 96vw);
     height: auto;
     max-height: 92vh;
     background: transparent;
@@ -61,7 +61,7 @@ body.label-popup-embedded {
 }
 
 .label-popup-embedded .container {
-    max-width: 720px;
+    max-width: 960px;
     padding: 0;
 }
 
@@ -87,9 +87,9 @@ body.label-popup-embedded {
 }
 
 .label-form-modal .scan-modal-panel {
-    width: min(760px, 94vw);
+    width: min(980px, 96vw);
     height: auto;
-    max-height: 92vh;
+    max-height: 94vh;
     overflow-y: auto;
     background: #fff;
     border: 1px solid var(--slate-100);

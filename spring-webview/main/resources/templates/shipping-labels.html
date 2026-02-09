@@ -16,11 +16,6 @@
                 <div th:class="${@flowCss.join('form-group')}">
                     <label th:class="${@flowCss.join('form-label')}">Selected Shipment</label>
 
-                    <div th:class="${@flowCss.join('form-input text-muted')}" th:if="${selected == null}">
-                        No selection.
-                        <span th:if="${selectedUuid != null && !#strings.isEmpty(selectedUuid)}"
-                              th:text="' UUID tried: ' + ${selectedUuid}"></span>
-                    </div>
                 </div>
 
                 <div th:if="${selected != null}">
@@ -71,7 +66,6 @@
                                   th:text="${deliveryNotes}">Notes will appear here.</span>
                             <span th:if="${selected != null and deliveryNotes == null}"
                                   th:class="${@flowCss.join('text-slate-500')}">Waiting for data...</span>
-                            <span th:if="${selected == null}" th:class="${@flowCss.join('text-slate-400')}">Select a label to view notes.</span>
                         </div>
                     </div>
                     <div th:class="${@flowCss.join('form-group')}">

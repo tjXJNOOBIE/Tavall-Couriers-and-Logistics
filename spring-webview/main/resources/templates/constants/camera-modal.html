@@ -14,6 +14,12 @@
                     allow="camera; microphone; display-capture"
                     loading="lazy"></iframe>
         </div>
+        <button th:id="${closeId}"
+                th:class="${@popupTemplateCss.join('scan-modal-close')}"
+                type="button"
+                aria-label="Close">
+            &times;
+        </button>
     </div>
 </div>
 </body>

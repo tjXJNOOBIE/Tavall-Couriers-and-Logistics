@@ -46,8 +46,9 @@ public class MerchantDashboardController {
                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate deliverByDate,
                                  @RequestParam(value = "initialState", required = false) String initialState,
                                  @RequestParam(value = "source", required = false) String source,
+                                 Model model,
                                  RedirectAttributes redirectAttributes) {
-        return helper.createShipment(shipment, deliverByDate, initialState, source, redirectAttributes);
+        return helper.createShipment(shipment, deliverByDate, initialState, source, model, redirectAttributes);
     }
 
     @GetMapping(Routes.MERCHANT_SCAN_PAGE)

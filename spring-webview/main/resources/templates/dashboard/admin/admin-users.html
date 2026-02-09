@@ -35,10 +35,6 @@
                     Unable to update user.
                 </div>
 
-                <div th:if="${#lists.isEmpty(adminUsers)}" th:class="${@dashboardTemplateCss.join('p-4 text-sm text-slate-500')}">
-                    No users available.
-                </div>
-
                 <div th:each="user : ${adminUsers}" th:class="${@dashboardTemplateCss.join('flex items-center justify-between p-4 border-b border-slate-100')}">
                     <div th:class="${@dashboardTemplateCss.join('flex items-center gap-3')}">
                         <div th:class="${@dashboardTemplateCss.join('w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500')}"

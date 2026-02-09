@@ -42,8 +42,9 @@ public class DriverDashboardController {
     public String createLabel(ShippingLabelMetaDataEntity shipment,
                               @RequestParam(value = "deliverByDate", required = false)
                               @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate deliverByDate,
+                              Model model,
                               RedirectAttributes redirectAttributes) {
-        return helper.createLabel(shipment, deliverByDate, redirectAttributes);
+        return helper.createLabel(shipment, deliverByDate, model, redirectAttributes);
     }
 
     @GetMapping(Routes.DRIVER_SCAN_PAGE)

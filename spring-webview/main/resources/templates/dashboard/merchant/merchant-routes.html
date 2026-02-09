@@ -39,9 +39,6 @@
 <div th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-6')}">
     <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
         <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg mb-4 text-slate-800')}">Routes</h3>
-                    <div th:if="${#lists.isEmpty(routes)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}" data-route-empty="true">
-                        No routes created yet.
-                    </div>
                     <div id="routeList" th:class="${@dashboardTemplateCss.join('space-y-3')}">
                         <div th:each="route : ${routes}" th:class="${@dashboardTemplateCss.join('p-4 bg-slate-50 border border-slate-200 rounded-xl')}" th:attr="data-route-card=${route.routeId}">
                             <div th:class="${@dashboardTemplateCss.join('flex justify-between items-start gap-3')}">
@@ -210,6 +207,8 @@
         let activeRouteId = null;
         let pendingRoutePayload = null;
 
+        let createSubmitPending = false;
+
         const setCreateStep = (step) => {
             if (!createStep1 || !createStep2) return;
             if (step === 2) {
@@ -353,6 +352,43 @@
             return inserted;
         };
 
+        const insertPendingRouteCard = () => {
+            if (!routeList || !routeCardTemplate || !routeCardTemplate.content) return null;
+            const fragment = routeCardTemplate.content.cloneNode(true);
+            const card = fragment.querySelector("[data-route-card]");
+            if (!card) return null;
+            card.setAttribute("data-route-card", `pending-${Date.now()}`);
+            const status = card.querySelector("[data-route-status]");
+            if (status) status.textContent = "CREATING";
+            const routeIdField = card.querySelector("[data-route-id]");
+            if (routeIdField) routeIdField.textContent = "Creating route...";
+            const stopCount = card.querySelector("[data-route-stops]");
+            if (stopCount) stopCount.textContent = createSelectedCount ? createSelectedCount.textContent : "0";
+            const deadlineField = card.querySelector("[data-route-deadline]");
+            if (deadlineField) {
+                const deadlineText = createDeadline && createDeadline.value
+                    ? createDeadline.value.replace("T", " ")
+                    : "N/A";
+                deadlineField.textContent = `DEADLINE: ${deadlineText}`;
+            }
+            const driverField = card.querySelector("[data-route-driver]");
+            if (driverField) {
+                const driverText = createDriver && createDriver.selectedIndex >= 0
+                    ? createDriver.options[createDriver.selectedIndex].textContent
+                    : "Unassigned";
+                driverField.textContent = `Driver: ${driverText || "Unassigned"}`;
+            }
+            const actions = card.querySelector(".route-actions");
+            if (actions) actions.remove();
+            const panel = card.querySelector("[data-route-processing]");
+            if (panel) panel.hidden = false;
+            const detail = card.querySelector("[data-route-processing-detail]");
+            if (detail) detail.textContent = "Creating route... give us a few seconds..";
+            routeList.prepend(fragment);
+            hideRouteEmpty();
+            return card;
+        };
+
         const startRouteProcessing = (routeId, message) => {
             const card = ensureRouteCard(routeId);
             if (!card) return;
@@ -432,8 +468,16 @@
         if (createModal) {
             const createForm = createModal.querySelector("form");
             if (createForm) {
-                createForm.addEventListener("submit", () => {
+                createForm.addEventListener("submit", (event) => {
+                    if (createSubmitPending) return;
+                    createSubmitPending = true;
+                    event.preventDefault();
+                    if (createSubmit) {
+                        createSubmit.disabled = true;
+                    }
+                    insertPendingRouteCard();
                     closeModal(createModal);
+                    setTimeout(() => createForm.submit(), 150);
                 });
             }
         }
@@ -770,9 +814,6 @@
                     </div>
                 </div>
 
-                <div th:if="${#lists.isEmpty(availableLabels)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mt-4')}">
-                    No shipments available to route.
-                </div>
                 <div th:if="${!#lists.isEmpty(availableLabels)}" th:class="${@dashboardTemplateCss.join('space-y-3 mt-4')}">
                     <label th:each="label : ${availableLabels}"
                            data-route-stop-option="true"
@@ -811,9 +852,6 @@
             <input type="hidden" th:if="${_csrf != null}"
                    th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" name="routeId" th:value="${selectedRoute != null ? selectedRoute.routeId : ''}"/>
-            <div th:if="${#lists.isEmpty(availableStops)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
-                No additional shipments available.
-            </div>
             <div th:if="${!#lists.isEmpty(availableStops)}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
                 <label th:each="label : ${availableStops}"
                        th:class="${@dashboardTemplateCss.join('route-stop-option')}">

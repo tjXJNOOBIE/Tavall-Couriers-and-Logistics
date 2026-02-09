@@ -521,16 +521,39 @@
         if (payload.intakeStatus === "duplicate_address") {
             return;
         }
-        if (!(payload.pendingIntake || payload.existingLabel)) {
+        const hasSummaryData = !!(payload.name
+            || payload.address
+            || payload.city
+            || payload.state
+            || payload.zipCode
+            || payload.country
+            || payload.trackingNumber
+            || payload.phoneNumber);
+        if (!(payload.pendingIntake || payload.existingLabel || hasSummaryData)) {
             return;
         }
         if (!intakeConfirmModal.hasAttribute("hidden")) {
             return;
         }
         pendingIntakePayload = payload;
-        const summary = payload.name && payload.address
-            ? `${payload.name} - ${payload.address}${payload.city ? ', ' + payload.city : ''}`
-            : (payload.trackingNumber ? `Tracking ${payload.trackingNumber}` : "Waiting for data...");
+        const addressParts = [payload.address, payload.city, payload.state, payload.zipCode, payload.country]
+            .filter(Boolean)
+            .map(part => String(part).trim())
+            .filter(part => part.length);
+        const summaryParts = [];
+        if (payload.name) {
+            summaryParts.push(payload.name);
+        }
+        if (addressParts.length) {
+            summaryParts.push(addressParts.join(", "));
+        }
+        if (payload.phoneNumber) {
+            summaryParts.push(payload.phoneNumber);
+        }
+        if (payload.trackingNumber) {
+            summaryParts.push(`Tracking ${payload.trackingNumber}`);
+        }
+        const summary = summaryParts.length ? summaryParts.join(" | ") : "Address detected.";
         if (intakeConfirmSummary) {
             intakeConfirmSummary.textContent = summary;
         }
