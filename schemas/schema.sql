@@ -54,7 +54,8 @@ CREATE TABLE courier_schemas.delivery_routes (
                                                  updated_at timestamptz,
                                                  notes text,
                                                  assigned_drivers uuid,
-                                                 deadline timestamptz
+                                                 deadline timestamptz,
+                                                 route_link varchar(10000)
 );
 
 CREATE TABLE courier_schemas.delivery_route_stops (
