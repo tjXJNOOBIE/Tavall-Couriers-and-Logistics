@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class CacheMap extends ConcurrentHashMap<ICacheKey<?>, List<ICacheValue<?>>> {
@@ -36,7 +37,7 @@ public class CacheMap extends ConcurrentHashMap<ICacheKey<?>, List<ICacheValue<?
 
             compute(cacheKey, (k, bucket) -> {
                 if (bucket == null) {
-                    bucket = Collections.synchronizedList(new ArrayList<>());
+                    bucket = new CopyOnWriteArrayList<>();
                 }
 
                 bucket.add(newValue);
@@ -52,16 +53,11 @@ public class CacheMap extends ConcurrentHashMap<ICacheKey<?>, List<ICacheValue<?
 
 
     public List<ICacheValue<?>> getBucket(ICacheKey<?> key) {
-        if (key == null) return new ArrayList<>();
-
         List<ICacheValue<?>> bucket = get(key);
+
         if (bucket == null) return new ArrayList<>();
 
-        // Return a defensive copy to prevent ConcurrentModificationException
-        // if the caller iterates while we are adding.
-        synchronized (bucket) {
-            return new ArrayList<>(bucket);
-        }
+        return new ArrayList<>(bucket);
     }
     /**
      * Type-Safe Extraction helper.

@@ -11,182 +11,187 @@
 
 <header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
-<main class="main-content fade-in">
-    <div class="container">
-        <div class="max-w-4xl mx-auto fade-in">
-            <div class="flex justify-between items-end mb-6">
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-4xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6')}">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Merchant Hub</h1>
-                    <p class="text-slate-500 text-sm">Manage shipments and PODs</p>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Merchant Hub</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Manage shipments and PODs</p>
                 </div>
-                <a class="btn-outline-small" th:href="@{/purchase}">
+                <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/purchase}">
                     Customer Demo Flow
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-                        <h3 class="font-bold text-lg flex items-center gap-2 text-slate-800">
-                            <i data-lucide="package-plus" class="text-slate-400"></i>
+            <div th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3')}">
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex items-center justify-between mb-3 flex-wrap gap-2')}">
+                        <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg flex items-center gap-2 text-slate-800')}">
+                            <i data-lucide="package-plus" th:class="${@dashboardTemplateCss.join('text-slate-400')}"></i>
                             New Shipment
                         </h3>
-                        <span class="text-xs font-bold text-slate-400 uppercase">Intake</span>
+                        <span th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}">Intake</span>
                     </div>
-                    <p class="text-sm text-slate-500 mb-4">Scan a page to intake shipments or create a label manually.</p>
+                    <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mb-4')}">Scan a page to intake shipments or create a label manually.</p>
 
-                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <a class="btn-primary gap-2 hover-scale"
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-3 md:grid-cols-2')}">
+                        <a th:class="${@dashboardTemplateCss.join('btn-primary gap-2 hover-scale')}"
                            th:href="@{/dashboard/merchant/scan}"
                            data-scan-popup="true">
-                            <i data-lucide="scan" class="w-4 h-4"></i>
+                            <i data-lucide="scan" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
                             Scan Intake
                         </a>
-                        <a class="btn-secondary gap-2 hover-scale"
+                        <a th:class="${@dashboardTemplateCss.join('btn-secondary gap-2 hover-scale')}"
                            th:href="@{/dashboard/merchant/create-shipment}"
                            data-label-popup="true">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            <i data-lucide="edit-3" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
                             Manual Label
                         </a>
                     </div>
 
-                    <div class="route-mini">
-                        <div class="route-mini-header">
-                            <div class="route-mini-title">
-                                <i data-lucide="route" class="route-mini-icon"></i>
+                    <div th:class="${@dashboardTemplateCss.join('route-mini')}">
+                        <div th:class="${@dashboardTemplateCss.join('route-mini-header')}">
+                            <div th:class="${@dashboardTemplateCss.join('route-mini-title')}">
+                                <i data-lucide="route" th:class="${@dashboardTemplateCss.join('route-mini-icon')}"></i>
                                 New Route
                             </div>
-                            <span class="text-xs font-bold text-slate-400 uppercase">Routing</span>
+                            <span th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}">Routing</span>
                         </div>
-                        <div class="route-mini-actions">
-                            <a class="btn-primary gap-2 hover-scale"
+                        <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 route-mini-desc')}">Create delivery routes from your newest labels.</p>
+                        <div th:class="${@dashboardTemplateCss.join('route-mini-actions')}">
+                            <a th:class="${@dashboardTemplateCss.join('btn-primary gap-2 hover-scale')}"
                                th:href="@{/dashboard/merchant/routes}">
-                                <i data-lucide="route" class="w-4 h-4"></i>
+                                <i data-lucide="route" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
                                 Create Route
                             </a>
-                            <a class="btn-secondary gap-2 hover-scale"
+                            <a th:class="${@dashboardTemplateCss.join('btn-secondary gap-2 hover-scale')}"
                                th:href="@{/dashboard/merchant/routes}">
-                                <i data-lucide="list" class="w-4 h-4"></i>
+                                <i data-lucide="list" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
                                 View Routes
                             </a>
                         </div>
                     </div>
 
-                    <div th:if="${createdLabel != null}" class="alert alert-success mt-4">
+                    <div th:if="${createdLabel != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mt-4')}">
                         Label created for <span th:text="${createdLabel.recipientName}"></span>.
-                        Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}"></span>
+                        Tracking: <span th:class="${@dashboardTemplateCss.join('mono')}" th:text="${createdLabel.trackingNumber}"></span>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-lg mb-4 text-slate-800">Scan History</h3>
-                    <div class="scan-queue-list">
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg mb-4 text-slate-800')}">Routes</h3>
+                    <div th:if="${#lists.isEmpty(routeSnapshot)}" th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
+                        No routes scheduled yet.
+                    </div>
+                    <div th:if="${!#lists.isEmpty(routeSnapshot)}" th:class="${@dashboardTemplateCss.join('route-snapshot-list')}">
+                        <div th:each="route : ${routeSnapshot}" th:class="${@dashboardTemplateCss.join('route-snapshot-card')}">
+                            <div th:class="${@dashboardTemplateCss.join('route-snapshot-top')}">
+                                <div th:class="${@dashboardTemplateCss.join('route-snapshot-id')}" th:text="${route.routeId}">RTE-</div>
+                                <span th:class="${@dashboardTemplateCss.join('route-snapshot-status')}" th:text="${route.status}">PLANNED</span>
+                            </div>
+                            <div th:class="${@dashboardTemplateCss.join('route-snapshot-meta')}">
+                                <span th:text="${route.labelCount}"></span> stops
+                            </div>
+                            <div th:class="${@dashboardTemplateCss.join('route-snapshot-deadline')}"
+                                 th:text="${route.deadline != null ? 'DEADLINE: ' + #temporals.format(route.deadline, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                            <a th:class="${@dashboardTemplateCss.join('text-link')}"
+                               th:href="@{/dashboard/merchant/routes/{routeId}/details(routeId=${route.routeId})}"
+                               data-label-popup="true">Open Route</a>
+                        </div>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('mt-2')}">
+                        <a th:class="${@dashboardTemplateCss.join('text-link')}" th:href="@{/dashboard/merchant/routes}">View all routes</a>
+                    </div>
+                </div>
+
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg mb-4 text-slate-800')}">Scan History</h3>
+                    <div th:class="${@dashboardTemplateCss.join('scan-queue-list')}">
                         <div th:if="${#lists.isEmpty(scanProcessing) && #lists.isEmpty(scanErrors) && #lists.isEmpty(scanQueue)}"
-                             class="text-sm text-slate-500">
+                             th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
                             No scan activity yet.
                         </div>
 
-                        <div th:each="processing : ${scanProcessing}" class="scan-queue-card scan-queue-processing">
-                            <div class="scan-queue-top">
-                                <span class="scan-queue-status">PROCESSING</span>
-                                <span class="scan-queue-meta"
+                        <div th:each="processing : ${scanProcessing}" th:class="${@dashboardTemplateCss.join('scan-queue-card scan-queue-processing')}">
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-top')}">
+                                <span th:class="${@dashboardTemplateCss.join('scan-queue-status')}">PROCESSING</span>
+                                <span th:class="${@dashboardTemplateCss.join('scan-queue-meta')}"
                                       th:text="${processing.geminiResponseState != null ? processing.geminiResponseState.displayName() : 'Idle'}"></span>
                             </div>
-                            <div class="scan-queue-title" th:text="${processing.notes}"></div>
-                            <div class="scan-queue-progress"></div>
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-title')}" th:text="${processing.notes}"></div>
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-progress')}"></div>
                         </div>
 
-                        <div th:each="err : ${scanErrors}" class="scan-queue-card scan-queue-error">
-                            <div class="scan-queue-top">
-                                <span class="scan-queue-status">ERROR</span>
-                                <a class="scan-queue-link" th:href="@{/dashboard/merchant/scan(uuid=${err.uuid})}">Rescan</a>
+                        <div th:each="err : ${scanErrors}" th:class="${@dashboardTemplateCss.join('scan-queue-card scan-queue-error')}">
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-top')}">
+                                <span th:class="${@dashboardTemplateCss.join('scan-queue-status')}">ERROR</span>
+                                <a th:class="${@dashboardTemplateCss.join('scan-queue-link')}" th:href="@{/dashboard/merchant/scan(uuid=${err.uuid})}">Rescan</a>
                             </div>
-                            <div class="scan-queue-title"
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-title')}"
                                  th:text="${err.trackingNumber != null ? err.trackingNumber : 'Scan error'}"></div>
-                            <div class="scan-queue-sub"
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-sub')}"
                                  th:text="${err.notes != null ? err.notes : (err.name != null ? err.name : 'Rescan required')}"></div>
                         </div>
 
-                        <div th:each="label : ${scanQueue}" class="scan-queue-card scan-queue-complete">
-                            <div class="scan-queue-top">
-                                <span class="scan-queue-status"
+                        <div th:each="label : ${scanQueue}" th:class="${@dashboardTemplateCss.join('scan-queue-card scan-queue-complete')}">
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-top')}">
+                                <span th:class="${@dashboardTemplateCss.join('scan-queue-status')}"
                                       th:text="${label.cameraState != null ? label.cameraState.displayName() : 'Found'}">FOUND</span>
-                                <span class="scan-queue-meta mono"
+                                <span th:class="${@dashboardTemplateCss.join('scan-queue-meta mono')}"
                                       th:text="${label.trackingNumber != null ? label.trackingNumber : label.uuid}"></span>
                             </div>
-                            <div class="scan-queue-title"
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-title')}"
                                  th:text="${label.name != null ? label.name : 'Shipment scanned'}"></div>
-                            <div class="scan-queue-sub"
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-sub')}"
                                  th:text="${label.notes != null ? label.notes : (label.city != null ? label.city + (label.state != null ? ', ' + label.state : '') : 'Scan complete')}"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h3 class="font-bold text-lg mb-4 text-slate-800">Routes at a Glance</h3>
-                    <div th:if="${#lists.isEmpty(routeSnapshot)}" class="text-sm text-slate-500">
-                        No routes scheduled yet.
-                    </div>
-                    <div th:if="${!#lists.isEmpty(routeSnapshot)}" class="route-snapshot-list">
-                        <div th:each="route : ${routeSnapshot}" class="route-snapshot-card">
-                            <div class="route-snapshot-top">
-                                <div class="route-snapshot-id" th:text="${route.routeId}">RTE-</div>
-                                <span class="route-snapshot-status" th:text="${route.status}">PLANNED</span>
-                            </div>
-                            <div class="route-snapshot-meta">
-                                <span th:text="${route.labelCount}"></span> stops
-                            </div>
-                            <div class="route-snapshot-deadline"
-                                 th:text="${route.deadline != null ? 'DEADLINE: ' + #temporals.format(route.deadline, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
-                            <a class="text-link"
-                               th:href="@{/dashboard/merchant/routes(routeId=${route.routeId})}">Open Route</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-8">
-                <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider">Operations</h3>
-                <div class="ops-grid">
-                    <a class="ops-card hover-scale"
+            <div th:class="${@dashboardTemplateCss.join('mt-8')}">
+                <h3 th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider')}">Operations</h3>
+                <div th:class="${@dashboardTemplateCss.join('ops-grid')}">
+                    <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}"
                        th:href="@{/dashboard/merchant/shipments}">
-                        <div class="ops-card-header">
-                            <i data-lucide="archive" class="ops-card-icon"></i>
-                            <span class="ops-card-badge" th:text="${totalShipments}">0</span>
+                        <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                            <i data-lucide="archive" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                            <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}" th:text="${totalShipments}">0</span>
                         </div>
-                        <h3 class="ops-card-title">Shipment Library</h3>
-                        <p class="ops-card-desc">Review and update delivery states.</p>
+                        <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Shipment Library</h3>
+                        <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Review and update delivery states.</p>
                     </a>
 
-                    <a class="ops-card hover-scale"
+                    <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}"
                        href="#"
                        data-scan-errors-open="true">
-                        <div class="ops-card-header">
-                            <i data-lucide="scan" class="ops-card-icon"></i>
-                            <span class="ops-card-badge" th:text="${scanErrorCount}">0</span>
+                        <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                            <i data-lucide="scan" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                            <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}" th:text="${scanErrorCount}">0</span>
                         </div>
-                        <h3 class="ops-card-title">Resolve Scan Errors</h3>
-                        <p class="ops-card-desc">Re-scan items flagged during POD.</p>
+                        <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Resolve Scan Errors</h3>
+                        <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Re-scan items flagged during POD.</p>
                     </a>
 
-                    <a class="ops-card hover-scale"
+                    <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}"
                        th:href="@{/dashboard/merchant/routes}">
-                        <div class="ops-card-header">
-                            <i data-lucide="route" class="ops-card-icon"></i>
-                            <span class="ops-card-badge" th:text="${routeCount}">0</span>
+                        <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                            <i data-lucide="route" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                            <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}" th:text="${routeCount}">0</span>
                         </div>
-                        <h3 class="ops-card-title">Routes</h3>
-                        <p class="ops-card-desc">Plan and manage delivery runs.</p>
+                        <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Routes</h3>
+                        <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Plan and manage delivery runs.</p>
                     </a>
 
-                    <a th:if="${isAdminUser}" class="ops-card ops-card-alt hover-scale"
+                    <a th:if="${isAdminUser}" th:class="${@dashboardTemplateCss.join('ops-card ops-card-alt hover-scale')}"
                        th:href="@{/dashboard/admin/users}">
-                        <div class="ops-card-header">
-                            <i data-lucide="users" class="ops-card-icon"></i>
-                            <span class="ops-card-badge">ADMIN</span>
+                        <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                            <i data-lucide="users" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                            <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}">ADMIN</span>
                         </div>
-                        <h3 class="ops-card-title">Team Management</h3>
-                        <p class="ops-card-desc">Promote or demote driver accounts.</p>
+                        <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Team Management</h3>
+                        <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Promote or demote driver accounts.</p>
                     </a>
                 </div>
             </div>
@@ -255,46 +260,46 @@
 
 <div th:replace="~{constants/camera-modal :: cameraModal('scanModal','scanModalFrame','scanModalClose','scanModalBackdrop')}"></div>
 
-<div id="labelModal" class="scan-modal label-popup-modal" hidden>
-    <div id="labelModalBackdrop" class="scan-modal-backdrop"></div>
-    <div class="scan-modal-panel label-popup-panel tavall-popup-panel">
+<div id="labelModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden>
+    <div id="labelModalBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel label-popup-panel tavall-popup-panel')}">
         <iframe id="labelModalFrame"
-                class="scan-modal-frame label-popup-frame"
+                th:class="${@dashboardTemplateCss.join('scan-modal-frame label-popup-frame')}"
                 title="Label details"
                 loading="lazy"></iframe>
     </div>
 </div>
 
-<div id="scanErrorsModal" class="scan-modal scan-errors-modal" hidden>
-    <div id="scanErrorsBackdrop" class="scan-modal-backdrop"></div>
-    <div class="scan-modal-panel scan-errors-panel tavall-popup-panel">
+<div id="scanErrorsModal" th:class="${@dashboardTemplateCss.join('scan-modal scan-errors-modal')}" hidden>
+    <div id="scanErrorsBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel scan-errors-panel tavall-popup-panel')}">
         <button id="scanErrorsClose" type="button" aria-label="Close scan errors">
             &times;
         </button>
-        <div class="scan-errors-header">
-            <h3 class="text-xl font-bold text-slate-800">Resolve Scan Errors</h3>
-            <p class="text-sm text-slate-500">Review the most recent scan issues before rescanning.</p>
+        <div th:class="${@dashboardTemplateCss.join('scan-errors-header')}">
+            <h3 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800')}">Resolve Scan Errors</h3>
+            <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">Review the most recent scan issues before rescanning.</p>
         </div>
 
-        <div th:if="${#lists.isEmpty(scanErrors)}" class="scan-errors-empty">
-            <button class="btn-secondary" type="button" disabled>No scan errors to investigate</button>
+        <div th:if="${#lists.isEmpty(scanErrors)}" th:class="${@dashboardTemplateCss.join('scan-errors-empty')}">
+            <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" disabled>No scan errors to investigate</button>
         </div>
 
-        <div th:if="${!#lists.isEmpty(scanErrors)}" class="scan-errors-actions">
-            <a class="btn-primary" th:href="@{/dashboard/merchant/scan}" data-scan-popup="true">
+        <div th:if="${!#lists.isEmpty(scanErrors)}" th:class="${@dashboardTemplateCss.join('scan-errors-actions')}">
+            <a th:class="${@dashboardTemplateCss.join('btn-primary')}" th:href="@{/dashboard/merchant/scan}" data-scan-popup="true">
                 Scan All
             </a>
         </div>
 
-        <div th:if="${!#lists.isEmpty(scanErrors)}" class="scan-errors-list">
-            <div th:each="err : ${scanErrors}" class="scan-error-card">
+        <div th:if="${!#lists.isEmpty(scanErrors)}" th:class="${@dashboardTemplateCss.join('scan-errors-list')}">
+            <div th:each="err : ${scanErrors}" th:class="${@dashboardTemplateCss.join('scan-error-card')}">
                 <div>
-                    <div class="scan-error-title"
+                    <div th:class="${@dashboardTemplateCss.join('scan-error-title')}"
                          th:text="${err.trackingNumber != null ? err.trackingNumber : (err.uuid != null ? err.uuid : 'Scan error')}"></div>
-                    <div class="scan-error-sub"
+                    <div th:class="${@dashboardTemplateCss.join('scan-error-sub')}"
                          th:text="${err.notes != null ? err.notes : 'Rescan required'}"></div>
                 </div>
-                <a class="btn-secondary scan-error-action"
+                <a th:class="${@dashboardTemplateCss.join('btn-secondary scan-error-action')}"
                    th:href="@{/dashboard/merchant/scan(uuid=${err.uuid})}"
                    data-scan-popup="true">Rescan</a>
             </div>

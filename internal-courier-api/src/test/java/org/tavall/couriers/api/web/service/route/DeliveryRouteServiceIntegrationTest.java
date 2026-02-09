@@ -38,7 +38,6 @@ class DeliveryRouteServiceIntegrationTest {
         ShippingLabelMetaDataService shippingService = mock(ShippingLabelMetaDataService.class);
         RoutePlannerService routePlanner = mock(RoutePlannerService.class);
         RouteCacheService routeCache = new RouteCacheService();
-
         DeliveryRouteService service = new DeliveryRouteService(
                 routeRepository,
                 stopRepository,
@@ -84,7 +83,6 @@ class DeliveryRouteServiceIntegrationTest {
         ShippingLabelMetaDataService shippingService = mock(ShippingLabelMetaDataService.class);
         RoutePlannerService routePlanner = mock(RoutePlannerService.class);
         RouteCacheService routeCache = new RouteCacheService();
-
         DeliveryRouteService service = new DeliveryRouteService(
                 routeRepository,
                 stopRepository,

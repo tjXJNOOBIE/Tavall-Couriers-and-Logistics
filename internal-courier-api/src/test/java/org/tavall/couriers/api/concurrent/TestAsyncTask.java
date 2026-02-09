@@ -88,7 +88,7 @@ public class TestAsyncTask {
                 () -> 30
         );
 
-        AsyncTask.BatchResult<Integer> result = AsyncTask.runMultipleAsync(
+        BatchResult<Integer> result = AsyncTask.runMultipleAsync(
                 tasks,
                 AsyncTask.ScopeOptions.defaults(),
                 0,      // cancelAfterFailures=0 means "never cancel early"
@@ -120,7 +120,7 @@ public class TestAsyncTask {
                 () -> { sleepMillis(500); return 3; }
         );
 
-        AsyncTask.BatchResult<Integer> result = AsyncTask.runMultipleAsync(
+        BatchResult<Integer> result = AsyncTask.runMultipleAsync(
                 tasks,
                 AsyncTask.ScopeOptions.defaults(),
                 1,      // cancelAfterFailures=1 -> cancel once first failure is observed
@@ -274,3 +274,4 @@ public class TestAsyncTask {
         assertEquals("NullPointerException", msg);
     }
 }
+

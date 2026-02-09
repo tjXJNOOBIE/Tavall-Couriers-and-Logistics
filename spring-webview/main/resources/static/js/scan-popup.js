@@ -50,13 +50,13 @@
         });
     });
 
-    if (closeBtn) {
-        closeBtn.addEventListener("click", closeModal);
-    }
-
-    if (backdrop) {
-        backdrop.addEventListener("click", closeModal);
-    }
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+    if (backdrop) backdrop.addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
 
     document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
@@ -71,6 +71,9 @@
             closeModal();
         }
         if (event.data && event.data.type === "scanModalResize") {
+            if (modal && modal.classList.contains("camera-modal")) {
+                return;
+            }
             const height = Number(event.data.height) || 0;
             if (height <= 0) return;
             const maxHeight = Math.floor(window.innerHeight * 0.92);

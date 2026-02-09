@@ -29,6 +29,9 @@ public class DashboardLoginPageControllerHelper {
         if (hasRole(authentication, Role.DRIVER)) {
             return "redirect:" + Routes.driverDashboard();
         }
+        if (hasRole(authentication, Role.SUPPORT)) {
+            return "redirect:" + Routes.dashboardAdminUsers();
+        }
 
         return "redirect:" + Routes.home();
     }

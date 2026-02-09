@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.config;
+package org.tavall.couriers.api.utils;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

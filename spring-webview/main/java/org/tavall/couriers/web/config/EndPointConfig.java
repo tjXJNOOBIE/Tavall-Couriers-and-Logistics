@@ -1,4 +1,4 @@
-package org.tavall.couriers.config;
+package org.tavall.couriers.web.config;
 
 
 import org.springframework.web.bind.annotation.GetMapping;

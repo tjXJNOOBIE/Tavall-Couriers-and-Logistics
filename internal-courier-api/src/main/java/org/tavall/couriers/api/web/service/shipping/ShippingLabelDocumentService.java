@@ -10,6 +10,7 @@ import org.tavall.couriers.api.delivery.state.DeliveryState;
 import org.tavall.couriers.api.shipping.helpers.QRShippingLabelCombiner;
 import org.tavall.couriers.api.shipping.metadata.ShippingLabelMetaData;
 import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
+import org.tavall.couriers.api.web.service.hq.HqLocationService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,11 +29,13 @@ public class ShippingLabelDocumentService {
     private static final String QR_EXTENSION = ".png";
     private static final int QR_SIZE = 300;
 
+    private final HqLocationService hqLocationService;
     private final QRShippingLabelCombiner combiner = new QRShippingLabelCombiner();
     private final Path labelDir;
     private final Path qrDir;
 
-    public ShippingLabelDocumentService() {
+    public ShippingLabelDocumentService(HqLocationService hqLocationService) {
+        this.hqLocationService = hqLocationService;
         Path baseDir = Path.of(System.getProperty("java.io.tmpdir"), "tavall-couriers");
         this.labelDir = baseDir.resolve(LABEL_DIR_NAME);
         this.qrDir = baseDir.resolve(QR_DIR_NAME);
@@ -55,7 +58,9 @@ public class ShippingLabelDocumentService {
         Path qrPath = ensureQrCode(uuid);
         ShippingLabelMetaData metaData = toMetaData(entity);
 
-        combiner.createLabel(qrPath.toString(), metaData, pdfPath);
+        String fromName = hqLocationService != null ? hqLocationService.resolveFromName() : null;
+        String fromAddress = hqLocationService != null ? hqLocationService.resolveFromAddressLine() : null;
+        combiner.createLabel(qrPath.toString(), metaData, pdfPath, fromName, fromAddress);
         return pdfPath;
     }
 

@@ -15,11 +15,15 @@ import org.tavall.couriers.api.qr.scan.state.CameraState;
 import org.tavall.couriers.api.qr.scan.state.GeminiResponseState;
 import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
 import org.tavall.gemini.clients.Gemini3TextClient;
+import org.tavall.gemini.clients.response.enums.ResponseStatus;
+import org.tavall.gemini.clients.response.metadata.ClientResponseMetadata;
 import org.tavall.gemini.enums.GeminiModel;
+import org.tavall.gemini.token.ClientResponseVisualizer;
 
 
 
 import java.time.Instant;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -105,8 +109,28 @@ public class RoutePlannerService {
         String prompt = buildPrompt(labels, radiusMiles, maxStops);
         Log.info("Route planner Gemini 3 Pro request (radius=" + radiusMiles + ", maxStops=" + maxStops + ")");
         Content content = Content.fromParts(Part.fromText(prompt));
-        GenerateContentResponse response = client.getClient().models.generateContent(
-                String.valueOf(GeminiModel.GEMINI_3_PRO), content, client.getGenerationConfig());
+        long startNanos = System.nanoTime();
+        GenerateContentResponse response;
+        try {
+            response = client.getClient().models.generateContent(
+                    String.valueOf(GeminiModel.GEMINI_3_PRO), content, client.getGenerationConfig());
+        } catch (Exception ex) {
+            ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                    null,
+                    GeminiModel.GEMINI_3_PRO,
+                    Duration.ofNanos(System.nanoTime() - startNanos),
+                    ResponseStatus.FAILED
+            );
+            Log.info("[GeminiUsage] RoutePlan " + ClientResponseVisualizer.format(metadata));
+            throw ex;
+        }
+        ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                response,
+                GeminiModel.GEMINI_3_PRO,
+                Duration.ofNanos(System.nanoTime() - startNanos),
+                ResponseStatus.COMPLETED
+        );
+        Log.info("[GeminiUsage] RoutePlan " + ClientResponseVisualizer.format(metadata));
 
         String jsonText = response.text();
         if (jsonText.contains("```json")) {
@@ -195,23 +219,58 @@ public class RoutePlannerService {
             Log.info("AddressGuard: Flash guard unavailable; allowing route build.");
             return true;
         }
+        if (labels == null || labels.isEmpty()) {
+            return true;
+        }
         try {
             Log.info("AddressGuard: invoking Gemini 3 Flash guard for validation");
-            String prompt = buildAddressGuardPrompt(labels);
-            Content content = Content.fromParts(Part.fromText(prompt));
-            GenerateContentResponse response = flashClient.getClient().models.generateContent(
-                    String.valueOf(GeminiModel.GEMINI_3_FLASH), content, flashClient.getGenerationConfig());
-            String text = response.text();
-            Log.info("AddressGuard: Flash guard response -> " + text);
+            for (ShippingLabelMetaDataEntity label : labels) {
+                if (label == null) {
+                    continue;
+                }
+                if (isBlank(label.getAddress())
+                        || isBlank(label.getCity())
+                        || isBlank(label.getState())
+                        || isBlank(label.getZipCode())) {
+                    Log.warn("AddressGuard: missing address fields for label " + label.getUuid());
+                    return false;
+                }
 
-            boolean valid = parseAddressGuard(text);
-            if (valid) {
-                Log.info("AddressGuard: Flash guard validated addresses; triggering intake for routing.");
-            } else {
-                Log.warn("AddressGuard: Flash guard flagged invalid address data; aborting Pro route build.");
-                registerRouteAddressErrors(labels);
+                String prompt = buildAddressGuardPrompt(label);
+                Content content = Content.fromParts(Part.fromText(prompt));
+                long startNanos = System.nanoTime();
+                GenerateContentResponse response;
+                try {
+                    response = flashClient.getClient().models.generateContent(
+                            String.valueOf(GeminiModel.GEMINI_3_FLASH), content, flashClient.getGenerationConfig());
+                } catch (Exception ex) {
+                    ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                            null,
+                            GeminiModel.GEMINI_3_FLASH,
+                            Duration.ofNanos(System.nanoTime() - startNanos),
+                            ResponseStatus.FAILED
+                    );
+                    Log.info("[GeminiUsage] AddressGuard " + ClientResponseVisualizer.format(metadata));
+                    throw ex;
+                }
+                ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                        response,
+                        GeminiModel.GEMINI_3_FLASH,
+                        Duration.ofNanos(System.nanoTime() - startNanos),
+                        ResponseStatus.COMPLETED
+                );
+                Log.info("[GeminiUsage] AddressGuard " + ClientResponseVisualizer.format(metadata));
+                String text = response.text();
+                Log.info("AddressGuard: Flash guard response -> " + text);
+
+                boolean valid = parseAddressGuard(text);
+                if (!valid) {
+                    Log.warn("AddressGuard: Flash guard flagged invalid address data; aborting Pro route build.");
+                    return false;
+                }
             }
-            return valid;
+            Log.info("AddressGuard: Flash guard validated addresses; triggering intake for routing.");
+            return true;
         } catch (Exception ex) {
             Log.warn("AddressGuard: Lite validation failed, defaulting to allow route build.");
             Log.exception(ex);
@@ -256,22 +315,19 @@ public class RoutePlannerService {
         }
     }
 
-    private String buildAddressGuardPrompt(List<ShippingLabelMetaDataEntity> labels) {
+    private String buildAddressGuardPrompt(ShippingLabelMetaDataEntity label) {
         StringBuilder builder = new StringBuilder();
         builder.append("You are an address validator with access to the Google Maps tool. ")
                 .append("Verify each address is real and complete before routing using the Google Maps tool. ")
                 .append("Do NOT build routes. Use function call startIntakeForRouting only. ")
                 .append("If addresses look real, set valid=true in the function call so we can start the route shipment intake process. ")
                 .append("If any address is missing or fake, set valid=false.\n");
-        builder.append("ADDRESSES:\n");
-        for (ShippingLabelMetaDataEntity label : labels) {
-            if (label == null) continue;
-            builder.append("- address: ").append(safe(label.getAddress())).append('\n');
-            builder.append("  city: ").append(safe(label.getCity())).append('\n');
-            builder.append("  state: ").append(safe(label.getState())).append('\n');
-            builder.append("  zip: ").append(safe(label.getZipCode())).append('\n');
-        }
-        builder.append("Respond via function call only.");
+        builder.append("ADDRESS:\n");
+        builder.append("- address: ").append(safe(label.getAddress())).append('\n');
+        builder.append("  city: ").append(safe(label.getCity())).append('\n');
+        builder.append("  state: ").append(safe(label.getState())).append('\n');
+        builder.append("  zip: ").append(safe(label.getZipCode())).append('\n');
+        builder.append("Respond via a single function call only. Do not return arrays.");
         return builder.toString();
     }
 
@@ -283,6 +339,15 @@ public class RoutePlannerService {
             jsonText = jsonText.replace("```json", "").replace("```", "").trim();
         }
         JsonNode root = objectMapper.readTree(jsonText);
+        if (root.isArray() && root.size() > 0) {
+            for (JsonNode entry : root) {
+                boolean valid = parseAddressGuard(entry.toString());
+                if (!valid) {
+                    return false;
+                }
+            }
+            return true;
+        }
         if (root.has("valid")) {
             return root.get("valid").asBoolean(false);
         }

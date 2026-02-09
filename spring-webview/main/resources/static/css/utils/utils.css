@@ -25,6 +25,8 @@
 /* Visibility */
 .hidden-mobile { display: none; }
 @media (min-width: 768px) { .hidden-mobile { display: block; } }
+.is-hidden { display: none; }
+.text-nowrap { white-space: nowrap; }
 
 /* Universal Animations */
 .fade-in { animation: fadeIn 0.4s ease-out; }

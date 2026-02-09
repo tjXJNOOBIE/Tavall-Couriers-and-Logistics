@@ -17,22 +17,23 @@ import org.tavall.couriers.api.web.service.camera.CameraFrameAnalyzer;
 import org.tavall.gemini.clients.Gemini3ImageClient;
 import org.tavall.gemini.clients.Gemini3TextClient;
 import org.tavall.gemini.clients.response.Gemini3Response;
+import org.tavall.gemini.clients.response.enums.ResponseStatus;
+import org.tavall.gemini.clients.response.metadata.ClientResponseMetadata;
 import org.tavall.gemini.enums.GeminiModel;
+import org.tavall.gemini.token.ClientResponseVisualizer;
 import org.tavall.couriers.api.qr.scan.cache.ScanCacheService;
 import org.tavall.couriers.api.qr.scan.metadata.ScanResponse;
 import org.tavall.couriers.api.qr.scan.state.CameraState;
 import org.tavall.couriers.api.qr.scan.state.GeminiResponseState;
 import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService;
+import org.tavall.gemini.utils.AIResponseParser;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import javax.imageio.ImageIO;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -45,18 +46,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GeminiVisionService implements CameraFrameAnalyzer {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Gemini3ImageClient client;
-    private Gemini3ImageClient liveClient;
-    private boolean liveEnabled;
     private Gemini3TextClient liteClient;
     private boolean liteEnabled;
-    private final Map<String, Integer> liveVerifyAttempts = new ConcurrentHashMap<>();
     @Autowired
     private ScanResponseSchema scanResponseSchema;
     @Autowired
@@ -70,6 +67,8 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
     private ScanResponse scanResponse;
     @Autowired
     private LocalQRScanner localScanner;
+    @Autowired
+    private LiveAddressVerificationService liveAddressVerificationService;
 
 
     public GeminiVisionService() {
@@ -80,8 +79,6 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
     public void initLiteClient() {
         this.liteClient = buildLiteClient();
         this.liteEnabled = this.liteClient != null;
-        this.liveClient = buildLiveClient();
-        this.liveEnabled = this.liveClient != null;
     }
 
 
@@ -97,7 +94,8 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
                 return new Gemini3Response<>(new ScanResponse(null, CameraState.ERROR, GeminiResponseState.ERROR, null, null, null, null, null, null, null, null, null, "Empty Frame Data", null, false, false));
             }
             Log.info("[GeminiVision] Frame received (" + frameData.length + " bytes).");
-            if (!looksLikeDocument(frameData)) {
+            boolean documentDetected = looksLikeDocument(frameData);
+            if (!documentDetected) {
                 Log.info("[GeminiVision] Document check failed; skipping Gemini call.");
                 return new Gemini3Response<>(new ScanResponse(null, CameraState.SEARCHING, GeminiResponseState.IDLE, null, null, null, null, null, null, null, null, null, "No readable document detected", null, false, false));
             }
@@ -108,8 +106,16 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
 
             Content content = Content.fromParts(Part.fromText(promptText), Part.fromBytes(frameData, mimeType));
             GenerateContentConfig config = client.getGenerationConfig();
+            long startNanos = System.nanoTime();
             GenerateContentResponse response = client.getClient().models.generateContent(
                     String.valueOf(GeminiModel.GEMINI_3_FLASH), content, config);
+            ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                    response,
+                    GeminiModel.GEMINI_3_FLASH,
+                    Duration.ofNanos(System.nanoTime() - startNanos),
+                    ResponseStatus.COMPLETED
+            );
+            Log.info("[GeminiUsage] Vision scan " + ClientResponseVisualizer.format(metadata));
 
             String jsonText = response.text();
             if (jsonText.contains("```json")) {
@@ -118,7 +124,14 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
 
             JsonNode root = objectMapper.readTree(jsonText);
             normalizeDeadline(root);
-            AddressCheckResult addressCheck = enforceLiveAddressVerification(root, frameData, shouldScanQR);
+            ensureBooleanDefaults(root);
+            ObjectNode objectNode = root instanceof ObjectNode ? (ObjectNode) root : null;
+            AddressCheckResult addressCheck = liveAddressVerificationService.enforceVerification(
+                    objectNode,
+                    frameData,
+                    shouldScanQR,
+                    documentDetected
+            );
             if (addressCheck != AddressCheckResult.BLOCKED) {
                 applyFunctionCall(root, shouldScanQR);
                 enforceIntakeCompleteness(root, shouldScanQR);
@@ -144,13 +157,20 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
                 scanErrorCache.registerScanError(geminiResponse);
             }
 
-            return new Gemini3Response<>(geminiResponse);
+            return new Gemini3Response<>(geminiResponse, metadata);
 
         } catch (Exception e) {
             System.err.println("Gemini Vision Error: " + e.getMessage());
             Log.exception(e);
+            ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                    null,
+                    GeminiModel.GEMINI_3_FLASH,
+                    Duration.ZERO,
+                    ResponseStatus.FAILED
+            );
+            Log.info("[GeminiUsage] Vision scan " + ClientResponseVisualizer.format(metadata));
             // Return empty record with error msg
-            return new Gemini3Response<>(new ScanResponse(null, CameraState.ERROR, GeminiResponseState.ERROR, null, null, null, null, null, null, null, null, null, e.getMessage(), null, false, false));
+            return new Gemini3Response<>(new ScanResponse(null, CameraState.ERROR, GeminiResponseState.ERROR, null, null, null, null, null, null, null, null, null, e.getMessage(), null, false, false), metadata);
         }
     }
 
@@ -355,6 +375,24 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
         }
     }
 
+    private void ensureBooleanDefaults(JsonNode root) {
+        if (!(root instanceof ObjectNode objectNode)) {
+            return;
+        }
+        ensureBoolean(objectNode, "pendingIntake", false);
+        ensureBoolean(objectNode, "existingLabel", false);
+    }
+
+    private void ensureBoolean(ObjectNode objectNode, String field, boolean fallback) {
+        if (objectNode == null || field == null) {
+            return;
+        }
+        JsonNode node = objectNode.get(field);
+        if (node == null || node.isNull()) {
+            objectNode.put(field, fallback);
+        }
+    }
+
     private void applyFunctionCall(JsonNode root, boolean shouldScanQR) {
         if (root == null || shouldScanQR) {
             return;
@@ -546,26 +584,36 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
         try {
             String prompt = buildAddressVisiblePrompt(request);
             Content content = Content.fromParts(Part.fromText(prompt));
+            long startNanos = System.nanoTime();
             GenerateContentResponse response = liteClient.getClient().models.generateContent(
                     String.valueOf(GeminiModel.GEMINI_2_FLASH_LITE), content, liteClient.getGenerationConfig());
+            ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                    response,
+                    GeminiModel.GEMINI_2_FLASH_LITE,
+                    Duration.ofNanos(System.nanoTime() - startNanos),
+                    ResponseStatus.COMPLETED
+            );
+            Log.info("[GeminiUsage] AddressLite " + ClientResponseVisualizer.format(metadata));
             String text = response.text();
             Log.info("[GeminiVision] AddressLite raw response -> " + text);
-            if (text.contains("```json")) {
-                text = text.replace("```json", "").replace("```", "").trim();
-            }
-            JsonNode root = objectMapper.readTree(text);
-            JsonNode visibleNode = root.get("addressVisible");
-            return visibleNode != null && visibleNode.asBoolean(false);
+            return parseAddressVisible(text);
         } catch (Exception ex) {
             Log.warn("[GeminiVision] AddressLite verification failed, defaulting to allow.");
             Log.exception(ex);
+            ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                    null,
+                    GeminiModel.GEMINI_2_FLASH_LITE,
+                    Duration.ZERO,
+                    ResponseStatus.FAILED
+            );
+            Log.info("[GeminiUsage] AddressLite " + ClientResponseVisualizer.format(metadata));
             return true;
         }
     }
 
     private String buildAddressVisiblePrompt(ShippingLabelMetaDataEntity request) {
         return """
-            You validate shipping label visibility. Return JSON {"addressVisible": true|false}.
+            You validate shipping label visibility. Return JSON {"addressVisible": true|false} only.
             Only return true if the street address, city, state, and zip are clearly present and look real.
             Do not invent data. If anything is missing or blurry, return false.
             Address:
@@ -583,6 +631,26 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
         );
     }
 
+    private boolean parseAddressVisible(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return false;
+        }
+        String cleaned = raw;
+        if (cleaned.contains("```json")) {
+            cleaned = cleaned.replace("```json", "").replace("```", "").trim();
+        }
+        try {
+            JsonNode root = objectMapper.readTree(cleaned);
+            JsonNode visibleNode = root.get("addressVisible");
+            if (visibleNode != null && !visibleNode.isNull()) {
+                return visibleNode.asBoolean(false);
+            }
+        } catch (Exception ex) {
+            Log.warn("[GeminiVision] Address visibility parse fallback engaged: " + ex.getMessage());
+        }
+        return AIResponseParser.parseBoolean(cleaned, false);
+    }
+
     private Gemini3TextClient buildLiteClient() {
         String apiKey = System.getenv("GEMINI_API_KEY");
         if (apiKey == null || apiKey.isBlank()) {
@@ -597,156 +665,6 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
                 .required(java.util.List.of("addressVisible"))
                 .build();
         return new Gemini3TextClient(schema);
-    }
-
-    private AddressCheckResult enforceLiveAddressVerification(JsonNode root, byte[] frameData, boolean shouldScanQR) {
-        if (shouldScanQR || frameData == null || frameData.length == 0) {
-            return AddressCheckResult.SKIPPED;
-        }
-        if (!(root instanceof ObjectNode objectNode)) {
-            return AddressCheckResult.SKIPPED;
-        }
-        String cameraState = objectNode.path("cameraState").asText("");
-        if (!"FOUND".equalsIgnoreCase(cameraState)) {
-            return AddressCheckResult.SKIPPED;
-        }
-        if (isBlank(textField(objectNode, "address"))) {
-            return AddressCheckResult.SKIPPED;
-        }
-        if (!liveEnabled) {
-            Log.warn("[GeminiVision] LiveAPI unavailable; skipping address verification.");
-            return AddressCheckResult.SKIPPED;
-        }
-
-        String key = buildAddressKey(objectNode);
-        int attempt = liveVerifyAttempts.getOrDefault(key, 0) + 1;
-        liveVerifyAttempts.put(key, attempt);
-
-        boolean visible = verifyAddressLive(frameData);
-        if (visible) {
-            liveVerifyAttempts.remove(key);
-            return AddressCheckResult.VERIFIED;
-        }
-
-        if (attempt < 3) {
-            objectNode.put("cameraState", "ANALYZING");
-            objectNode.put("notes", "Verifying address (" + attempt + "/3)");
-            objectNode.put("intakeStatus", "address_verifying");
-            objectNode.put("pendingIntake", true);
-            objectNode.remove("functionCall");
-            return AddressCheckResult.BLOCKED;
-        }
-
-        objectNode.put("cameraState", "ERROR");
-        objectNode.put("notes", "Address not verified. Rescan.");
-        objectNode.put("intakeStatus", "address_unverified");
-        objectNode.put("pendingIntake", false);
-        objectNode.remove("functionCall");
-        liveVerifyAttempts.remove(key);
-        return AddressCheckResult.BLOCKED;
-    }
-
-    private boolean verifyAddressLive(byte[] frameData) {
-        try {
-            FramePayload payload = prepareLiveFrame(frameData);
-            String prompt = """
-                Confirm if the shipping address is clearly visible. Return JSON {"addressVisible": true|false} only.
-                """;
-            Content content = Content.fromParts(
-                    Part.fromText(prompt),
-                    Part.fromBytes(payload.data(), payload.mimeType())
-            );
-            GenerateContentResponse response = liveClient.getClient().models.generateContent(
-                    String.valueOf(GeminiModel.GEMINI_3_FLASH), content, buildLiveConfig());
-            String text = response.text();
-            Log.info("[GeminiVision] LiveAPI response -> " + text);
-            if (text.contains("```json")) {
-                text = text.replace("```json", "").replace("```", "").trim();
-            }
-            JsonNode root = objectMapper.readTree(text);
-            JsonNode visibleNode = root.get("addressVisible");
-            return visibleNode != null && visibleNode.asBoolean(false);
-        } catch (Exception ex) {
-            Log.warn("[GeminiVision] LiveAPI address verification failed.");
-            Log.exception(ex);
-            return false;
-        }
-    }
-
-    private String buildAddressKey(ObjectNode node) {
-        return String.join("|",
-                safe(textField(node, "address")).toUpperCase(Locale.ROOT),
-                safe(textField(node, "city")).toUpperCase(Locale.ROOT),
-                safe(textField(node, "state")).toUpperCase(Locale.ROOT),
-                safe(textField(node, "zipCode")).toUpperCase(Locale.ROOT)
-        );
-    }
-
-    private Gemini3ImageClient buildLiveClient() {
-        String apiKey = System.getenv("GEMINI_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            Log.warn("[GeminiVision] LiveAPI client unavailable: GEMINI_API_KEY missing.");
-            return null;
-        }
-        Schema schema = Schema.builder()
-                .type(Type.Known.OBJECT)
-                .properties(Map.of(
-                        "addressVisible", Schema.builder().type(Type.Known.BOOLEAN).build()
-                ))
-                .required(java.util.List.of("addressVisible"))
-                .build();
-        return new Gemini3ImageClient(schema);
-    }
-
-    private GenerateContentConfig buildLiveConfig() {
-        return GenerateContentConfig.builder()
-                .temperature(0.0f)
-                .maxOutputTokens(128)
-                .candidateCount(1)
-                .imageConfig(ImageConfig.builder().build())
-                .mediaResolution(MediaResolution.Known.MEDIA_RESOLUTION_MEDIUM)
-                .responseSchema(liveClient.getSchema())
-                .responseMimeType("application/json")
-                .build();
-    }
-
-    private FramePayload prepareLiveFrame(byte[] frameData) {
-        if (frameData == null || frameData.length == 0) {
-            return new FramePayload(frameData, resolveMimeType(frameData));
-        }
-        BufferedImage image = loadImage(frameData);
-        if (image == null) {
-            return new FramePayload(frameData, resolveMimeType(frameData));
-        }
-        int width = image.getWidth();
-        if (width <= 640) {
-            return new FramePayload(frameData, resolveMimeType(frameData));
-        }
-        int height = image.getHeight();
-        int targetWidth = 640;
-        int targetHeight = Math.max(1, Math.round(targetWidth * (height / (float) width)));
-        BufferedImage scaled = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = scaled.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.drawImage(image, 0, 0, targetWidth, targetHeight, null);
-        g.dispose();
-
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            ImageIO.write(scaled, "jpg", out);
-            byte[] resized = out.toByteArray();
-            Log.info("[GeminiVision] LiveAPI frame resized from " + frameData.length + " -> " + resized.length + " bytes.");
-            return new FramePayload(resized, "image/jpeg");
-        } catch (Exception ex) {
-            return new FramePayload(frameData, resolveMimeType(frameData));
-        }
-    }
-
-    private record FramePayload(byte[] data, String mimeType) { }
-
-    private enum AddressCheckResult {
-        VERIFIED,
-        SKIPPED,
-        BLOCKED
     }
 
     private void enforceIntakeCompleteness(JsonNode root, boolean shouldScanQR) {
@@ -958,5 +876,6 @@ public class GeminiVisionService implements CameraFrameAnalyzer {
         }
     }
 
-    private record LabelCreationResult(ShippingLabelMetaDataEntity entity, boolean existing) { }
 }
+
+

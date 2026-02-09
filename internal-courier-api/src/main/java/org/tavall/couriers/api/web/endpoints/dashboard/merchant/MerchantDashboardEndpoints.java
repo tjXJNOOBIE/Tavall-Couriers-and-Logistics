@@ -37,12 +37,15 @@ public enum MerchantDashboardEndpoints implements AppEndpoint {
     ROUTE_DETAILS("/dashboard/merchant/routes/{routeId}/details", "GET"),
 
     // Merchant shipment library
-    SHIPMENTS_PAGE("/dashboard/merchant/shipments", "GET");
+    SHIPMENTS_PAGE("/dashboard/merchant/shipments", "GET"),
+    SHIPMENTS_VIEW("/dashboard/merchant/shipments/view", "GET");
 
     public static final String SHIPMENTS_PAGE_PATH = "/dashboard/merchant/shipments";
+    public static final String SHIPMENTS_VIEW_PATH = "/dashboard/merchant/shipments/view";
 
     public static final String GET_ALL_SHIPMENTS_PATH = "/internal/api/v1/merchant/shipments/all";
     public static final String UPDATE_SHIPMENT_PATH = "/internal/api/v1/merchant/shipments/update";
+    public static final String DELETE_SHIPMENT_PATH = "/internal/api/v1/merchant/shipments/delete";
     public static final String CREATE_SHIPMENT_PATH = "/internal/api/v1/merchant/shipment/create";
     public static final String DASHBOARD_PATH = "/dashboard/merchant";
     public static final String CREATE_SHIPMENT_PAGE_PATH = "/dashboard/merchant/create-shipment";

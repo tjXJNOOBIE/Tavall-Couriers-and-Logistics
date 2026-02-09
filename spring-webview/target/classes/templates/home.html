@@ -14,29 +14,29 @@
 
 </head>
 
-<body class="home-shell">
+<body th:class="${@homeTemplateCss.body()}">
 
 <header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
-<main class="main-content fade-in">
-    <div class="container">
+<main th:class="${@homeTemplateCss.mainContent()}">
+    <div th:class="${@homeTemplateCss.container()}">
 
-        <section class="max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl fade-in border border-slate-100">
-            <div class="text-center mb-8">
-                <div class="text-sm font-bold text-slate-400 uppercase mb-2">Tavall Couriers</div>
-                <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="truck" class="text-blue-600 w-8 h-8"></i>
+        <section th:class="${@homeTemplateCss.heroCard()}">
+            <div th:class="${@homeTemplateCss.heroHeader()}">
+                <div th:class="${@homeTemplateCss.heroBrand()}">Tavall Couriers</div>
+                <div th:class="${@homeTemplateCss.heroIconWrap()}">
+                    <i data-lucide="truck" th:class="${@homeTemplateCss.heroIcon()}"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-slate-800">Operations Hub</h1>
-                <p class="text-slate-500 text-sm">Jump into the dashboard or track a shipment.</p>
+                <h1 th:class="${@homeTemplateCss.heroTitle()}">Operations Hub</h1>
+                <p th:class="${@homeTemplateCss.heroDesc()}">Jump into the dashboard or track a shipment.</p>
             </div>
 
-            <div class="home-actions">
-                <a class="btn-primary"
+            <div th:class="${@homeTemplateCss.actions()}">
+                <a th:class="${@buttonsCss.btnPrimary()}"
                    th:href="@{/dashboard}">
                     Dashboard
                 </a>
-                <a class="btn-secondary" th:href="@{/tracking}">
+                <a th:class="${@buttonsCss.btnSecondary()}" th:href="@{/tracking}">
                     Track Shipment
                 </a>
             </div>

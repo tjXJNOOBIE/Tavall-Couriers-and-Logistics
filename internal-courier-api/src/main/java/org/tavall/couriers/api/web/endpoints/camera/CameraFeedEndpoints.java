@@ -6,8 +6,10 @@ import org.tavall.couriers.api.web.endpoints.AppEndpoint;
 public enum CameraFeedEndpoints implements AppEndpoint {
     SCAN_PACKAGE("/internal/api/v1/scan", "POST"),
     CONFIRM_ROUTE("/internal/api/v1/route/confirm", "POST"),
-    STREAM_FRAME("/internal/api/v1/stream/frame", "POST");
+    STREAM_FRAME("/internal/api/v1/stream/frame", "POST"),
+    CLOSE_SESSION("/internal/api/v1/stream/session/close", "POST");
     public static final String STREAM_FRAME_PATH = "/internal/api/v1/stream/frame";
+    public static final String CLOSE_SESSION_PATH = "/internal/api/v1/stream/session/close";
     private final String endpoint;
     private final String method;
 

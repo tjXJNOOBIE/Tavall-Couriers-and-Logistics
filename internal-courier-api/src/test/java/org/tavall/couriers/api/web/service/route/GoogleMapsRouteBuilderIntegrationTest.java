@@ -23,7 +23,7 @@ class GoogleMapsRouteBuilderIntegrationTest {
                 "500 Terry A Francois Blvd, San Francisco, CA"
         );
 
-        GoogleMapsRouteBuilder.RouteLinkResult result = delegate.buildRouteLink(stops);
+        RouteLinkResult result = delegate.buildRouteLink(stops);
         assertNotNull(result);
         assertNotNull(result.routeUrl());
         assertTrue(result.routeUrl().contains("google.com/maps/dir"));
@@ -36,11 +36,4 @@ class GoogleMapsRouteBuilderIntegrationTest {
         return apiKey != null && !apiKey.isBlank();
     }
 
-    private static class GoogleMapsRouteBuilderDelegate {
-        private final GoogleMapsRouteBuilder builder = new GoogleMapsRouteBuilder();
-
-        public GoogleMapsRouteBuilder.RouteLinkResult buildRouteLink(List<String> stops) {
-            return builder.buildRouteLink(stops);
-        }
-    }
 }

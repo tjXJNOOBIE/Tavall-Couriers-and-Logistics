@@ -140,3 +140,20 @@
     padding: 1rem 0;
     font-size: 0.9rem;
 }
+
+/* Error page helpers */
+.error-big {
+    font-size: 2.25rem;
+    font-weight: 800;
+}
+
+.error-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+details pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+}

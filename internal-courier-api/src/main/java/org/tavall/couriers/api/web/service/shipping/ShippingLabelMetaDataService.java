@@ -92,6 +92,21 @@ public class ShippingLabelMetaDataService {
         return cached;
     }
 
+    public ShippingLabelMetaDataEntity findCachedByUuid(String uuid) {
+        if (uuid == null || uuid.isBlank()) {
+            return null;
+        }
+        return qrShippingLabelCache.findByUuid(uuid);
+    }
+
+    public ShippingLabelMetaDataEntity findCachedByTrackingNumber(String trackingNumber) {
+        if (trackingNumber == null || trackingNumber.isBlank()) {
+            return null;
+        }
+        String normalized = trackingNumber.trim().toUpperCase(Locale.ROOT);
+        return qrShippingLabelCache.findByTrackingNumber(normalized);
+    }
+
     public ShippingLabelMetaDataEntity createShipment(ShippingLabelMetaDataEntity request, DeliveryState initialState) {
         Objects.requireNonNull(request, "request");
 
@@ -184,6 +199,28 @@ public class ShippingLabelMetaDataService {
         Log.info("Shipment delivery state updated: " + uuid + " -> " + targetState);
         persistAsync(entity, Duration.ZERO);
         return entity;
+    }
+
+    public boolean deleteShipment(String uuid) {
+        if (uuid == null || uuid.isBlank()) {
+            return false;
+        }
+        ShippingLabelMetaDataEntity entity = qrShippingLabelCache.findByUuid(uuid);
+        if (entity == null && !qrShippingLabelCache.isPrimed()) {
+            entity = repository.findById(uuid).orElse(null);
+        }
+        if (entity == null) {
+            return false;
+        }
+        String targetUuid = entity.getUuid();
+        qrShippingLabelCache.removeShippingLabel(targetUuid);
+        deliveryStateCache.removeDeliveryState(targetUuid);
+        AsyncTask.runFuture(() -> {
+            repository.deleteById(targetUuid);
+            Log.info("Shipment label deleted async: " + targetUuid);
+            return null;
+        });
+        return true;
     }
 
     private void persistAsync(ShippingLabelMetaDataEntity entity, Duration delay) {

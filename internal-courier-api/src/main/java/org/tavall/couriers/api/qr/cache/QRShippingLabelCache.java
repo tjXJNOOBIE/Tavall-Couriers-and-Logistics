@@ -176,6 +176,23 @@ public class QRShippingLabelCache extends AbstractCache<QRShippingLabelCache, Sh
         }
     }
 
+    public void removeShippingLabel(String uuid) {
+        String normalized = normalizeUuid(uuid);
+        if (normalized == null) {
+            return;
+        }
+        ShippingLabelMetaDataEntity removed = uuidIndex.remove(normalized);
+        if (removed == null) {
+            Log.warn("Shipping label not found in cache: " + uuid);
+            return;
+        }
+        String tracking = normalizeTrackingNumber(removed.getTrackingNumber());
+        if (tracking != null) {
+            trackingIndex.remove(tracking, removed);
+        }
+        Log.info("Shipping label removed from cache index: " + uuid);
+    }
+
     private boolean indexLabel(ShippingLabelMetaDataEntity labelData) {
         String uuid = normalizeUuid(labelData.getUuid());
         String tracking = normalizeTrackingNumber(labelData.getTrackingNumber());

@@ -1,4 +1,4 @@
-package org.tavall.couriers.web.view.security;
+package org.tavall.couriers.web.security;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;

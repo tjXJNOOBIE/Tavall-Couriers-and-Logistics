@@ -2,6 +2,7 @@ package org.tavall.couriers.web.view.controller.camera;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.tavall.couriers.api.web.service.camera.CameraPageService;
 import org.tavall.couriers.api.web.service.camera.CameraScanResult;
 
 @Controller
+@PreAuthorize("hasAnyRole('MERCHANT','DRIVER','SUPERUSER')")
 public class CameraPageController {
 
     private final CameraPageService cameraPageService;
@@ -27,6 +29,7 @@ public class CameraPageController {
     public ResponseEntity<ScanResponse> receiveFrame(@RequestParam("image") MultipartFile image,
                                                      @RequestParam(value = "scanMode", required = false) String scanMode,
                                                      @RequestParam(value = "routeId", required = false) String routeId,
+                                                     @RequestParam(value = "scanSessionId", required = false) String scanSessionId,
                                                      Authentication authentication) {
         if (image == null || image.isEmpty()) {
             Log.warn("[CameraPage] Empty frame upload rejected.");
@@ -37,7 +40,7 @@ public class CameraPageController {
             byte[] snapshot = image.getBytes();
             CameraOptions options = CameraOptions.fromMode(scanMode);
             Log.info("[CameraPage] Frame received (" + snapshot.length + " bytes, mode=" + options.mode() + ").");
-            CameraScanResult result = cameraPageService.handleFrame(snapshot, options, authentication, routeId);
+            CameraScanResult result = cameraPageService.handleFrame(snapshot, options, authentication, routeId, scanSessionId);
             if (result != null && result.forbidden()) {
                 Log.warn("[CameraPage] Scan forbidden for mode=" + options.mode() + ".");
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result.response());
@@ -53,5 +56,11 @@ public class CameraPageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(cameraPageService.errorResponse("Failed to analyze frame"));
         }
+    }
+
+    @PostMapping(Routes.CAMERA_CLOSE_SESSION)
+    public ResponseEntity<Void> closeSession(@RequestParam(value = "scanSessionId", required = false) String scanSessionId) {
+        cameraPageService.closeSession(scanSessionId);
+        return ResponseEntity.ok().build();
     }
 }

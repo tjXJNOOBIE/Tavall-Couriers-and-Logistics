@@ -53,9 +53,10 @@ public class AdminUsersControllerHelper {
     }
 
     private AdminUserView toView(UserAccountEntity entity) {
+        String userUUID = entity != null && entity.getUserUUID() != null ? entity.getUserUUID().toString() : "";
         String name = entity != null && entity.getUsername() != null ? entity.getUsername() : "Unknown";
         String role = resolvePrimaryRole(entity != null ? entity.getRoles() : null);
-        return new AdminUserView(name, role);
+        return new AdminUserView(userUUID, name, role);
     }
 
     private String resolvePrimaryRole(Set<Role> roles) {

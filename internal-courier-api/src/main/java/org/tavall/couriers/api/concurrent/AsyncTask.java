@@ -25,9 +25,8 @@ public class AsyncTask {
 
     }
 
-
     /**
-     * Configuration knobs for the scope. Mirrors what the JDK exposes: thread factory, name, timeout. :contentReference[oaicite:5]{index=5}
+     * Configuration knobs for the scope. Mirrors what the JDK exposes: thread factory, name, timeout.
      */
     public record ScopeOptions(
             ThreadFactory threadFactory,
@@ -55,80 +54,6 @@ public class AsyncTask {
         public ScopeOptions withTimeout(Duration timeout) {
 
             return new ScopeOptions(threadFactory, name, timeout);
-        }
-    }
-
-    /**
-     * Outcome per task, in fork order (index matches input order).
-     */
-    public record Outcome<T>(
-            int index,
-            StructuredTaskScope.Subtask.State state,
-            T result,
-            Throwable error
-    ) {
-    }
-
-    /**
-     * Batch result, even when failures happen (unless you choose to throw).
-     */
-    public record BatchResult<T>(
-            List<Outcome<T>> outcomes,
-            boolean cancelled,
-            boolean timedOut
-    ) {
-        public List<T> successes() {
-
-            return outcomes.stream()
-                    .filter(o -> o.state == StructuredTaskScope.Subtask.State.SUCCESS)
-                    .map(Outcome::result)
-                    .toList();
-        }
-
-
-        public List<Throwable> failures() {
-
-            return outcomes.stream()
-                    .filter(o -> o.state == StructuredTaskScope.Subtask.State.FAILED)
-                    .map(Outcome::error)
-                    .toList();
-        }
-
-
-        public boolean hasFailures() {
-
-            return outcomes.stream().anyMatch(o -> o.state == StructuredTaskScope.Subtask.State.FAILED);
-        }
-
-
-        public Throwable firstFailureOrNull() {
-
-            return outcomes.stream()
-                    .filter(o -> o.state == StructuredTaskScope.Subtask.State.FAILED)
-                    .map(Outcome::error)
-                    .findFirst()
-                    .orElse(null);
-        }
-    }
-
-    /**
-     * Thrown when you choose "throwOnFailure=true" for batch runs.
-     * Carries the BatchResult so you can still inspect partial outcomes.
-     */
-    public static final class BatchFailedException extends Exception {
-        private final BatchResult<?> result;
-
-
-        public BatchFailedException(String message, Throwable cause, BatchResult<?> result) {
-
-            super(message, cause);
-            this.result = result;
-        }
-
-
-        public BatchResult<?> result() {
-
-            return result;
         }
     }
 

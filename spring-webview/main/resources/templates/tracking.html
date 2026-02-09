@@ -11,73 +11,73 @@
 
 <header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
-<main class="main-content fade-in">
-    <div class="container" id="tracking-root"
+<main th:class="${@trackingTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@trackingTemplateCss.join('container')}" id="tracking-root"
          th:attr="data-tracking-base=@{/tracking/}">
-        <div class="tracking-shell max-w-xl mx-auto mt-10 fade-in">
-            <section class="tracking-card tracking-hero">
-                <div class="tracking-header">
-                    <div class="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i data-lucide="package" class="text-blue-600 w-8 h-8"></i>
+        <div th:class="${@trackingTemplateCss.join('tracking-shell max-w-xl mx-auto mt-10 fade-in')}">
+            <section th:class="${@trackingTemplateCss.join('tracking-card tracking-hero')}">
+                <div th:class="${@trackingTemplateCss.join('tracking-header')}">
+                    <div th:class="${@trackingTemplateCss.join('bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4')}">
+                        <i data-lucide="package" th:class="${@trackingTemplateCss.join('text-blue-600 w-8 h-8')}"></i>
                     </div>
-                    <h1 class="tracking-title">Track your <span>Shipment</span></h1>
-                    <p class="tracking-subtitle">Real-time status updates across the Tavall network.</p>
+                    <h1 th:class="${@trackingTemplateCss.join('tracking-title')}">Track your <span>Shipment</span></h1>
+                    <p th:class="${@trackingTemplateCss.join('tracking-subtitle')}">Real-time status updates across the Tavall network.</p>
                 </div>
 
-                <form class="tracking-search" th:action="@{/tracking}" method="get">
-                    <div class="tracking-search-row">
+                <form th:class="${@trackingTemplateCss.join('tracking-search')}" th:action="@{/tracking}" method="get">
+                    <div th:class="${@trackingTemplateCss.join('tracking-search-row')}">
                         <input id="track-input" name="trackingNumber" type="text"
-                               class="tracking-input mono"
+                               th:class="${@trackingTemplateCss.join('tracking-input mono')}"
                                placeholder="Enter tracking number"
                                autocomplete="off"
                                spellcheck="false"
                                th:value="${trackingNumber}">
-                        <button class="btn-primary" type="submit">Track</button>
+                        <button th:class="${@trackingTemplateCss.join('btn-primary')}" type="submit">Track</button>
                     </div>
-                    <p class="tracking-hint">Paste a tracking number to search instantly.</p>
+                    <p th:class="${@trackingTemplateCss.join('tracking-hint')}">Paste a tracking number to search instantly.</p>
                 </form>
             </section>
 
-            <section class="tracking-card tracking-card-alt">
-                <form class="tracking-batch" th:action="@{/tracking}" method="get">
-                    <label class="tracking-label">Track Multiple Shipments</label>
+            <section th:class="${@trackingTemplateCss.join('tracking-card tracking-card-alt')}">
+                <form th:class="${@trackingTemplateCss.join('tracking-batch')}" th:action="@{/tracking}" method="get">
+                    <label th:class="${@trackingTemplateCss.join('tracking-label')}">Track Multiple Shipments</label>
                     <textarea name="batch" rows="3"
-                              class="tracking-textarea mono"
+                              th:class="${@trackingTemplateCss.join('tracking-textarea mono')}"
                               placeholder="Paste tracking numbers separated by commas or new lines"></textarea>
-                    <div class="tracking-batch-actions">
-                        <button class="btn-secondary" type="submit">Track Batch</button>
+                    <div th:class="${@trackingTemplateCss.join('tracking-batch-actions')}">
+                        <button th:class="${@trackingTemplateCss.join('btn-secondary')}" type="submit">Track Batch</button>
                     </div>
                 </form>
             </section>
 
             <section th:if="${currentUserRole != null && currentUserRole != 'GUEST'}"
-                     class="tracking-card tracking-card-alt">
-                <h3 class="tracking-section-title">Signed-In Tools</h3>
-                <p class="tracking-subtitle">Quick access based on your role.</p>
-                <div class="tracking-quick-actions flex flex-wrap gap-2">
-                    <a class="btn-primary gap-2 items-center" th:href="@{/dashboard}">
+                     th:class="${@trackingTemplateCss.join('tracking-card tracking-card-alt')}">
+                <h3 th:class="${@trackingTemplateCss.join('tracking-section-title')}">Signed-In Tools</h3>
+                <p th:class="${@trackingTemplateCss.join('tracking-subtitle')}">Quick access based on your role.</p>
+                <div th:class="${@trackingTemplateCss.join('tracking-quick-actions flex flex-wrap gap-2')}">
+                    <a th:class="${@trackingTemplateCss.join('btn-primary gap-2 items-center')}" th:href="@{/dashboard}">
                         <i data-lucide="home"></i>
                         Dashboard
                     </a>
-                    <a class="btn-secondary gap-2 items-center"
+                    <a th:class="${@trackingTemplateCss.join('btn-secondary gap-2 items-center')}"
                        th:if="${currentUserRole == 'MERCHANT' or currentUserRole == 'SUPERUSER'}"
                        th:href="@{/dashboard/merchant/shipments}">
                         <i data-lucide="archive"></i>
                         Shipment Library
                     </a>
-                    <a class="btn-secondary gap-2 items-center"
+                    <a th:class="${@trackingTemplateCss.join('btn-secondary gap-2 items-center')}"
                        th:if="${currentUserRole == 'MERCHANT' or currentUserRole == 'SUPERUSER'}"
                        th:href="@{/dashboard/merchant/routes}">
                         <i data-lucide="route"></i>
                         Routes
                     </a>
-                    <a class="btn-secondary gap-2 items-center"
+                    <a th:class="${@trackingTemplateCss.join('btn-secondary gap-2 items-center')}"
                        th:if="${currentUserRole == 'DRIVER'}"
                        th:href="@{/dashboard/driver}">
                         <i data-lucide="navigation"></i>
                         Driver Hub
                     </a>
-                    <a class="btn-secondary gap-2 items-center"
+                    <a th:class="${@trackingTemplateCss.join('btn-secondary gap-2 items-center')}"
                        th:if="${currentUserRole == 'SUPERUSER'}"
                        th:href="@{/dashboard/superuser}">
                         <i data-lucide="shield-check"></i>
@@ -87,60 +87,60 @@
             </section>
 
             <div id="track-result" th:if="${trackingResult != null}">
-                <div class="tracking-card tracking-card-alt">
-                    <h3 class="tracking-section-title">Tracking Details</h3>
-                    <div class="space-y-4">
+                <div th:class="${@trackingTemplateCss.join('tracking-card tracking-card-alt')}">
+                    <h3 th:class="${@trackingTemplateCss.join('tracking-section-title')}">Tracking Details</h3>
+                    <div th:class="${@trackingTemplateCss.join('space-y-4')}">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
-                            <div class="scan-field mono" th:text="${trackingResult.trackingNumber}"></div>
+                            <label th:class="${@trackingTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Tracking Number</label>
+                            <div th:class="${@trackingTemplateCss.join('scan-field mono')}" th:text="${trackingResult.trackingNumber}"></div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Recipient</label>
-                            <div class="scan-field" th:text="${trackingResult.recipientName}"></div>
+                            <label th:class="${@trackingTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Recipient</label>
+                            <div th:class="${@trackingTemplateCss.join('scan-field')}" th:text="${trackingResult.recipientName}"></div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Delivery Status</label>
-                            <div class="scan-field" th:text="${trackingStatusMessage}"></div>
+                            <label th:class="${@trackingTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Delivery Status</label>
+                            <div th:class="${@trackingTemplateCss.join('scan-field')}" th:text="${trackingStatusMessage}"></div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Deliver By</label>
-                            <div class="scan-field"
+                            <label th:class="${@trackingTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Deliver By</label>
+                            <div th:class="${@trackingTemplateCss.join('scan-field')}"
                                  th:text="${trackingResult.deliverBy != null ? 'DEADLINE: ' + #temporals.format(trackingResult.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Address</label>
-                            <div class="scan-field" th:text="${trackingResult.address}"></div>
+                            <label th:class="${@trackingTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Address</label>
+                            <div th:class="${@trackingTemplateCss.join('scan-field')}" th:text="${trackingResult.address}"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="track-result-empty" th:if="${trackingNumber != null && trackingResult == null}" class="tracking-card tracking-card-alt tracking-empty">
-                No shipment found for <span class="mono" th:text="${trackingNumber}"></span>.
+            <div id="track-result-empty" th:if="${trackingNumber != null && trackingResult == null}" th:class="${@trackingTemplateCss.join('tracking-card tracking-card-alt tracking-empty')}">
+                No shipment found for <span th:class="${@trackingTemplateCss.join('mono')}" th:text="${trackingNumber}"></span>.
             </div>
 
-            <div th:if="${!#lists.isEmpty(batchResults)}" class="mt-8">
-                <h3 class="tracking-section-title tracking-section-title-small">Batch Results</h3>
-                <div class="tracking-card tracking-card-alt tracking-batch-results">
-                    <div th:each="label : ${batchResults}" class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div th:if="${!#lists.isEmpty(batchResults)}" th:class="${@trackingTemplateCss.join('mt-8')}">
+                <h3 th:class="${@trackingTemplateCss.join('tracking-section-title tracking-section-title-small')}">Batch Results</h3>
+                <div th:class="${@trackingTemplateCss.join('tracking-card tracking-card-alt tracking-batch-results')}">
+                    <div th:each="label : ${batchResults}" th:class="${@trackingTemplateCss.join('p-4 border-b border-slate-100 flex items-center justify-between')}">
                         <div>
-                            <div class="text-sm font-bold text-slate-700" th:text="${label.trackingNumber}"></div>
-                            <div class="text-xs text-slate-400"
+                            <div th:class="${@trackingTemplateCss.join('text-sm font-bold text-slate-700')}" th:text="${label.trackingNumber}"></div>
+                            <div th:class="${@trackingTemplateCss.join('text-xs text-slate-400')}"
                                  th:text="${batchStatusMessages[label.trackingNumber]}"></div>
                         </div>
-                        <a class="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                        <a th:class="${@trackingTemplateCss.join('text-blue-500 hover:text-blue-700 text-sm font-medium')}"
                            th:href="@{/tracking/{trackingNumber}(trackingNumber=${label.trackingNumber})}">View</a>
                     </div>
                 </div>
             </div>
 
-            <div class="text-center mt-10">
+            <div th:class="${@trackingTemplateCss.join('text-center mt-10')}">
                 <a th:if="${currentUserRole == null || currentUserRole == 'GUEST'}"
-                   th:href="@{/dashboard/login}" class="text-sm text-slate-400 hover:text-slate-600">
+                   th:href="@{/dashboard/login}" th:class="${@trackingTemplateCss.join('text-sm text-slate-400 hover:text-slate-600')}">
                     Dashboard login instead
                 </a>
                 <a th:if="${currentUserRole != null && currentUserRole != 'GUEST'}"
-                   th:href="@{/dashboard}" class="text-sm text-slate-400 hover:text-slate-600">
+                   th:href="@{/dashboard}" th:class="${@trackingTemplateCss.join('text-sm text-slate-400 hover:text-slate-600')}">
                     Return to Dashboard
                 </a>
             </div>

@@ -1,0 +1,40 @@
+<svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="350" fill="#0d1117" />
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#58a6ff" />
+        </marker>
+    </defs>
+
+    <text x="400" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">QR GENERATION PIPELINE</text>
+
+    <rect x="50" y="120" width="140" height="80" rx="4" fill="#1f6feb" fill-opacity="0.2" stroke="#58a6ff" stroke-width="2"/>
+    <text x="120" y="150" fill="#58a6ff" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">1. INPUT</text>
+    <text x="120" y="170" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">Recipient Data</text>
+
+    <line x1="190" y1="160" x2="230" y2="160" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="230" y="120" width="140" height="80" rx="4" fill="#d29922" fill-opacity="0.2" stroke="#d29922" stroke-width="2"/>
+    <text x="300" y="150" fill="#d29922" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">2. GENERATE</text>
+    <text x="300" y="170" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">UUID Only</text>
+
+    <line x1="370" y1="160" x2="410" y2="160" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="410" y="120" width="140" height="80" rx="4" fill="#a371f7" fill-opacity="0.2" stroke="#a371f7" stroke-width="2"/>
+    <text x="480" y="150" fill="#a371f7" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">3. PAGE BUILD</text>
+    <text x="480" y="170" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">QR + Label Data</text>
+
+    <line x1="550" y1="160" x2="590" y2="160" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="590" y="100" width="160" height="120" rx="4" fill="#161b22" stroke="#238636" stroke-width="2"/>
+    <text x="670" y="125" fill="#238636" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">4. PERSIST</text>
+
+    <rect x="610" y="140" width="120" height="30" rx="4" fill="#238636" fill-opacity="0.4"/>
+    <text x="670" y="160" fill="#ffffff" font-family="monospace" font-size="10" text-anchor="middle">Cache (Fast)</text>
+
+    <line x1="670" y1="170" x2="670" y2="180" stroke="#238636" stroke-width="1"/>
+
+    <rect x="610" y="180" width="120" height="30" rx="4" fill="#238636" fill-opacity="0.4"/>
+    <text x="670" y="200" fill="#ffffff" font-family="monospace" font-size="10" text-anchor="middle">Database (Safe)</text>
+
+</svg>

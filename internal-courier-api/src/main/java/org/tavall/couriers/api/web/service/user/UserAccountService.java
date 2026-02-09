@@ -176,6 +176,24 @@ public class UserAccountService {
         return target;
     }
 
+    public UserAccountEntity deleteUser(UUID actorId, UUID targetUserId) {
+        UserAccountEntity actor = require(actorId);
+        requirePermission(actor, UserPermissions.ADMIN_DELETE_USERS);
+
+        UserAccountEntity target = require(targetUserId);
+        if (actorId != null && actorId.equals(targetUserId)) {
+            throw new IllegalArgumentException("Cannot delete the active user.");
+        }
+
+        repo.deleteById(targetUserId);
+        UserAccount cached = userCache.findById(targetUserId);
+        if (cached != null) {
+            userCache.removeUser(cached);
+        }
+        Log.success("User deleted: " + target.getUsername());
+        return target;
+    }
+
     private UserAccountEntity require(UUID id) {
         UserAccount cached = userCache.findById(id);
         if (cached != null) {

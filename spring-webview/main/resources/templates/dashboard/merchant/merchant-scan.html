@@ -6,48 +6,48 @@
     <title>Merchant Scan</title>
     <link rel="stylesheet" href="/css/style.css"/>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <meta name="_csrf_parameter" th:content="${_csrf != null ? _csrf.parameterName : '_csrf'}"/>
 </head>
 <body>
 
-<div class="scan-popup scan-camera-popup fade-in" data-camera-mode-key="merchantIntake">
-    <div class="scan-topbar">
-        <span class="text-white font-mono text-xs opacity-70">POD SCAN v1.0</span>
+<div th:class="${@dashboardTemplateCss.join('scan-popup scan-camera-popup fade-in')}" data-camera-mode-key="merchantIntake">
+    <div th:class="${@dashboardTemplateCss.join('scan-topbar')}">
+        <span th:class="${@dashboardTemplateCss.join('text-white font-mono text-xs opacity-70')}">POD SCAN v1.0</span>
     </div>
 
-    <div class="scan-layout single">
+    <div th:class="${@dashboardTemplateCss.join('scan-layout single')}">
         <div>
-            <div class="scan-frame">
-                <div class="scan-video-wrap">
+            <div th:class="${@dashboardTemplateCss.join('scan-frame')}">
+                <div th:class="${@dashboardTemplateCss.join('scan-video-wrap')}">
                     <video id="live-feed" autoplay muted playsinline></video>
-                    <canvas id="frame-buffer" style="display:none;"></canvas>
+                    <canvas id="frame-buffer" th:class="${@dashboardTemplateCss.join('is-hidden')}"></canvas>
                 </div>
-                <div class="scan-state-overlay">
-                    <div id="scan-state-badge" class="scan-state-badge">SEARCHING</div>
-                    <div class="scan-state-pulse" aria-hidden="true"></div>
+                <div th:class="${@dashboardTemplateCss.join('scan-state-overlay')}">
+                    <div id="scan-state-badge" th:class="${@dashboardTemplateCss.join('scan-state-badge')}">SEARCHING</div>
+                    <div th:class="${@dashboardTemplateCss.join('scan-state-pulse')}" aria-hidden="true"></div>
                 </div>
-                <div class="scan-data-overlay" aria-live="polite">
-                    <div class="scan-data-flash"></div>
+                <div th:class="${@dashboardTemplateCss.join('scan-data-overlay')}">
+                    <div th:class="${@dashboardTemplateCss.join('scan-data-feed')}" aria-live="polite"></div>
                 </div>
             </div>
 
-            <div class="scan-actions scan-camera-actions">
-                <button id="btn-toggle-source" class="scan-toggle" type="button">Switch to Screen Share</button>
-                <button class="btn-secondary scan-close" type="button" data-scan-close="true">Close</button>
+            <div th:class="${@dashboardTemplateCss.join('scan-actions scan-camera-actions')}">
+                <button id="btn-toggle-source" th:class="${@dashboardTemplateCss.join('scan-toggle')}" type="button">Switch to Screen Share</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary scan-duplicate-intake')}" type="button" data-duplicate-intake="true" hidden>Create another label anyway</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary scan-close')}" type="button" data-scan-close="true">Close</button>
             </div>
         </div>
     </div>
 
-    <div class="scan-popup-footer">
-        <button class="btn-secondary scan-close" type="button" data-scan-close="true">
-            Close
-        </button>
-    </div>
 </div>
 
 <script th:inline="javascript">
     window.APP = window.APP || {};
     window.APP.endpoints = window.APP.endpoints || {};
     window.APP.endpoints.configHandshake = /*[[@{/internal/api/v1/config/handshake}]]*/ "/internal/api/v1/config/handshake";
+    window.APP.endpoints.intakeConfirm = /*[[@{/internal/api/v1/merchant/scan/intake/confirm}]]*/ "/internal/api/v1/merchant/scan/intake/confirm";
 </script>
 <script src="/js/camera.js" defer></script>
 <script>
@@ -80,5 +80,19 @@
         }
     })();
 </script>
+
+<div id="intakeConfirmModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden data-intake-confirm-modal>
+    <div id="intakeConfirmBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel tavall-popup-panel')}">
+        <div th:class="${@dashboardTemplateCss.join('space-y-3')}">
+            <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-600')}" data-intake-confirm-summary>Waiting for data...</div>
+            <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}" data-intake-confirm-status hidden></div>
+            <div th:class="${@dashboardTemplateCss.join('flex justify-end gap-2')}">
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" data-intake-confirm-decline>Decline</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-primary')}" type="button" data-intake-confirm-submit>Confirm intake</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

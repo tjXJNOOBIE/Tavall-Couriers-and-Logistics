@@ -363,10 +363,6 @@ class AIResponseParserTest {
 
     // ======== Enum Parsing Tests ========
 
-    enum TestEnum {
-        OPTION_A, OPTION_B, OPTION_C
-    }
-
     @Test
     void testParseEnum_ValidInput() {
         logTestHeader("Enum Parsing - Valid Input");

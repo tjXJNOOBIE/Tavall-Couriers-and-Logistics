@@ -1,4 +1,4 @@
-package org.tavall.couriers.config;
+package org.tavall.couriers.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**"
                         ).permitAll()
+                        .requestMatchers("/purchase").hasAnyRole("MERCHANT", "DRIVER", "SUPERUSER")
                         .anyRequest().authenticated()
                 )
 

@@ -108,6 +108,23 @@ public class DeliveryStateCache extends AbstractCache<DeliveryStateCache, Shippi
         }
     }
 
+    public void removeDeliveryState(String uuid) {
+        String normalized = normalizeUuid(uuid);
+        if (normalized == null) {
+            return;
+        }
+        ShippingLabelMetaDataEntity removed = uuidIndex.remove(normalized);
+        if (removed == null) {
+            Log.warn("Delivery state label not found in cache: " + uuid);
+            return;
+        }
+        String tracking = normalizeTrackingNumber(removed.getTrackingNumber());
+        if (tracking != null) {
+            trackingIndex.remove(tracking, removed);
+        }
+        Log.info("Delivery state removed from cache index: " + uuid);
+    }
+
     public void primeCache(Collection<ShippingLabelMetaDataEntity> labels) {
         if (labels == null) {
             primed = true;

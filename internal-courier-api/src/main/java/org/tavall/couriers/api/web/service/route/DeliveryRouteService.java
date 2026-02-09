@@ -114,19 +114,25 @@ public class DeliveryRouteService {
 
         RoutePlan plan = routePlanner.planRoute(labels, resolvedRadius, resolvedMaxStops);
         List<String> normalized = new ArrayList<>();
+        Map<String, Boolean> seen = new HashMap<>();
         if (plan != null && plan.orderedUuids() != null) {
             for (String uuid : plan.orderedUuids()) {
                 if (uuid == null || !labelMap.containsKey(uuid) || normalized.size() >= resolvedMaxStops) {
                     continue;
                 }
-                normalized.add(uuid);
+                if (seen.putIfAbsent(uuid, Boolean.TRUE) == null) {
+                    normalized.add(uuid);
+                }
             }
         }
         for (ShippingLabelMetaDataEntity label : labels) {
             if (label == null || label.getUuid() == null || normalized.size() >= resolvedMaxStops) {
                 continue;
             }
-            normalized.add(label.getUuid());
+            String uuid = label.getUuid();
+            if (seen.putIfAbsent(uuid, Boolean.TRUE) == null) {
+                normalized.add(uuid);
+            }
         }
 
         String routeId = generateRouteId();
@@ -234,8 +240,15 @@ public class DeliveryRouteService {
 
         route.setLabelCount(allStops.size());
         route.setUpdatedAt(now);
+        String existingLink = route.getRouteLink();
         String newRouteLink = resolveRouteLink(allUuids, metadataLookup);
-        route.setRouteLink(newRouteLink != null ? newRouteLink : route.getRouteLink());
+        if (newRouteLink != null && !newRouteLink.isBlank()) {
+            route.setRouteLink(newRouteLink);
+            Log.info("Route " + routeId + " link refreshed.");
+        } else {
+            route.setRouteLink(existingLink);
+            Log.warn("Route " + routeId + " link refresh failed; keeping existing link.");
+        }
         DeliveryRouteEntity saved = routeRepository.save(route);
         routeCache.registerRoute(saved);
         Log.info("Route " + routeId + " added stops: " + normalized.size() + " (total " + saved.getLabelCount() + ")");
@@ -333,9 +346,6 @@ public class DeliveryRouteService {
             return null;
         }
         List<String> addresses = new ArrayList<>();
-        if (RouteConstants.HQ_START_ADDRESS != null && !RouteConstants.HQ_START_ADDRESS.isBlank()) {
-            addresses.add(RouteConstants.HQ_START_ADDRESS);
-        }
         for (String uuid : uuids) {
             ShippingLabelMetaDataEntity label = labelMap.get(uuid);
             if (label == null) {
@@ -349,7 +359,7 @@ public class DeliveryRouteService {
         if (addresses.isEmpty()) {
             return null;
         }
-        GoogleMapsRouteBuilder.RouteLinkResult result = routeLinkBuilder.buildRouteLink(addresses);
+        RouteLinkResult result = routeLinkBuilder.buildRouteLink(addresses);
         return result != null ? result.routeUrl() : null;
     }
 
@@ -385,3 +395,6 @@ public class DeliveryRouteService {
         builder.append(zip.trim());
     }
 }
+
+
+

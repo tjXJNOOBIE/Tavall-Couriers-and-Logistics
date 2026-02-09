@@ -69,7 +69,7 @@ public class LiveAddressVerificationService {
         liveVerifyAttempts.put(key, attempt);
         Log.info("[LiveAPI] Address verification attempt " + attempt + "/3 (" + key + ").");
 
-        boolean visible = verifyAddressLive(frameData);
+        boolean visible = verifyAddressLive(frameData, objectNode);
         if (visible) {
             liveVerifyAttempts.remove(key);
             Log.info("[LiveAPI] Address verified.");
@@ -99,13 +99,10 @@ public class LiveAddressVerificationService {
         return AddressCheckResult.BLOCKED;
     }
 
-    private boolean verifyAddressLive(byte[] frameData) {
+    private boolean verifyAddressLive(byte[] frameData, ObjectNode objectNode) {
         try {
             FramePayload payload = prepareLiveFrame(frameData);
-            String prompt = """
-                Confirm if the shipping address is clearly visible.
-                Respond with ONLY JSON: {"addressVisible": true|false}. No prose.
-                """;
+            String prompt = buildAddressVisiblePrompt(objectNode);
             Content content = Content.fromParts(
                     Part.fromText(prompt),
                     Part.fromBytes(payload.data(), payload.mimeType())
@@ -137,6 +134,26 @@ public class LiveAddressVerificationService {
             Log.info("[GeminiUsage] LiveAPI " + ClientResponseVisualizer.format(metadata));
             return false;
         }
+    }
+
+    private String buildAddressVisiblePrompt(ObjectNode node) {
+        return """
+            You validate shipping label visibility. Return JSON {"addressVisible": true|false} only.
+            Only return true if the street address, city, state, and zip are clearly present and look real.
+            Do not invent data. If anything is missing or blurry, return false.
+            Address:
+            Street: %s
+            City: %s
+            State: %s
+            Zip: %s
+            Country: %s
+            """.formatted(
+                safe(textField(node, "address")),
+                safe(textField(node, "city")),
+                safe(textField(node, "state")),
+                safe(textField(node, "zipCode")),
+                safe(textField(node, "country"))
+        );
     }
 
     private String buildSessionKey(ObjectNode node, byte[] frameData) {

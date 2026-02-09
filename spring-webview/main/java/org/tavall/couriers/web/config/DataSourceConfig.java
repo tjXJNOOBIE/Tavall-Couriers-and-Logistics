@@ -1,4 +1,4 @@
-package org.tavall.couriers;
+package org.tavall.couriers.web.config;
 
 
 import com.zaxxer.hikari.HikariConfig;

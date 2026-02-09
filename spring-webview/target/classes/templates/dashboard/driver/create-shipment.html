@@ -11,71 +11,71 @@
 
 <header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
 
-<main class="main-content fade-in">
-    <div class="container">
-        <div class="max-w-3xl mx-auto fade-in">
-            <div class="flex justify-between items-end mb-6">
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-3xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6')}">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800" th:text="${title}">Create Shipment</h1>
-                    <p class="text-slate-500 text-sm">Enter recipient details to generate a label and tracking number.</p>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}" th:text="${title}">Create Shipment</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Enter recipient details to generate a label and tracking number.</p>
                 </div>
-                <a class="btn-ghost" th:href="@{/dashboard/driver}">Back</a>
+                <a th:class="${@dashboardTemplateCss.join('btn-ghost')}" th:href="@{/dashboard/driver}">Back</a>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div th:if="${createdLabel != null}" class="alert alert-success mb-4">
+            <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                <div th:if="${createdLabel != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}">
                     Label created for <span th:text="${createdLabel.recipientName}"></span>.
-                    Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}"></span>
+                    Tracking: <span th:class="${@dashboardTemplateCss.join('mono')}" th:text="${createdLabel.trackingNumber}"></span>
                 </div>
 
-                <form th:action="@{/internal/api/v1/driver/label/create}" th:object="${shipment}" method="post" class="space-y-4">
+                <form th:action="@{/internal/api/v1/driver/label/create}" th:object="${shipment}" method="post" th:class="${@dashboardTemplateCss.join('space-y-4')}">
                     <input type="hidden" th:if="${_csrf != null}"
                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Recipient Name" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
+                        <input type="text" placeholder="Recipient Name" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{recipientName}" required>
-                        <input type="text" placeholder="Phone" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        <input type="text" placeholder="Phone" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{phoneNumber}">
                     </div>
-                    <input type="text" placeholder="Address Line 1" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    <input type="text" placeholder="Address Line 1" th:class="${@dashboardTemplateCss.join('w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                            th:field="*{address}" required>
-                    <div class="grid grid-cols-3 gap-4">
-                        <input type="text" placeholder="City" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-3 gap-4')}">
+                        <input type="text" placeholder="City" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{city}" required>
-                        <input type="text" placeholder="State" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        <input type="text" placeholder="State" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{state}" required>
-                        <input type="text" placeholder="Zip" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                        <input type="text" placeholder="Zip" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{zipCode}" required>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Country" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
+                        <input type="text" placeholder="Country" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{country}" value="USA" required>
-                        <input type="date" name="deliverByDate" class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" name="deliverByDate" th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}">
                     </div>
-                    <label class="flex items-center gap-2 text-sm text-slate-600">
+                    <label th:class="${@dashboardTemplateCss.join('flex items-center gap-2 text-sm text-slate-600')}">
                         <input type="checkbox" th:field="*{priority}">
                         Priority shipment
                     </label>
-                    <button class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover-scale transition" type="submit">
+                    <button th:class="${@dashboardTemplateCss.join('w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover-scale transition')}" type="submit">
                         Generate Label
                     </button>
                 </form>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mt-6" th:if="${createdLabel != null}">
-                <h3 class="text-xl font-bold text-slate-800 mb-4">Generated Label</h3>
-                <div class="space-y-4">
+            <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mt-6')}" th:if="${createdLabel != null}">
+                <h3 th:class="${@dashboardTemplateCss.join('text-xl font-bold text-slate-800 mb-4')}">Generated Label</h3>
+                <div th:class="${@dashboardTemplateCss.join('space-y-4')}">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">UUID</label>
-                        <div class="scan-field mono" th:text="${createdLabel.uuid}"></div>
+                        <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">UUID</label>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field mono')}" th:text="${createdLabel.uuid}"></div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tracking Number</label>
-                        <div class="scan-field mono" th:text="${createdLabel.trackingNumber}"></div>
+                        <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Tracking Number</label>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field mono')}" th:text="${createdLabel.trackingNumber}"></div>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Delivery State</label>
-                        <div class="scan-field"
+                        <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}">Delivery State</label>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field')}"
                              th:text="${createdLabel.deliveryState != null ? createdLabel.deliveryState.displayName() : 'N/A'}"></div>
                     </div>
                 </div>

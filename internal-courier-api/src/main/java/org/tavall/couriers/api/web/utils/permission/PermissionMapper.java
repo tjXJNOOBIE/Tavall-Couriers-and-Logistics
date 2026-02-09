@@ -1,4 +1,4 @@
-package org.tavall.couriers.api.web.permission;
+package org.tavall.couriers.api.web.utils.permission;
 
 
 import org.springframework.security.core.GrantedAuthority;

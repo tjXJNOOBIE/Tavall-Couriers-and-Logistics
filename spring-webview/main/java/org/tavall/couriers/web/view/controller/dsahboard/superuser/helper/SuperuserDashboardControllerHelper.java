@@ -19,6 +19,16 @@ import java.util.Set;
 @Component
 public class SuperuserDashboardControllerHelper {
 
+    private static final List<Role> ROLE_PRIORITY = List.of(
+            Role.SUPERUSER,
+            Role.MERCHANT,
+            Role.DRIVER,
+            Role.SUPPORT,
+            Role.USER,
+            Role.CUSTOMER,
+            Role.SYSTEM
+    );
+
     private final ShippingLabelMetaDataService shippingService;
     private final UserAccountService userAccountService;
 
@@ -57,13 +67,19 @@ public class SuperuserDashboardControllerHelper {
     }
 
     private AdminUserView toAdminUserView(UserAccountEntity account) {
-        String roleLabel = account.getRoles() == null || account.getRoles().isEmpty()
-                ? "USER"
-                : account.getRoles().stream()
-                .map(Enum::name)
-                .sorted()
-                .reduce((left, right) -> left + ", " + right)
+        String roleLabel = resolvePrimaryRole(account.getRoles());
+        String userUUID = account.getUserUUID() != null ? account.getUserUUID().toString() : "";
+        return new AdminUserView(userUUID, account.getUsername(), roleLabel);
+    }
+
+    private String resolvePrimaryRole(Set<Role> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return "USER";
+        }
+        return ROLE_PRIORITY.stream()
+                .filter(roles::contains)
+                .findFirst()
+                .map(Role::name)
                 .orElse("USER");
-        return new AdminUserView(account.getUsername(), roleLabel);
     }
 }

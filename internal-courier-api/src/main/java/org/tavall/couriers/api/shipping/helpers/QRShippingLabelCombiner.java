@@ -31,6 +31,8 @@ public class QRShippingLabelCombiner {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")
             .withZone(ZoneId.of("America/Los_Angeles"));
+    private static final String DEFAULT_FROM_NAME = "TAVALL COURIERS HQ";
+    private static final String DEFAULT_FROM_ADDRESS = "123 Java Stream Blvd, Colton, CA 92324";
     private final PDType1Font FONT_BOLD = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
     private final PDType1Font FONT_REG = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
     private final String LOGO_FILENAME = "tavall_couriers_logo.png";
@@ -40,6 +42,18 @@ public class QRShippingLabelCombiner {
 
 
     public void createLabel(String qrPath, ShippingLabelMetaData data, Path outputPath) throws IOException {
+        createLabel(qrPath, data, outputPath, null, null);
+    }
+
+    public void createLabel(String qrPath, ShippingLabelMetaData data, Path outputPath, String fromName, String fromAddress) throws IOException {
+        String resolvedFromName = safe(fromName);
+        if (resolvedFromName.isBlank()) {
+            resolvedFromName = DEFAULT_FROM_NAME;
+        }
+        String resolvedFromAddress = safe(fromAddress);
+        if (resolvedFromAddress.isBlank()) {
+            resolvedFromAddress = DEFAULT_FROM_ADDRESS;
+        }
 
         // Scan logic
         String scannedUuid = "UNKNOWN";
@@ -118,8 +132,8 @@ public class QRShippingLabelCombiner {
 
                 // --- 1. HEADER (Standard Text Now) ---
                 drawText(content, FONT_BOLD, 8, margin + 5, topY - 12, "FROM:");
-                drawText(content, FONT_BOLD, 12, margin + 5, topY - 28, "TAVALL COURIERS HQ");
-                drawText(content, FONT_REG, 8, margin + 5, topY - 42, "123 Java Stream Blvd, Colton, CA 92324");
+                drawText(content, FONT_BOLD, 12, margin + 5, topY - 28, resolvedFromName);
+                drawText(content, FONT_REG, 8, margin + 5, topY - 42, resolvedFromAddress);
 
                 // Top Right: Weight & Deliver By (labels for OCR clarity)
                 drawText(content, FONT_BOLD, 10, margin + 310, topY - 18, "WEIGHT:");

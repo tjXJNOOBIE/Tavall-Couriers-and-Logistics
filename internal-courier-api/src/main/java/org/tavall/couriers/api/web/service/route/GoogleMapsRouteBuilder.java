@@ -9,10 +9,14 @@ import com.google.genai.types.Schema;
 import com.google.genai.types.Type;
 import org.tavall.couriers.api.console.Log;
 import org.tavall.gemini.clients.Gemini3TextClient;
+import org.tavall.gemini.clients.response.enums.ResponseStatus;
+import org.tavall.gemini.clients.response.metadata.ClientResponseMetadata;
 import org.tavall.gemini.enums.GeminiModel;
+import org.tavall.gemini.token.ClientResponseVisualizer;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,8 +59,28 @@ public class GoogleMapsRouteBuilder {
     private RouteLinkResult requestRouteLink(List<String> stops) throws Exception {
         String prompt = buildPrompt(stops);
         Content content = Content.fromParts(Part.fromText(prompt));
-        GenerateContentResponse response = client.getClient().models.generateContent(
-                String.valueOf(GeminiModel.GEMINI_3_PRO), content, client.getGenerationConfig());
+        long startNanos = System.nanoTime();
+        GenerateContentResponse response;
+        try {
+            response = client.getClient().models.generateContent(
+                    String.valueOf(GeminiModel.GEMINI_3_PRO), content, client.getGenerationConfig());
+        } catch (Exception ex) {
+            ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                    null,
+                    GeminiModel.GEMINI_3_PRO,
+                    Duration.ofNanos(System.nanoTime() - startNanos),
+                    ResponseStatus.FAILED
+            );
+            Log.info("[GeminiUsage] RouteLink " + ClientResponseVisualizer.format(metadata));
+            throw ex;
+        }
+        ClientResponseMetadata metadata = ClientResponseVisualizer.buildMetadata(
+                response,
+                GeminiModel.GEMINI_3_PRO,
+                Duration.ofNanos(System.nanoTime() - startNanos),
+                ResponseStatus.COMPLETED
+        );
+        Log.info("[GeminiUsage] RouteLink " + ClientResponseVisualizer.format(metadata));
 
         String jsonText = response.text();
         if (jsonText.contains("```json")) {
@@ -160,5 +184,4 @@ public class GoogleMapsRouteBuilder {
                 .build();
     }
 
-    public record RouteLinkResult(String routeUrl, List<String> orderedStops) { }
 }

@@ -9,98 +9,98 @@
 </head>
 <body>
 
-<main class="main-content fade-in">
-    <div class="container">
-        <section class="card">
-            <div class="mt-2">
-                <div class="scan-panel-card tavall-popup-panel">
-                    <div class="scan-panel-header">
-                        <div>
-                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">State Change</div>
-                            <div class="text-lg font-bold text-slate-800">Shipment Details</div>
-                            <div class="text-sm text-slate-500">Review the label and update its state.</div>
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <section th:class="${@dashboardTemplateCss.join('space-y-4')}">
+            <div th:if="${transitionStatus != null}" th:class="${@dashboardTemplateCss.join('alert alert-success')}" th:text="${transitionStatus}">
+                State updated.
+            </div>
+            <div th:if="${transitionError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger')}" th:text="${transitionError}">
+                State update failed.
+            </div>
+            <div th:class="${@dashboardTemplateCss.join('scan-panel-card tavall-popup-panel space-y-4')}">
+                <div>
+                    <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider')}">State Change</div>
+                    <div th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Shipment Details</div>
+                    <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">Review the label and update its state.</div>
+                </div>
+
+                <div th:if="${selectedLabel == null}" th:class="${@dashboardTemplateCss.join('scan-status text-slate-500')}">
+                    Awaiting QR scan.
+                </div>
+
+                <div th:if="${selectedLabel != null}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
+                    <div th:class="${@dashboardTemplateCss.join('scan-detail-grid')}">
+                        <div th:class="${@dashboardTemplateCss.join('scan-field scan-field-span')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">Tracking</div>
+                            <div th:class="${@dashboardTemplateCss.join('mono')}" th:text="${selectedLabel.trackingNumber}"></div>
                         </div>
-                    </div>
-
-                    <div th:if="${transitionStatus != null}" class="alert alert-success" th:text="${transitionStatus}">
-                        State updated.
-                    </div>
-                    <div th:if="${transitionError != null}" class="alert alert-danger" th:text="${transitionError}">
-                        State update failed.
-                    </div>
-
-                    <div th:if="${selectedLabel == null}" class="scan-status text-slate-500">
-                        Awaiting QR scan.
-                    </div>
-
-                    <div th:if="${selectedLabel != null}" class="scan-detail-grid">
-                        <div class="scan-field scan-field-span">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">Tracking</div>
-                            <div class="mono" th:text="${selectedLabel.trackingNumber}"></div>
-                        </div>
-                        <div class="scan-field">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">Recipient</div>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">Recipient</div>
                             <div th:text="${selectedLabel.recipientName}"></div>
                         </div>
-                        <div class="scan-field">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">State</div>
-                            <span class="badge badge-neutral"
+                        <div th:class="${@dashboardTemplateCss.join('scan-field')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">State</div>
+                            <span th:class="${@dashboardTemplateCss.join('badge badge-neutral')}"
                                   th:text="${selectedLabel.deliveryState != null ? selectedLabel.deliveryState.displayName() : 'N/A'}">STATE</span>
                         </div>
-                        <div class="scan-field scan-field-span">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">Address</div>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field scan-field-span')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">Address</div>
                             <div th:text="${selectedLabel.address}"></div>
                         </div>
-                        <div class="scan-field">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">City</div>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">City</div>
                             <div th:text="${selectedLabel.city + (selectedLabel.state != null ? ', ' + selectedLabel.state : '')}"></div>
                         </div>
-                        <div class="scan-field">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">Zip</div>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">Zip</div>
                             <div th:text="${selectedLabel.zipCode}"></div>
                         </div>
-                        <div class="scan-field scan-field-span">
-                            <div class="text-xs font-bold text-slate-500 uppercase mb-1">Deadline</div>
+                        <div th:class="${@dashboardTemplateCss.join('scan-field scan-field-span')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500 uppercase mb-1')}">Deadline</div>
                             <div th:text="${selectedLabel.deliverBy != null ? 'DEADLINE: ' + #temporals.format(selectedLabel.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
                         </div>
                     </div>
-
-                    <div class="scan-panel-actions">
-                        <button class="btn-primary" type="button" data-state-open="true"
-                                th:disabled="${selectedLabel == null}">Change State</button>
-                        <a class="btn-secondary"
-                           th:if="${selectedLabel != null}"
-                           th:href="@{/shipping-labels/{uuid}(uuid=${selectedLabel.uuid})}"
-                           target="_blank" rel="noopener">Open Details</a>
-                    </div>
                 </div>
-            </div>
 
-            <div class="label-popup-topbar">
-                <button class="label-popup-close" type="button" id="statePopupClose">Close</button>
+                <div th:class="${@dashboardTemplateCss.join('flex flex-wrap gap-3 justify-end')}">
+                    <button th:class="${@dashboardTemplateCss.join('btn-primary flex-1 md:flex-none')}"
+                            type="button"
+                            data-state-open="true"
+                            th:disabled="${selectedLabel == null}">
+                        <i data-lucide="refresh-ccw" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
+                        Update Shipment
+                    </button>
+                    <a th:class="${@dashboardTemplateCss.join('btn-secondary flex-1 md:flex-none')}"
+                       th:if="${selectedLabel != null}"
+                       th:href="@{/shipping-labels/{uuid}(uuid=${selectedLabel.uuid})}"
+                       data-label-popup="true">
+                        <i data-lucide="external-link" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
+                        Open Details
+                    </a>
+                </div>
             </div>
         </section>
     </div>
 </main>
 
-<div id="stateModal" class="scan-modal state-modal" hidden>
-    <div class="scan-modal-backdrop" data-state-close="true"></div>
-    <div class="scan-modal-panel state-modal-panel tavall-popup-panel">
-        <button type="button" data-state-close="true" aria-label="Close state menu">
-            &times;
-        </button>
-        <h3 class="state-modal-title">Update Delivery State</h3>
-        <p class="state-modal-sub"
-           th:text="${selectedLabel != null ? 'Current: ' + selectedLabel.deliveryState.displayName() : 'Scan a label to enable state changes.'}">
-            Current: Label Created
-        </p>
+<div id="stateModal" th:class="${@dashboardTemplateCss.join('scan-modal state-modal')}" hidden>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}" data-state-close="true"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel state-modal-panel tavall-popup-panel space-y-4')}">
+        <div>
+            <div th:class="${@dashboardTemplateCss.join('state-modal-title')}">Update Delivery State</div>
+            <p th:class="${@dashboardTemplateCss.join('state-modal-sub')}"
+               th:text="${selectedLabel != null ? 'Current: ' + selectedLabel.deliveryState.displayName() : 'Scan a label to enable state changes.'}">
+                Current: Label Created
+            </p>
+        </div>
         <form method="post" th:action="@{/internal/api/v1/driver/package/transition}">
             <input type="hidden" th:if="${_csrf != null}"
                    th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" name="uuid" th:value="${selectedLabel != null ? selectedLabel.uuid : ''}"/>
-            <div class="state-grid">
+            <div th:class="${@dashboardTemplateCss.join('state-grid')}">
                 <button th:each="state : ${allStates}"
-                        class="state-option"
+                        th:class="${@dashboardTemplateCss.join('state-option')}"
                         th:classappend="${#sets.contains(allowedTransitions, state)} ? ' state-option-allowed' : ' state-option-blocked'"
                         th:disabled="${selectedLabel == null || !#sets.contains(allowedTransitions, state)}"
                         name="nextState"
@@ -109,8 +109,23 @@
                         th:text="${state.displayName()}">STATE</button>
             </div>
         </form>
+        <div th:class="${@dashboardTemplateCss.join('flex justify-end')}">
+            <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" data-state-close="true">Cancel</button>
+        </div>
     </div>
 </div>
+
+<div id="labelModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden>
+    <div id="labelModalBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel label-popup-panel tavall-popup-panel')}">
+        <iframe id="labelModalFrame"
+                th:class="${@dashboardTemplateCss.join('scan-modal-frame label-popup-frame')}"
+                title="Label details"
+                loading="lazy"></iframe>
+    </div>
+</div>
+
+<script defer src="/js/label-popup.js"></script>
 
 <script>
     lucide.createIcons();
@@ -119,19 +134,6 @@
         if (isEmbedded) {
             document.body.classList.add("label-popup-embedded");
             document.documentElement.classList.add("label-popup-embedded");
-        }
-
-        const close = () => {
-            if (isEmbedded) {
-                window.parent.postMessage({ type: "stateModalClose" }, window.location.origin);
-                return;
-            }
-            window.location.href = "/dashboard/driver";
-        };
-
-        const closeBtn = document.getElementById("statePopupClose");
-        if (closeBtn) {
-            closeBtn.addEventListener("click", close);
         }
 
         const modal = document.getElementById("stateModal");

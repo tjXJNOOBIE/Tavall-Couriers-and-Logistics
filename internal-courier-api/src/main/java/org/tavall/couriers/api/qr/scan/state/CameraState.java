@@ -10,13 +10,14 @@
 package org.tavall.couriers.api.qr.scan.state;
 
 public enum CameraState {
-     SEARCHING, ANALYZING, FOUND, ERROR;
+     SEARCHING, ANALYZING, FOUND, SCANNED, ERROR;
 
      public String displayName() {
          return switch (this) {
              case SEARCHING -> "Searching";
              case ANALYZING -> "Analyzing";
              case FOUND -> "Found";
+             case SCANNED -> "Scanned";
              case ERROR -> "Error";
          };
      }

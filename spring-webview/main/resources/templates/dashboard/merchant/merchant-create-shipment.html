@@ -8,78 +8,78 @@
 </head>
 <body>
 
-<main class="main-content fade-in">
-    <div class="container">
-        <section class="card">
-            <div class="mt-2">
-                <h2 class="text-2xl font-bold text-slate-800">Manual Label</h2>
-                <p class="text-slate-500 text-sm">Enter recipient details to generate a new label.</p>
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <section th:class="${@dashboardTemplateCss.join('card')}">
+            <div th:class="${@dashboardTemplateCss.join('mt-2')}">
+                <h2 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Manual Label</h2>
+                <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Enter recipient details to generate a new label.</p>
 
-                <div th:if="${createdLabel != null}" class="alert alert-success mt-4">
+                <div th:if="${createdLabel != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mt-4')}">
                     Label created for <span th:text="${createdLabel.recipientName}"></span>.
-                    Tracking: <span class="mono" th:text="${createdLabel.trackingNumber}"></span>
+                    Tracking: <span th:class="${@dashboardTemplateCss.join('mono')}" th:text="${createdLabel.trackingNumber}"></span>
                 </div>
 
                 <form th:action="@{/internal/api/v1/merchant/shipment/create}"
                       th:object="${shipment}"
                       method="post"
-                      class="space-y-4 mt-4">
+                      th:class="${@dashboardTemplateCss.join('space-y-4 mt-4')}">
                     <input type="hidden" th:if="${_csrf != null}"
                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <input type="hidden" name="source" value="popup"/>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
                         <input type="text" placeholder="Recipient Name"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{recipientName}" required>
                         <input type="text" placeholder="Phone"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{phoneNumber}">
                     </div>
 
                     <input type="text" placeholder="Address Line 1"
-                           class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                           th:class="${@dashboardTemplateCss.join('w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                            th:field="*{address}" required>
 
-                    <div class="grid grid-cols-3 gap-4">
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-3 gap-4')}">
                         <input type="text" placeholder="City"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{city}" required>
                         <input type="text" placeholder="State"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{state}" required>
                         <input type="text" placeholder="Zip"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{zipCode}" required>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
                         <input type="text" placeholder="Country"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
                                th:field="*{country}" value="USA" required>
                         <input type="date" name="deliverByDate"
-                               class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
                         <select name="initialState"
-                                class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none">
+                                th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none')}">
                             <option th:each="state : ${allStates}" th:value="${state}" th:text="${state}"></option>
                         </select>
-                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                        <label th:class="${@dashboardTemplateCss.join('flex items-center gap-2 text-sm text-slate-600')}">
                             <input type="checkbox" th:field="*{priority}">
                             Priority shipment
                         </label>
                     </div>
 
-                    <div class="label-form-actions">
-                        <button class="btn-primary" type="submit">Generate Label &amp; QR</button>
+                    <div th:class="${@dashboardTemplateCss.join('label-form-actions')}">
+                        <button th:class="${@dashboardTemplateCss.join('btn-primary')}" type="submit">Generate Label &amp; QR</button>
                     </div>
                 </form>
             </div>
 
-            <div class="label-popup-topbar">
-                <button class="label-popup-close" type="button" id="embeddedBackBtn">Close</button>
+            <div th:class="${@dashboardTemplateCss.join('label-popup-topbar')}">
+                <button th:class="${@dashboardTemplateCss.join('label-popup-close')}" type="button" id="embeddedBackBtn">Close</button>
             </div>
         </section>
     </div>

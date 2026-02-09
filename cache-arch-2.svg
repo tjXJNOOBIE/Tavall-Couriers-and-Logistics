@@ -1,0 +1,38 @@
+<svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+    <rect width="600" height="500" fill="#0d1117" />
+
+    <defs>
+        <marker id="arrow-down" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#8b949e" />
+        </marker>
+        <marker id="arrow-up" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#8b949e" />
+        </marker>
+    </defs>
+
+    <text x="300" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">CACHE ARCHITECTURE</text>
+
+    <rect x="150" y="70" width="300" height="70" rx="4" fill="#1f6feb" fill-opacity="0.2" stroke="#58a6ff" stroke-width="2"/>
+    <text x="300" y="100" fill="#58a6ff" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">CacheMap</text>
+    <text x="300" y="120" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Singleton, ConcurrentHashMap</text>
+
+    <line x1="300" y1="140" x2="300" y2="180" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow-down)"/>
+
+    <g transform="translate(0, 0)">
+        <rect x="50" y="200" width="220" height="80" rx="4" fill="#d29922" fill-opacity="0.2" stroke="#d29922" stroke-width="2"/>
+        <text x="160" y="230" fill="#d29922" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">CacheKey&lt;K&gt;</text>
+        <text x="160" y="255" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Domain, Source, Ver</text>
+
+        <rect x="330" y="200" width="220" height="80" rx="4" fill="#a371f7" fill-opacity="0.2" stroke="#a371f7" stroke-width="2"/>
+        <text x="440" y="230" fill="#a371f7" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">CacheValue&lt;V&gt;</text>
+        <text x="440" y="255" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Payload, Expiry</text>
+    </g>
+
+    <line x1="160" y1="360" x2="160" y2="290" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow-up)"/>
+    <line x1="440" y1="360" x2="440" y2="290" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow-up)"/>
+
+    <rect x="150" y="370" width="300" height="70" rx="4" fill="#3fb950" fill-opacity="0.2" stroke="#3fb950" stroke-width="2"/>
+    <text x="300" y="400" fill="#3fb950" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">AbstractCache&lt;K,V&gt;</text>
+    <text x="300" y="420" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Factory: creates Key/Value</text>
+
+</svg>

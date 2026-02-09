@@ -46,8 +46,10 @@ public final class Routes {
     public static final String MERCHANT_CREATE_SHIPMENT_PAGE = MerchantDashboardEndpoints.CREATE_SHIPMENT_PAGE_PATH;
     public static final String MERCHANT_SCAN_PAGE = MerchantDashboardEndpoints.SCAN_PAGE_PATH;
     public static final String MERCHANT_SHIPMENTS_PAGE = MerchantDashboardEndpoints.SHIPMENTS_PAGE_PATH;
+    public static final String MERCHANT_SHIPMENTS_VIEW = MerchantDashboardEndpoints.SHIPMENTS_VIEW_PATH;
     public static final String MERCHANT_GET_ALL_SHIPMENTS = MerchantDashboardEndpoints.GET_ALL_SHIPMENTS_PATH;
     public static final String MERCHANT_UPDATE_SHIPMENT = MerchantDashboardEndpoints.UPDATE_SHIPMENT_PATH;
+    public static final String MERCHANT_DELETE_SHIPMENT = MerchantDashboardEndpoints.DELETE_SHIPMENT_PATH;
     public static final String MERCHANT_CREATE_SHIPMENT = MerchantDashboardEndpoints.CREATE_SHIPMENT_PATH;
     public static final String MERCHANT_ROUTES_PAGE = MerchantDashboardEndpoints.ROUTES_PAGE_PATH;
     public static final String MERCHANT_CREATE_ROUTE = MerchantDashboardEndpoints.CREATE_ROUTE_PATH;
@@ -70,6 +72,7 @@ public final class Routes {
 
     // Camera
     public static final String CAMERA_STREAM_FRAME = CameraFeedEndpoints.STREAM_FRAME_PATH;
+    public static final String CAMERA_CLOSE_SESSION = CameraFeedEndpoints.CLOSE_SESSION_PATH;
 
     // Auth endpoints
     public static final String AUTH_LOGIN = UserAuthEndpoints.LOGIN_PATH;
@@ -177,6 +180,10 @@ public final class Routes {
 
     public static String streamFrame() {
         return CAMERA_STREAM_FRAME;
+    }
+
+    public static String closeCameraSession() {
+        return CAMERA_CLOSE_SESSION;
     }
 
     public static String dashboard() {

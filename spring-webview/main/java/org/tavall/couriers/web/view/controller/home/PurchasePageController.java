@@ -7,33 +7,28 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.tavall.couriers.api.delivery.state.DeliveryState;
 import org.tavall.couriers.api.web.endpoints.Routes;
-import org.tavall.couriers.api.web.entities.ShippingLabelMetaDataEntity;
-import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService;
+import org.tavall.couriers.web.view.controller.home.helper.PurchasePageControllerHelper;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Controller
 public class PurchasePageController {
 
-    private final ShippingLabelMetaDataService shippingService;
+    private final PurchasePageControllerHelper helper;
 
-    public PurchasePageController(ShippingLabelMetaDataService shippingService) {
-        this.shippingService = shippingService;
+    public PurchasePageController(PurchasePageControllerHelper helper) {
+        this.helper = helper;
     }
 
     @GetMapping(Routes.PURCHASE)
-    @PreAuthorize("hasAnyRole('MERCHANT','DRIVER')")
+    @PreAuthorize("hasAnyRole('MERCHANT','DRIVER','SUPERUSER')")
     public String purchasePage(Model model) {
-        model.addAttribute("title", "Customer Demo");
-        return "purchase";
+        return helper.renderPurchasePage(model);
     }
 
     @PostMapping(Routes.PURCHASE)
-    @PreAuthorize("hasAnyRole('MERCHANT','DRIVER')")
+    @PreAuthorize("hasAnyRole('MERCHANT','DRIVER','SUPERUSER')")
     public String submitPurchase(Model model,
                                  @RequestParam("customerName") String customerName,
                                  @RequestParam(value = "customerPhone", required = false) String customerPhone,
@@ -46,25 +41,7 @@ public class PurchasePageController {
                                  @RequestParam(value = "quantity", required = false) Integer quantity,
                                  @RequestParam(value = "deliverBy", required = false)
                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime deliverBy) {
-        ShippingLabelMetaDataEntity request = new ShippingLabelMetaDataEntity();
-        request.setRecipientName(customerName);
-        request.setPhoneNumber(customerPhone);
-        request.setAddress(address);
-        request.setCity(city);
-        request.setState(state);
-        request.setZipCode(zip);
-        request.setCountry(country == null || country.isBlank() ? "USA" : country);
-        if (deliverBy != null) {
-            request.setDeliverBy(deliverBy.atZone(ZoneId.systemDefault()).toInstant());
-        }
-
-        ShippingLabelMetaDataEntity created = shippingService.createShipment(request, DeliveryState.LABEL_CREATED);
-
-        model.addAttribute("title", "Customer Demo");
-        model.addAttribute("createdLabel", created);
-        model.addAttribute("itemName", itemName);
-        model.addAttribute("quantity", quantity == null || quantity < 1 ? 1 : quantity);
-        model.addAttribute("submittedAt", Instant.now());
-        return "purchase";
+        return helper.handlePurchase(model, customerName, customerPhone, address, city, state, zip,
+                country, itemName, quantity, deliverBy);
     }
 }
