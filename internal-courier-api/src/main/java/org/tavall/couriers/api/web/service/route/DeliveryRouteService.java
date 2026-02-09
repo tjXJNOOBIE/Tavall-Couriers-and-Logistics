@@ -68,6 +68,10 @@ public class DeliveryRouteService {
         return createRoute(labels, null, null, null, null);
     }
 
+    public DeliveryRouteEntity createRouteFromLabels(List<String> labelUuids) {
+        return createRouteFromLabels(labelUuids, null, null, null, null);
+    }
+
     public DeliveryRouteEntity createRouteFromLabels(List<String> labelUuids,
                                                      UUID assignedDriver,
                                                      Instant deadline,

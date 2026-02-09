@@ -3,10 +3,13 @@ package org.tavall.couriers.api.web.entities.tracking;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.UUID;
+import org.tavall.couriers.api.delivery.state.DeliveryState;
 
 @Entity
 @Table(name = "tracking_number_metadata", schema = "courier_schemas")
@@ -22,12 +25,21 @@ public class TrackingNumberMetaDataEntity implements Serializable {
     @Column(name = "qr_uuid", nullable = false)
     private UUID qrUuid;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_state", nullable = false, length = 32)
+    private DeliveryState deliveryState = DeliveryState.LABEL_CREATED;
+
     public TrackingNumberMetaDataEntity() {
     }
 
     public TrackingNumberMetaDataEntity(String trackingNumber, UUID qrUuid) {
+        this(trackingNumber, qrUuid, DeliveryState.LABEL_CREATED);
+    }
+
+    public TrackingNumberMetaDataEntity(String trackingNumber, UUID qrUuid, DeliveryState deliveryState) {
         this.trackingNumber = trackingNumber;
         this.qrUuid = qrUuid;
+        this.deliveryState = deliveryState != null ? deliveryState : DeliveryState.LABEL_CREATED;
     }
 
     public String getTrackingNumber() {
@@ -46,4 +58,11 @@ public class TrackingNumberMetaDataEntity implements Serializable {
         this.qrUuid = qrUuid;
     }
 
+    public DeliveryState getDeliveryState() {
+        return deliveryState;
+    }
+
+    public void setDeliveryState(DeliveryState deliveryState) {
+        this.deliveryState = deliveryState != null ? deliveryState : DeliveryState.LABEL_CREATED;
+    }
 }

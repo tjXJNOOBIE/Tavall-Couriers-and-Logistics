@@ -14,6 +14,7 @@ import org.tavall.couriers.api.web.service.shipping.ShippingLabelMetaDataService
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -112,8 +113,28 @@ class DeliveryRouteServiceIntegrationTest {
                 1,
                 Instant.now()
         );
+        AtomicInteger stopQueryCount = new AtomicInteger(0);
         when(stopRepository.findByRouteIdOrderByStopOrderAsc("RTE-1"))
-                .thenReturn(List.of(existingStop));
+                .thenAnswer(invocation -> {
+                    if (stopQueryCount.getAndIncrement() == 0) {
+                        return List.of(existingStop);
+                    }
+                    DeliveryRouteStopEntity secondStop = new DeliveryRouteStopEntity(
+                            "stop-2",
+                            "RTE-1",
+                            "uuid-b",
+                            2,
+                            Instant.now()
+                    );
+                    DeliveryRouteStopEntity thirdStop = new DeliveryRouteStopEntity(
+                            "stop-3",
+                            "RTE-1",
+                            "uuid-c",
+                            3,
+                            Instant.now()
+                    );
+                    return List.of(existingStop, secondStop, thirdStop);
+                });
 
         ShippingLabelMetaDataEntity second = buildLabel("uuid-b", "TAV-B");
         ShippingLabelMetaDataEntity third = buildLabel("uuid-c", "TAV-C");
