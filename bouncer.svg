@@ -1,0 +1,41 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="600" fill="#0d1117" />
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#58a6ff" />
+        </marker>
+    </defs>
+
+    <text x="400" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">THE "BOUNCER" PROTOCOL</text>
+    <text x="400" y="65" fill="#8b949e" font-family="monospace" font-size="12" text-anchor="middle">Local Pre-Flight Frame Analysis</text>
+
+    <rect x="300" y="90" width="200" height="50" rx="4" fill="#1f6feb" stroke="#58a6ff" stroke-width="2"/>
+    <text x="400" y="120" fill="#ffffff" font-family="monospace" font-size="14" text-anchor="middle">CAMERA FRAME (Byte[])</text>
+
+    <line x1="400" y1="140" x2="400" y2="180" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="300" y="180" width="200" height="50" rx="4" fill="#21262d" stroke="#30363d" stroke-width="2"/>
+    <text x="400" y="210" fill="#c9d1d9" font-family="monospace" font-size="14" text-anchor="middle">BUFFERED IMAGE LOAD</text>
+
+    <line x1="400" y1="230" x2="400" y2="270" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <polygon points="400,270 550,345 400,420 250,345" fill="#d29922" stroke="#d29922" stroke-width="2" fill-opacity="0.2"/>
+    <text x="400" y="325" fill="#e3b341" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">HEURISTIC CHECK</text>
+    <text x="400" y="345" fill="#e3b341" font-family="monospace" font-size="10" text-anchor="middle">DarkRatio >= 1.2% AND</text>
+    <text x="400" y="360" fill="#e3b341" font-family="monospace" font-size="10" text-anchor="middle">(EdgeRatio >= 1% OR Var >= 150)</text>
+
+    <line x1="250" y1="345" x2="150" y2="345" stroke="#ff7b72" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="200" y="335" fill="#ff7b72" font-family="monospace" font-size="12" text-anchor="middle">FAIL</text>
+
+    <rect x="10" y="320" width="140" height="50" rx="4" fill="#4c0519" stroke="#ff7b72" stroke-width="2"/>
+    <text x="80" y="350" fill="#ff7b72" font-family="monospace" font-size="14" text-anchor="middle">DISCARD FRAME</text>
+    <text x="80" y="385" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">(Return SEARCHING)</text>
+
+    <line x1="400" y1="420" x2="400" y2="480" stroke="#238636" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="440" y="450" fill="#238636" font-family="monospace" font-size="12" text-anchor="middle">PASS</text>
+
+    <rect x="300" y="480" width="200" height="60" rx="4" fill="#238636" stroke="#2ea043" stroke-width="2"/>
+    <text x="400" y="510" fill="#ffffff" font-family="monospace" font-size="14" text-anchor="middle" font-weight="bold">CALL GEMINI API</text>
+    <text x="400" y="530" fill="#ffffff" font-family="monospace" font-size="10" text-anchor="middle">Gemini 3 Flash</text>
+
+</svg>

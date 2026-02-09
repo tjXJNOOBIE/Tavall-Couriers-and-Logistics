@@ -1,0 +1,52 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="500" fill="#0d1117" />
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#58a6ff" />
+        </marker>
+    </defs>
+
+    <text x="400" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">CONCURRENT SCAN PIPELINE</text>
+
+    <line x1="400" y1="80" x2="400" y2="480" stroke="#30363d" stroke-width="1" stroke-dasharray="5"/>
+    <text x="200" y="70" fill="#8b949e" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">USER INTERFACE</text>
+    <text x="600" y="70" fill="#8b949e" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">BACKGROUND SERVICE</text>
+
+    <rect x="100" y="100" width="200" height="40" rx="4" fill="#1f6feb" stroke="#58a6ff" stroke-width="2"/>
+    <text x="200" y="125" fill="#ffffff" font-family="monospace" font-size="14" text-anchor="middle">USER SCANS LABEL</text>
+
+    <line x1="300" y1="120" x2="500" y2="120" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="500" y="100" width="200" height="40" rx="4" fill="#21262d" stroke="#30363d" stroke-width="2"/>
+    <text x="600" y="125" fill="#c9d1d9" font-family="monospace" font-size="14" text-anchor="middle">INIT VIRTUAL THREAD</text>
+
+    <line x1="600" y1="140" x2="600" y2="180" stroke="#58a6ff" stroke-width="2" />
+    <line x1="600" y1="180" x2="550" y2="220" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="600" y1="180" x2="650" y2="220" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="480" y="220" width="100" height="80" rx="4" fill="#d29922" fill-opacity="0.2" stroke="#d29922" stroke-width="2"/>
+    <text x="530" y="250" fill="#e3b341" font-family="monospace" font-size="12" text-anchor="middle">Main Thread:</text>
+    <text x="530" y="270" fill="#e3b341" font-family="monospace" font-size="12" text-anchor="middle">User Proceeds</text>
+
+
+    <rect x="620" y="220" width="100" height="80" rx="4" fill="#238636" fill-opacity="0.2" stroke="#238636" stroke-width="2"/>
+    <text x="670" y="250" fill="#2ea043" font-family="monospace" font-size="12" text-anchor="middle">TASK B:</text>
+    <text x="670" y="270" fill="#2ea043" font-family="monospace" font-size="12" text-anchor="middle">Data Process</text>
+    <text x="670" y="290" fill="#2ea043" font-family="monospace" font-size="12" text-anchor="middle">(Extraction)</text>
+
+    <rect x="100" y="200" width="200" height="40" rx="4" fill="#21262d" stroke="#8b949e" stroke-width="2" stroke-dasharray="4"/>
+    <text x="200" y="225" fill="#8b949e" font-family="monospace" font-size="14" text-anchor="middle">UI: MAKE UI OBJECTS</text>
+
+    <line x1="550" y1="300" x2="600" y2="340" stroke="#58a6ff" stroke-width="2" />
+    <line x1="650" y1="300" x2="600" y2="340" stroke="#58a6ff" stroke-width="2" />
+
+    <rect x="500" y="340" width="200" height="40" rx="4" fill="#21262d" stroke="#58a6ff" stroke-width="2"/>
+    <text x="600" y="365" fill="#c9d1d9" font-family="monospace" font-size="14" text-anchor="middle">JOIN RESULTS</text>
+
+    <line x1="500" y1="360" x2="300" y2="360" stroke="#238636" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="100" y="340" width="200" height="40" rx="4" fill="#238636" stroke="#2ea043" stroke-width="2"/>
+    <text x="200" y="365" fill="#ffffff" font-family="monospace" font-size="14" text-anchor="middle">UI: SHOW CONFIRMATION</text>
+    <text x="200" y="390" fill="#2ea043" font-family="monospace" font-size="10" text-anchor="middle">(Total Latency: ~800ms)</text>
+
+</svg>

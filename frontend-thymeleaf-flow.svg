@@ -1,0 +1,41 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+    <rect width="640" height="360" fill="#0d1117" />
+
+    <defs>
+        <marker id="arrow-thyme" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#8b949e" />
+        </marker>
+    </defs>
+
+    <text x="320" y="34" fill="#ffffff" font-family="monospace" font-size="18" text-anchor="middle" font-weight="bold">THYMELEAF HTML FLOW</text>
+
+    <rect x="30" y="80" width="170" height="220" rx="4" fill="#d29922" fill-opacity="0.12" stroke="#d29922" stroke-width="2"/>
+    <text x="115" y="105" fill="#d29922" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">Controller</text>
+    <text x="115" y="125" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">Model attributes</text>
+
+    <rect x="55" y="150" width="120" height="36" rx="2" fill="#d29922" fill-opacity="0.2"/>
+    <text x="115" y="172" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">View name</text>
+
+    <rect x="240" y="80" width="170" height="220" rx="4" fill="#1f6feb" fill-opacity="0.15" stroke="#58a6ff" stroke-width="2"/>
+    <text x="325" y="105" fill="#58a6ff" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">Thymeleaf</text>
+    <text x="325" y="125" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">Template engine</text>
+
+    <rect x="260" y="150" width="130" height="36" rx="2" fill="#1f6feb" fill-opacity="0.2"/>
+    <text x="325" y="172" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">th:class / th:text</text>
+
+    <rect x="260" y="200" width="130" height="36" rx="2" fill="#1f6feb" fill-opacity="0.2"/>
+    <text x="325" y="222" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">Fragments + layouts</text>
+
+    <rect x="450" y="80" width="170" height="220" rx="4" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="2"/>
+    <text x="535" y="105" fill="#2ea043" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">Browser</text>
+    <text x="535" y="125" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">Rendered HTML</text>
+
+    <rect x="470" y="150" width="130" height="36" rx="2" fill="#2ea043" fill-opacity="0.2"/>
+    <text x="535" y="172" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">Static DOM</text>
+
+    <rect x="470" y="200" width="130" height="36" rx="2" fill="#2ea043" fill-opacity="0.2"/>
+    <text x="535" y="222" fill="#c9d1d9" font-family="monospace" font-size="10" text-anchor="middle">CSS + JS hooks</text>
+
+    <line x1="200" y1="190" x2="240" y2="190" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow-thyme)"/>
+    <line x1="410" y1="190" x2="450" y2="190" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow-thyme)"/>
+</svg>

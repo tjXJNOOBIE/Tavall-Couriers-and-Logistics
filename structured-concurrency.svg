@@ -1,0 +1,48 @@
+<svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="350" fill="#0d1117" />
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#58a6ff" />
+        </marker>
+    </defs>
+
+    <text x="400" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">STRUCTURED CONCURRENCY: HORIZONTAL FLOW</text>
+
+    <text x="20" y="100" fill="#8b949e" font-family="monospace" font-size="12" font-weight="bold">MAIN THREAD</text>
+    <line x1="20" y1="110" x2="780" y2="110" stroke="#30363d" stroke-width="1" stroke-dasharray="5"/>
+
+    <text x="20" y="200" fill="#ff7b72" font-family="monospace" font-size="12" font-weight="bold">TASK 1 (SLOW)</text>
+    <line x1="20" y1="210" x2="780" y2="210" stroke="#30363d" stroke-width="1" stroke-dasharray="5"/>
+
+    <text x="20" y="300" fill="#238636" font-family="monospace" font-size="12" font-weight="bold">TASK 2 (FAST)</text>
+    <line x1="20" y1="310" x2="780" y2="310" stroke="#30363d" stroke-width="1" stroke-dasharray="5"/>
+
+    <text x="100" y="115" fill="#58a6ff" font-family="monospace" font-size="12" text-anchor="middle">Scope.Open()</text>
+
+    <line x1="150" y1="110" x2="200" y2="110" stroke="#58a6ff" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="175" y="100" fill="#58a6ff" font-family="monospace" font-size="12" text-anchor="middle">FORK</text>
+
+    <path d="M 200 110 L 220 210" stroke="#8b949e" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+    <path d="M 200 110 L 220 310" stroke="#8b949e" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+    <rect x="220" y="190" width="400" height="40" rx="4" fill="#ff7b72" />
+    <text x="420" y="215" fill="#0d1117" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">SLEEP (50ms)</text>
+
+    <rect x="220" y="290" width="100" height="40" rx="4" fill="#238636" />
+    <text x="270" y="315" fill="#ffffff" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">FAST</text>
+
+    <text x="400" y="315" fill="#8b949e" font-family="monospace" font-size="12" text-anchor="middle" font-style="italic">Done (Waiting)</text>
+
+    <line x1="620" y1="210" x2="650" y2="110" stroke="#ff7b72" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+    <line x1="320" y1="310" x2="650" y2="110" stroke="#238636" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow)"/>
+
+    <text x="710" y="115" fill="#58a6ff" font-family="monospace" font-size="12" text-anchor="middle">Scope.Join()</text>
+
+    <text x="710" y="150" fill="#ffffff" font-family="monospace" font-size="12" text-anchor="middle">Result: "test2test"</text>
+
+    <line x1="220" y1="250" x2="620" y2="250" stroke="#d29922" stroke-width="2"/>
+    <line x1="220" y1="245" x2="220" y2="255" stroke="#d29922" stroke-width="2"/>
+    <line x1="620" y1="245" x2="620" y2="255" stroke="#d29922" stroke-width="2"/>
+    <text x="420" y="265" fill="#d29922" font-family="monospace" font-size="12" text-anchor="middle">Total Duration: ~68ms</text>
+
+</svg>
