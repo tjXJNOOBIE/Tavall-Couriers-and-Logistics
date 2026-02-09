@@ -13,11 +13,13 @@ A document that contains decisions and purposes related to the architecture of t
 5. Raw/Custom CSS and JS. No dedicated frontend frameworks.
     * **Why?**: Lower complexity, more secure to known vulnerabilities (no npm packages), less dependencies/bloat.
 
-##Third Party Libraries
+## Third Party Libraries
+
 1. Maven minifier Plugin[https://github.com/logicsquad/minifier-maven-plugin]
 2. Google ZXing
 3. Google Gemini SDK
-4. 
+4. PDFBox
+
 ## System Abstractions
 
 * **Gemini Clients(_org.tavall.gemini.clients_\):** Gemini3Client(abstract class) -> Gemini3ImageClient
