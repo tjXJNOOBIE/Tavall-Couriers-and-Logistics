@@ -1,5 +1,9 @@
 # README
 
+!!!!!! MY GIT BROKE 30 MINUTES BEFORE DEADLINE, THERE ARE OVER 200 COMMITS on the master brancch, this should be up to date with this one !!!!!!
+
+PROJECT REPO MAY NOT BE UP TO DATE, I DIDN'T HAVE TIME TO FIX GIT!
+
 ## Table of Contents
 
 I. [ARECHITECTURE.MD](ARECHITECTURE.MD)  
