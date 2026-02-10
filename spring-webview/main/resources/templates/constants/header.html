@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:class="${@headerCss.navbar()}" th:fragment="header(userName, userRole)">
+    <a th:class="${@headerCss.brand()}" th:href="@{/}" aria-label="Tavall Couriers home">
+        <span th:class="${@headerCss.brandLogo()}" aria-hidden="true">
+            <span th:class="${@headerCss.brandLogoIcon()}"></span>
+        </span>
+        <span th:class="${@headerCss.brandText()}">Tavall <span>Couriers</span></span>
+    </a>
+
+    <div th:class="${@headerCss.userControls()}">
+        <div th:class="${@headerCss.join(@headerCss.userInfo(), @utilsCss.hiddenMobile())}"
+             th:with="
+                role=${userRole != null ? userRole : ''},
+                roleLabel=${(role != null && !#strings.isEmpty(role)) ? role : 'GUEST'},
+                title=${(userName != null && !#strings.isEmpty(userName)) ? userName : 'Tavall Couriers'}">
+            <div th:class="${@headerCss.userName()}" th:text="${title}">Tavall Couriers</div>
+            <div th:class="${@headerCss.userRole()}" th:text="${roleLabel}">GUEST</div>
+        </div>
+        <button th:class="${@headerCss.btnIcon()}" id="userMenuToggle" aria-label="User menu" aria-controls="userMenu" aria-expanded="false" type="button">&#9776;</button>
+    </div>
+
+    <div id="userMenuBackdrop" th:class="${@headerCss.userTrayBackdrop()}" aria-hidden="true"></div>
+    <div id="userMenu" th:class="${@headerCss.userTray()}" aria-hidden="true">
+        <div th:class="${@headerCss.userTrayPanel()}">
+            <button th:class="${@headerCss.userTrayClose()}" id="userMenuClose" type="button" aria-label="Close menu">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div th:class="${@headerCss.userTrayLinks()}">
+                <div th:class="${@headerCss.userTraySectionTitle()}">Quick Links</div>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/}">Home</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/tracking}">Tracking</a>
+                <a th:class="${@headerCss.userTrayLink()}"
+                   th:if="${userRole == 'DRIVER' or userRole == 'MERCHANT' or userRole == 'SUPERUSER' or userRole == 'SUPPORT'}"
+                   th:href="@{/dashboard}">Dashboard</a>
+                <a th:class="${@headerCss.userTrayLink()}"
+                   th:if="${userRole == null || userRole == 'GUEST'}"
+                   th:href="@{/dashboard/login}">Dashboard Login</a>
+            </div>
+
+            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'DRIVER'}">
+                <div th:class="${@headerCss.userTraySectionTitle()}">Driver Tools</div>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/driver}">Driver Hub</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/driver/scan}">Scan Package</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/driver/create-label}">New Label</a>
+            </div>
+
+            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'MERCHANT'}">
+                <div th:class="${@headerCss.userTraySectionTitle()}">Merchant Tools</div>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant}">Merchant Hub</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/scan}">Scan Intake</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/shipments}">Shipments</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/routes}">Routes</a>
+            </div>
+
+            <div th:class="${@headerCss.userTrayLinks()}" th:if="${userRole == 'SUPERUSER' or userRole == 'SUPPORT'}">
+                <div th:class="${@headerCss.userTraySectionTitle()}">Admin Tools</div>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/superuser}">Admin Console</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/admin/users}">Manage Users</a>
+                <a th:class="${@headerCss.userTrayLink()}" th:href="@{/dashboard/merchant/shipments}">Shipments</a>
+            </div>
+
+            <div th:class="${@headerCss.userTrayActions()}">
+                <a th:class="${@buttonsCss.btnPrimary()}" th:if="${userRole == null || userRole == 'GUEST'}"
+                   th:href="@{/dashboard/login}">
+                    Log in
+                </a>
+                <form th:if="${userRole != null && userRole != 'GUEST'}"
+                      th:action="@{/dashboard/logout}"
+                      method="post">
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button th:class="${@buttonsCss.btnPrimary()}" type="submit">Log out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const menu = document.getElementById("userMenu");
+            const toggle = document.getElementById("userMenuToggle");
+            const closeBtn = document.getElementById("userMenuClose");
+            const backdrop = document.getElementById("userMenuBackdrop");
+            const body = document.body;
+            if (!menu || !toggle) return;
+
+            const closeMenu = () => {
+                body.classList.remove("sidebar-open");
+                menu.setAttribute("aria-hidden", "true");
+                if (toggle) {
+                    toggle.setAttribute("aria-expanded", "false");
+                }
+            };
+
+            const openMenu = () => {
+                body.classList.add("sidebar-open");
+                menu.setAttribute("aria-hidden", "false");
+                if (toggle) {
+                    toggle.setAttribute("aria-expanded", "true");
+                }
+            };
+
+            toggle.addEventListener("click", (event) => {
+                event.stopPropagation();
+                if (body.classList.contains("sidebar-open")) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", closeMenu);
+            }
+
+            if (backdrop) {
+                backdrop.addEventListener("click", closeMenu);
+            }
+
+            document.addEventListener("click", (event) => {
+                if (!body.classList.contains("sidebar-open")) return;
+                if (!menu.contains(event.target) && event.target !== toggle) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    closeMenu();
+                }
+            });
+        })();
+    </script>
+</header>
+</body>
+</html>
+

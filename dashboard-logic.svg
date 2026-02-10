@@ -1,0 +1,50 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="500" fill="#0d1117" />
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="#58a6ff" />
+        </marker>
+    </defs>
+
+    <text x="400" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">DASHBOARD LOGIC FLOWS</text>
+
+    <line x1="400" y1="70" x2="400" y2="480" stroke="#30363d" stroke-width="2" stroke-dasharray="5"/>
+
+    <text x="200" y="70" fill="#238636" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">DRIVER FLOW</text>
+
+    <rect x="100" y="100" width="200" height="40" rx="4" fill="#238636" fill-opacity="0.2" stroke="#238636" stroke-width="1"/>
+    <text x="200" y="125" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Scan Single Label</text>
+
+    <line x1="200" y1="140" x2="200" y2="180" stroke="#238636" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="100" y="180" width="200" height="60" rx="4" fill="#d29922" fill-opacity="0.2" stroke="#d29922" stroke-width="1"/>
+    <text x="200" y="205" fill="#e3b341" font-family="monospace" font-size="12" text-anchor="middle">GUARDRAILS CHECK</text>
+    <text x="200" y="225" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">DeliveryStateManager.java</text>
+
+    <line x1="200" y1="240" x2="200" y2="280" stroke="#238636" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="100" y="280" width="200" height="40" rx="4" fill="#1f6feb" fill-opacity="0.2" stroke="#1f6feb" stroke-width="1"/>
+    <text x="200" y="305" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Manual State Select</text>
+
+    <text x="600" y="70" fill="#d29922" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">MERCHANT FLOW</text>
+
+    <rect x="500" y="100" width="200" height="40" rx="4" fill="#d29922" fill-opacity="0.2" stroke="#d29922" stroke-width="1"/>
+    <text x="600" y="125" fill="#c9d1d9" font-family="monospace" font-size="12" text-anchor="middle">Scan Batch / POD</text>
+
+    <line x1="600" y1="140" x2="600" y2="180" stroke="#d29922" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <rect x="500" y="180" width="200" height="60" rx="4" fill="#a371f7" fill-opacity="0.2" stroke="#a371f7" stroke-width="1"/>
+    <text x="600" y="205" fill="#a371f7" font-family="monospace" font-size="12" text-anchor="middle">ASYNC ANALYZE</text>
+    <text x="600" y="225" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">Background Cache/Persist</text>
+
+    <line x1="600" y1="240" x2="600" y2="280" stroke="#d29922" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <polygon points="600,280 650,330 600,380 550,330" fill="#4c0519" stroke="#ff7b72" stroke-width="2"/>
+    <text x="600" y="335" fill="#ff7b72" font-family="monospace" font-size="12" text-anchor="middle">Errors?</text>
+
+    <rect x="670" y="310" width="100" height="40" rx="4" fill="#161b22" stroke="#ff7b72" stroke-width="1"/>
+    <text x="720" y="335" fill="#ff7b72" font-family="monospace" font-size="10" text-anchor="middle">Re-Scan Que</text>
+
+    <line x1="650" y1="330" x2="670" y2="330" stroke="#ff7b72" stroke-width="1"/>
+
+</svg>

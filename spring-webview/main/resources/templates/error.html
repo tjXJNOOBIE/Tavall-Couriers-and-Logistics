@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Error</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@backgroundCss.join(@backgroundCss.mainContent(), @utilsCss.fadeIn())}">
+    <div th:class="${@backgroundCss.container()}">
+        <section th:class="${@cardsCss.card()}">
+            <div th:class="${@cardsCss.cardHeader()}">
+                <div>
+                    <div th:class="${@flowCss.join('error-big')}">Something broke</div>
+                    <div th:class="${@flowCss.join('text-muted mono')}">
+                        <span th:text="${status}">500</span>
+                        <span th:class="${@flowCss.join('text-muted')}"> • </span>
+                        <span th:text="${error}">Internal Server Error</span>
+                    </div>
+                </div>
+                <span th:class="${@flowCss.join(@badgesCss.badge(), @badgesCss.badgeNeutral())}">DEV</span>
+            </div>
+
+            <p th:class="${@flowCss.join('text-muted mb-2')}">
+                The app hit a problem and decided to be dramatic about it.
+            </p>
+
+            <div th:class="${@formsCss.formGroup()}">
+                <label th:class="${@formsCss.formLabel()}">Path</label>
+                <div th:class="${@flowCss.join(@formsCss.formInput(), 'mono')}" th:text="${path}">/</div>
+            </div>
+
+            <div th:class="${@formsCss.formGroup()}" th:if="${message != null && !#strings.isEmpty(message)}">
+                <label th:class="${@formsCss.formLabel()}">Message</label>
+                <div th:class="${@formsCss.formInput()}" th:text="${message}">message</div>
+            </div>
+
+            <div th:class="${@formsCss.formGroup()}" th:if="${exception != null && !#strings.isEmpty(exception)}">
+                <label th:class="${@formsCss.formLabel()}">Exception</label>
+                <div th:class="${@flowCss.join(@formsCss.formInput(), 'mono')}" th:text="${exception}">exception</div>
+            </div>
+
+            <div th:class="${@formsCss.formGroup()}" th:if="${trace != null && !#strings.isEmpty(trace)}">
+                <label th:class="${@formsCss.formLabel()}">Details</label>
+                <div th:class="${@formsCss.formInput()}">
+                    <details>
+                        <summary th:class="${@flowCss.join('mono')}">Show stack trace</summary>
+                        <pre th:class="${@flowCss.join('mono')}" th:text="${trace}">trace</pre>
+                    </details>
+                </div>
+            </div>
+
+            <div th:class="${@flowCss.join('error-actions mt-2')}">
+                <a th:class="${@flowCss.join(@buttonsCss.btn(), @buttonsCss.btnPrimary())}" th:href="@{/}">Home</a>
+                <a th:class="${@buttonsCss.btn()}" th:href="@{/}">Home</a>
+            </div>
+        </section>
+    </div>
+</main>
+
+</body>
+</html>

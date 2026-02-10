@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Manual Label</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <section th:class="${@dashboardTemplateCss.join('card')}">
+            <div th:class="${@dashboardTemplateCss.join('mt-2')}">
+                <h2 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Manual Label</h2>
+                <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Enter recipient details to generate a new label.</p>
+
+                <div th:if="${createdLabel != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mt-4')}">
+                    Label created for <span th:text="${createdLabel.recipientName}"></span>.
+                    Tracking: <span th:class="${@dashboardTemplateCss.join('mono')}" th:text="${createdLabel.trackingNumber}"></span>
+                </div>
+                <div th:if="${addressError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mt-4')}">
+                    <span th:text="${addressError}">Address could not be verified.</span>
+                </div>
+
+                <form th:action="@{/internal/api/v1/merchant/shipment/create}"
+                      th:object="${shipment}"
+                      method="post"
+                      th:class="${@dashboardTemplateCss.join('space-y-4 mt-4')}">
+                    <input type="hidden" th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="source" value="popup"/>
+
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
+                        <input type="text" placeholder="Recipient Name"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                               th:field="*{recipientName}" required>
+                        <input type="text" placeholder="Phone"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                               th:field="*{phoneNumber}">
+                    </div>
+
+                    <input type="text" placeholder="Address Line 1"
+                           th:class="${@dashboardTemplateCss.join('w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                           th:field="*{address}" required>
+
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-3 gap-4')}">
+                        <input type="text" placeholder="City"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                               th:field="*{city}" required>
+                        <input type="text" placeholder="State"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                               th:field="*{state}" required>
+                        <input type="text" placeholder="Zip"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                               th:field="*{zipCode}" required>
+                    </div>
+
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
+                        <input type="text" placeholder="Country"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}"
+                               th:field="*{country}" value="USA" required>
+                        <input type="date" name="deliverByDate" th:value="${deliverByDate}"
+                               th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none focus:ring-2 focus:ring-blue-500')}">
+                    </div>
+
+                    <div th:class="${@dashboardTemplateCss.join('grid grid-cols-2 gap-4')}">
+                        <select name="initialState"
+                                th:class="${@dashboardTemplateCss.join('bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm outline-none')}">
+                            <option th:each="state : ${allStates}" th:value="${state}" th:text="${state}"></option>
+                        </select>
+                        <label th:class="${@dashboardTemplateCss.join('flex items-center gap-2 text-sm text-slate-600')}">
+                            <input type="checkbox" th:field="*{priority}">
+                            Priority shipment
+                        </label>
+                    </div>
+
+                    <div th:class="${@dashboardTemplateCss.join('label-form-actions')}">
+                        <button th:class="${@dashboardTemplateCss.join('btn-primary')}" type="submit">Generate Label &amp; QR</button>
+                    </div>
+                </form>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('label-popup-topbar')}">
+                <button th:class="${@dashboardTemplateCss.join('label-popup-close')}" type="button" id="embeddedBackBtn">Close</button>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    (function () {
+        if (window.self === window.top) return;
+        document.body.classList.add("label-popup-embedded");
+        document.documentElement.classList.add("label-popup-embedded");
+
+        const close = () => {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: "labelModalClose" }, window.location.origin);
+                return;
+            }
+            window.history.back();
+        };
+
+        const closeBtn = document.getElementById("embeddedBackBtn");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", close);
+        }
+
+        const postHeight = () => {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: "labelModalResize", height }, window.location.origin);
+        };
+        window.addEventListener("load", postHeight);
+        window.addEventListener("resize", postHeight);
+        setTimeout(postHeight, 0);
+    })();
+</script>
+</body>
+</html>

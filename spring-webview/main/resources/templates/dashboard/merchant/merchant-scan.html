@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Merchant Scan</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <meta name="_csrf_parameter" th:content="${_csrf != null ? _csrf.parameterName : '_csrf'}"/>
+</head>
+<body>
+
+<div th:class="${@dashboardTemplateCss.join('scan-popup scan-camera-popup fade-in')}" data-camera-mode-key="merchantIntake">
+    <div th:class="${@dashboardTemplateCss.join('scan-topbar')}">
+        <span th:class="${@dashboardTemplateCss.join('text-white font-mono text-xs opacity-70')}">POD SCAN v1.0</span>
+    </div>
+
+    <div th:class="${@dashboardTemplateCss.join('scan-layout single')}">
+        <div>
+            <div th:class="${@dashboardTemplateCss.join('scan-frame')}">
+                <div th:class="${@dashboardTemplateCss.join('scan-video-wrap')}">
+                    <video id="live-feed" autoplay muted playsinline></video>
+                    <canvas id="frame-buffer" th:class="${@dashboardTemplateCss.join('is-hidden')}"></canvas>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('scan-state-overlay')}">
+                    <div id="scan-state-badge" th:class="${@dashboardTemplateCss.join('scan-state-badge')}">SEARCHING</div>
+                    <div th:class="${@dashboardTemplateCss.join('scan-state-pulse')}" aria-hidden="true"></div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('scan-data-overlay')}">
+                    <div th:class="${@dashboardTemplateCss.join('scan-data-feed')}" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('scan-actions scan-camera-actions')}">
+                <button id="btn-toggle-source" th:class="${@dashboardTemplateCss.join('scan-toggle')}" type="button">Switch to Screen Share</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary scan-duplicate-intake')}" type="button" data-duplicate-intake="true" hidden>Create another label anyway</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary scan-close')}" type="button" data-scan-close="true">Close</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.configHandshake = /*[[@{/internal/api/v1/config/handshake}]]*/ "/internal/api/v1/config/handshake";
+    window.APP.endpoints.intakeConfirm = /*[[@{/internal/api/v1/merchant/scan/intake/confirm}]]*/ "/internal/api/v1/merchant/scan/intake/confirm";
+</script>
+<script src="/js/camera.js" defer></script>
+<script>
+    lucide.createIcons();
+    (function () {
+        const closeBtn = document.querySelector("[data-scan-close]");
+        if (!closeBtn) return;
+        const closeTarget = "/dashboard/merchant";
+        const isEmbedded = window.parent && window.parent !== window;
+        if (isEmbedded) {
+            document.body.classList.add("scan-embedded");
+            document.documentElement.classList.add("scan-embedded");
+        }
+        closeBtn.addEventListener("click", () => {
+            if (isEmbedded) {
+                window.parent.postMessage({ type: "scanModalClose" }, window.location.origin);
+                return;
+            }
+            window.location.href = closeTarget;
+        });
+
+        if (isEmbedded) {
+            const postHeight = () => {
+                const height = document.documentElement.scrollHeight;
+                window.parent.postMessage({ type: "scanModalResize", height }, window.location.origin);
+            };
+            window.addEventListener("load", postHeight);
+            window.addEventListener("resize", postHeight);
+            setTimeout(postHeight, 0);
+        }
+    })();
+</script>
+
+<div id="intakeDetailsModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden data-intake-details-modal>
+    <div id="intakeDetailsBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel tavall-popup-panel')}">
+        <div th:class="${@dashboardTemplateCss.join('space-y-4')}">
+            <div>
+                <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider')}">Scan Details</div>
+                <div th:class="${@dashboardTemplateCss.join('text-lg font-bold text-slate-800')}">Shipping Label</div>
+            </div>
+            <div th:class="${@dashboardTemplateCss.join('label-popup-details-grid')}">
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">UUID</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input mono')}" data-intake-detail="uuid">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">Tracking Number</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input mono')}" data-intake-detail="trackingNumber">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">Recipient</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input')}" data-intake-detail="name">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">Phone</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input mono')}" data-intake-detail="phoneNumber">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">Address</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input')}" data-intake-detail="address">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">City / State / Zip</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input')}" data-intake-detail="cityStateZip">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">Country</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input')}" data-intake-detail="country">N/A</div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('form-group')}">
+                    <label th:class="${@dashboardTemplateCss.join('form-label')}">Deliver By</label>
+                    <div th:class="${@dashboardTemplateCss.join('form-input mono')}" data-intake-detail="deadline">DEADLINE: N/A</div>
+                </div>
+            </div>
+            <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}" data-intake-details-status hidden></div>
+            <div th:class="${@dashboardTemplateCss.join('flex justify-end gap-2')}">
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" data-intake-details-close>Close</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-primary')}" type="button" data-intake-details-confirm>Confirm intake</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

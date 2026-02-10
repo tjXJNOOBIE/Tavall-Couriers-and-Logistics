@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">System Administration</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-4xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6 flex-wrap gap-3')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">System Administration</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Manage roles, shipments, and platform operations.</p>
+                </div>
+                <button th:class="${@dashboardTemplateCss.join('btn-primary')}" type="button" id="openAddUser">Add User</button>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('ops-grid mb-6')}">
+                <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}" th:href="@{/dashboard/admin/users}">
+                    <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                        <i data-lucide="users" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                        <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}">ADMIN</span>
+                    </div>
+                    <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Manage Users</h3>
+                    <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Promote, demote, or disable accounts.</p>
+                </a>
+
+                <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}" th:href="@{/dashboard/merchant/shipments}">
+                    <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                        <i data-lucide="archive" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                        <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}" th:text="${totalShipments}">0</span>
+                    </div>
+                    <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Shipment Library</h3>
+                    <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Review delivery states and status updates.</p>
+                </a>
+
+                <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}" th:href="@{/dashboard/merchant/routes}">
+                    <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                        <i data-lucide="route" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                        <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}">ROUTES</span>
+                    </div>
+                    <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Routes</h3>
+                    <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Monitor and refine delivery routes.</p>
+                </a>
+
+                <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}" th:href="@{/dashboard/merchant/scan}">
+                    <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                        <i data-lucide="scan" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                        <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}">SCAN</span>
+                    </div>
+                    <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Scan Intake</h3>
+                    <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Monitor scanning and resolve errors.</p>
+                </a>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden')}">
+                <div th:class="${@dashboardTemplateCss.join('p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center')}">
+                    <h3 th:class="${@dashboardTemplateCss.join('font-bold text-slate-700')}">User Management</h3>
+                    <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" id="openAddUserInline">Add User</button>
+                </div>
+                <div th:if="${addStatus != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}" th:text="${addStatus}">
+                    User created.
+                </div>
+                <div th:if="${addError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-4')}" th:text="${addError}">
+                    Failed to create user.
+                </div>
+                <div th:if="${userStatus != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}" th:text="${userStatus}">
+                    User updated.
+                </div>
+                <div th:if="${userError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-4')}" th:text="${userError}">
+                    Failed to update user.
+                </div>
+                <div th:each="user : ${adminUsers}" th:class="${@dashboardTemplateCss.join('flex items-center justify-between p-4 border-b border-slate-100')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex items-center gap-3')}">
+                        <div th:class="${@dashboardTemplateCss.join('w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500')}"
+                             th:text="${#strings.substring(user.name,0,1)}">U</div>
+                        <div>
+                            <div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-800')}" th:text="${user.name}">User</div>
+                            <div th:class="${@dashboardTemplateCss.join('text-xs text-slate-400')}" th:text="${user.role}">ROLE</div>
+                        </div>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('flex gap-2')}">
+                        <form th:if="${user.role == 'USER'}"
+                              method="post"
+                              th:action="@{/internal/api/v1/users/promote}">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="userId" th:value="${user.userUUID}"/>
+                            <input type="hidden" name="redirect" th:value="@{/dashboard/superuser}"/>
+                            <button th:class="${@dashboardTemplateCss.join('p-2 text-blue-600 hover-scale')}" type="submit" aria-label="Promote to driver">
+                                <i data-lucide="arrow-up-circle" th:class="${@dashboardTemplateCss.join('w-5 h-5')}"></i>
+                            </button>
+                        </form>
+                        <form th:if="${user.role == 'DRIVER'}"
+                              method="post"
+                              th:action="@{/internal/api/v1/users/demote}">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="userId" th:value="${user.userUUID}"/>
+                            <input type="hidden" name="redirect" th:value="@{/dashboard/superuser}"/>
+                            <button th:class="${@dashboardTemplateCss.join('p-2 text-amber-600 hover-scale')}" type="submit" aria-label="Demote from driver">
+                                <i data-lucide="arrow-down-circle" th:class="${@dashboardTemplateCss.join('w-5 h-5')}"></i>
+                            </button>
+                        </form>
+                        <form th:if="${user.role != 'SUPERUSER'}"
+                              method="post"
+                              th:action="@{/internal/api/v1/users/delete}">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="userId" th:value="${user.userUUID}"/>
+                            <input type="hidden" name="redirect" th:value="@{/dashboard/superuser}"/>
+                            <button th:class="${@dashboardTemplateCss.join('p-2 text-red-600 hover-scale')}" type="submit" aria-label="Delete user">
+                                <i data-lucide="trash-2" th:class="${@dashboardTemplateCss.join('w-5 h-5')}"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('mt-8 grid grid-cols-2 gap-4')}">
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <h3 th:class="${@dashboardTemplateCss.join('font-bold text-slate-700 mb-2')}">System Health</h3>
+                    <div th:class="${@dashboardTemplateCss.join('text-3xl font-bold text-green-600')}" th:text="${systemHealth}">98.2%</div>
+                    <p th:class="${@dashboardTemplateCss.join('text-xs text-slate-400')}">Uptime (Last 30 days)</p>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <h3 th:class="${@dashboardTemplateCss.join('font-bold text-slate-700 mb-2')}">Total Parcels</h3>
+                    <div th:class="${@dashboardTemplateCss.join('text-3xl font-bold text-blue-600')}" th:text="${totalShipments}">0</div>
+                    <p th:class="${@dashboardTemplateCss.join('text-xs text-slate-400')}">Processed this month</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<dialog id="addUserModal" th:class="${@dashboardTemplateCss.join('modal')}">
+    <form th:class="${@dashboardTemplateCss.join('modal-card')}" method="post" th:action="@{/dashboard/superuser}">
+        <input type="hidden" th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <h3 th:class="${@dashboardTemplateCss.join('modal-title')}">Add User</h3>
+        <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Create a new user account.</p>
+
+        <div th:class="${@dashboardTemplateCss.join('form-group')}">
+            <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}" for="newUsername">Username</label>
+            <input id="newUsername" name="username" type="text"
+                   th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}"
+                   placeholder="e.g. ops-user" required>
+        </div>
+        <div th:class="${@dashboardTemplateCss.join('form-group')}">
+            <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}" for="newRole">Role</label>
+            <select id="newRole" name="role" th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg outline-none')}">
+                <option th:each="role : ${allRoles}"
+                        th:value="${role}"
+                        th:text="${role}">USER</option>
+            </select>
+        </div>
+
+        <div th:class="${@dashboardTemplateCss.join('modal-actions')}">
+            <button th:class="${@dashboardTemplateCss.join('btn-primary')}" type="submit">Create User</button>
+            <button th:class="${@dashboardTemplateCss.join('btn-ghost')}" type="button" id="closeAddUser">Cancel</button>
+        </div>
+    </form>
+</dialog>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+</script>
+<script defer src="/js/admin-users.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

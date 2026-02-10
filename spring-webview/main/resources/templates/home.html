@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Home</title>
+
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- CSRF meta (works when Spring Security is enabled) -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+
+</head>
+
+<body th:class="${@homeTemplateCss.body()}">
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@homeTemplateCss.mainContent()}">
+    <div th:class="${@homeTemplateCss.container()}">
+
+        <section th:class="${@homeTemplateCss.heroCard()}">
+            <div th:class="${@homeTemplateCss.heroHeader()}">
+                <div th:class="${@homeTemplateCss.heroBrand()}">Tavall Couriers</div>
+                <div th:class="${@homeTemplateCss.heroIconWrap()}">
+                    <i data-lucide="truck" th:class="${@homeTemplateCss.heroIcon()}"></i>
+                </div>
+                <h1 th:class="${@homeTemplateCss.heroTitle()}">Operations Hub</h1>
+                <p th:class="${@homeTemplateCss.heroDesc()}">Jump into the dashboard or track a shipment.</p>
+            </div>
+
+            <div th:class="${@homeTemplateCss.actions()}">
+                <a th:class="${@buttonsCss.btnPrimary()}"
+                   th:href="@{/dashboard}">
+                    Dashboard
+                </a>
+                <a th:class="${@buttonsCss.btnSecondary()}" th:href="@{/tracking}">
+                    Track Shipment
+                </a>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer (shared) -->
+<div th:replace="~{constants/footer :: footer}"></div>
+<script>
+    lucide.createIcons();
+</script>
+
+</body>
+</html>
+

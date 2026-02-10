@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">User Management</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-3xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}" th:text="${title}">User Management</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Promote or demote drivers from your roster.</p>
+                </div>
+                <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard}">Back to Dashboard</a>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden')}">
+                <div th:class="${@dashboardTemplateCss.join('p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center')}">
+                    <h3 th:class="${@dashboardTemplateCss.join('font-bold text-slate-700')}">Team Directory</h3>
+                    <span th:class="${@dashboardTemplateCss.join('text-xs text-slate-400')}"
+                          th:text="${#lists.size(adminUsers)} + ' users'">0 users</span>
+                </div>
+                <div th:if="${userStatus != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}" th:text="${userStatus}">
+                    User updated.
+                </div>
+                <div th:if="${userError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-4')}" th:text="${userError}">
+                    Unable to update user.
+                </div>
+
+                <div th:each="user : ${adminUsers}" th:class="${@dashboardTemplateCss.join('flex items-center justify-between p-4 border-b border-slate-100')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex items-center gap-3')}">
+                        <div th:class="${@dashboardTemplateCss.join('w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500')}"
+                             th:text="${#strings.substring(user.name,0,1)}">U</div>
+                        <div>
+                            <div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-800')}" th:text="${user.name}">User</div>
+                            <div th:class="${@dashboardTemplateCss.join('text-xs text-slate-400')}" th:text="${user.role}">ROLE</div>
+                        </div>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('flex gap-2')}">
+                        <form th:if="${canPromote and user.role == 'USER'}"
+                              method="post"
+                              th:action="@{/internal/api/v1/users/promote}">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="userId" th:value="${user.userUUID}"/>
+                            <input type="hidden" name="redirect" th:value="@{/dashboard/admin/users}"/>
+                            <button th:class="${@dashboardTemplateCss.join('p-2 text-blue-600 hover-scale')}" type="submit" aria-label="Promote to driver">
+                                <i data-lucide="arrow-up-circle" th:class="${@dashboardTemplateCss.join('w-5 h-5')}"></i>
+                            </button>
+                        </form>
+                        <form th:if="${canDemote and user.role == 'DRIVER'}"
+                              method="post"
+                              th:action="@{/internal/api/v1/users/demote}">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <input type="hidden" name="userId" th:value="${user.userUUID}"/>
+                            <input type="hidden" name="redirect" th:value="@{/dashboard/admin/users}"/>
+                            <button th:class="${@dashboardTemplateCss.join('p-2 text-amber-600 hover-scale')}" type="submit" aria-label="Demote from driver">
+                                <i data-lucide="arrow-down-circle" th:class="${@dashboardTemplateCss.join('w-5 h-5')}"></i>
+                            </button>
+                        </form>
+                        <button th:class="${@dashboardTemplateCss.join('p-2 text-slate-400')}" type="button"
+                                th:if="${!(canPromote and user.role == 'USER') and !(canDemote and user.role == 'DRIVER')}">
+                            <i data-lucide="shield" th:class="${@dashboardTemplateCss.join('w-5 h-5')}"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

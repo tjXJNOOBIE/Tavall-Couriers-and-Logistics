@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="registerToast">
+    <div id="toast" th:class="${@flowCss.join('toast')}" role="status" aria-live="polite" aria-atomic="true">
+        <div th:class="${@flowCss.join('toast-row')}">
+            <div th:class="${@flowCss.join('toast-text')}" id="toastText">Registration is coming soon</div>
+            <div th:class="${@flowCss.join('toast-meta mono')}" id="toastMeta">cooldown: 0s</div>
+        </div>
+        <div th:class="${@flowCss.join('toast-bar-wrap')}">
+            <div th:class="${@flowCss.join('toast-bar')}" id="toastBar"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

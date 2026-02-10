@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Driver Scan</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <meta name="_csrf_parameter" th:content="${_csrf != null ? _csrf.parameterName : '_csrf'}"/>
+</head>
+<body>
+
+<div th:class="${@dashboardTemplateCss.join('scan-popup scan-camera-popup fade-in')}" data-camera-mode-key="driverState">
+    <div th:class="${@dashboardTemplateCss.join('scan-topbar')}">
+        <span th:class="${@dashboardTemplateCss.join('text-white font-mono text-xs opacity-70')}">DRIVER QR v1.0</span>
+    </div>
+
+    <div th:class="${@dashboardTemplateCss.join('scan-layout single')}">
+        <div>
+            <div th:class="${@dashboardTemplateCss.join('scan-frame')}">
+                <div th:class="${@dashboardTemplateCss.join('scan-video-wrap')}">
+                    <video id="live-feed" autoplay muted playsinline></video>
+                    <canvas id="frame-buffer" th:class="${@dashboardTemplateCss.join('is-hidden')}"></canvas>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('scan-state-overlay')}">
+                    <div id="scan-state-badge" th:class="${@dashboardTemplateCss.join('scan-state-badge')}">SEARCHING</div>
+                    <div th:class="${@dashboardTemplateCss.join('scan-state-pulse')}" aria-hidden="true"></div>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('scan-data-overlay')}">
+                    <div th:class="${@dashboardTemplateCss.join('scan-data-feed')}" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('scan-actions scan-camera-actions')}">
+                <button id="btn-toggle-source" th:class="${@dashboardTemplateCss.join('scan-toggle')}" type="button">Switch to Screen Share</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary scan-duplicate-intake')}" type="button" data-duplicate-intake="true" hidden>Create another label anyway</button>
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary scan-close')}" type="button" data-scan-close="true">Close</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.configHandshake = /*[[@{/internal/api/v1/config/handshake}]]*/ "/internal/api/v1/config/handshake";
+</script>
+<script src="/js/camera.js" defer></script>
+<script>
+    lucide.createIcons();
+    (function () {
+        const closeBtn = document.querySelector("[data-scan-close]");
+        if (!closeBtn) return;
+        const closeTarget = "/dashboard/driver";
+        const isEmbedded = window.parent && window.parent !== window;
+        if (isEmbedded) {
+            document.body.classList.add("scan-embedded");
+            document.documentElement.classList.add("scan-embedded");
+        }
+        closeBtn.addEventListener("click", () => {
+            if (isEmbedded) {
+                window.parent.postMessage({ type: "scanModalClose" }, window.location.origin);
+                return;
+            }
+            window.location.href = closeTarget;
+        });
+
+        if (isEmbedded) {
+            const postHeight = () => {
+                const height = document.documentElement.scrollHeight;
+                window.parent.postMessage({ type: "scanModalResize", height }, window.location.origin);
+            };
+            window.addEventListener("load", postHeight);
+            window.addEventListener("resize", postHeight);
+            setTimeout(postHeight, 0);
+        }
+    })();
+</script>
+
+</body>
+</html>

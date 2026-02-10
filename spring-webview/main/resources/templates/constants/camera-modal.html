@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="cameraModal(modalId, frameId, closeId, backdropId)"
+     th:id="${modalId}"
+     th:class="${@popupTemplateCss.join(@popupTemplateCss.scanModal(), 'camera-modal')}"
+    hidden>
+    <div th:id="${backdropId}" th:class="${@popupTemplateCss.scanModalBackdrop()}"></div>
+    <div th:class="${@popupTemplateCss.join(@popupTemplateCss.scanModalPanel(), 'scan-camera-panel', 'camera-modal-panel')}">
+        <div th:class="${@popupTemplateCss.join('scan-camera-shell')}">
+            <iframe th:id="${frameId}"
+                    th:class="${@popupTemplateCss.join(@popupTemplateCss.scanModalFrame(), 'scan-camera-frame', 'camera-modal-frame')}"
+                    title="Scanner"
+                    allow="camera; microphone; display-capture"
+                    loading="lazy"></iframe>
+        </div>
+        <button th:id="${closeId}"
+                th:class="${@popupTemplateCss.join('scan-modal-close')}"
+                type="button"
+                aria-label="Close">
+            &times;
+        </button>
+    </div>
+</div>
+</body>
+</html>

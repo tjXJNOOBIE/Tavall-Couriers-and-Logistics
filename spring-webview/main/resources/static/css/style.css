@@ -1,0 +1,21 @@
+/**
+ * THE MANIFEST (The Boss)
+ * For vanilla CSS, these must be linked in the HTML in this EXACT order.
+ * Order matters because of the Cascade. If you mess this up,
+ * CSS specificity will hunt you down like a debt collector.
+ */
+
+/* 1. ABSTRACTED DESIGN SYSTEM - Tokens + global components */
+@import url('abstracted.css');
+
+/* 2. PAGES - Styles that ONLY apply to specific views */
+@import url('page/templates/home_template.css');
+@import url('page/templates/dashboard_template.css');
+@import url('page/templates/tracking_template.css');
+@import url('page/flow.css');
+@import url('page/popup/popup_template.css');
+@import url('page/popup/camera-popup.css');
+@import url('page/popup/label-popup.css');
+
+/* 3. UTILITIES - High-specificity helper classes (The "God Mode" classes) */
+@import url('utils/utils.css');

@@ -1,0 +1,45 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+    <rect width="800" height="450" fill="#0d1117" />
+
+    <text x="400" y="40" fill="#ffffff" font-family="monospace" font-size="20" text-anchor="middle" font-weight="bold">LIBRARY COMPOSITION</text>
+
+    <line x1="400" y1="80" x2="400" y2="420" stroke="#30363d" stroke-width="2" stroke-dasharray="5"/>
+
+    <text x="200" y="80" fill="#a371f7" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">THIRD PARTY (EXTERNAL)</text>
+
+    <rect x="50" y="110" width="300" height="50" rx="4" fill="#161b22" stroke="#a371f7" stroke-width="1"/>
+    <text x="200" y="135" fill="#a371f7" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">GOOGLE GEMINI SDK</text>
+    <text x="200" y="150" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">AI + Vision Logic</text>
+
+    <rect x="50" y="180" width="300" height="50" rx="4" fill="#161b22" stroke="#a371f7" stroke-width="1"/>
+    <text x="200" y="205" fill="#a371f7" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">GOOGLE ZXING</text>
+    <text x="200" y="220" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">QR Code Generation</text>
+
+    <rect x="50" y="250" width="300" height="50" rx="4" fill="#161b22" stroke="#a371f7" stroke-width="1"/>
+    <text x="200" y="275" fill="#a371f7" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">PDFBOX</text>
+    <text x="200" y="290" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">Document Rendering</text>
+
+    <rect x="50" y="320" width="300" height="50" rx="4" fill="#161b22" stroke="#a371f7" stroke-width="1"/>
+    <text x="200" y="345" fill="#a371f7" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">MAVEN MINIFIER</text>
+    <text x="200" y="360" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">Build Optimization</text>
+
+
+    <text x="600" y="80" fill="#238636" font-family="monospace" font-size="16" text-anchor="middle" font-weight="bold">CUSTOM (IN-HOUSE)</text>
+
+    <rect x="450" y="110" width="300" height="50" rx="4" fill="#161b22" stroke="#238636" stroke-width="1"/>
+    <text x="600" y="135" fill="#238636" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">CACHE SYSTEM</text>
+    <text x="600" y="150" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">org.tavall.couriers.api.cache</text>
+
+    <rect x="450" y="180" width="300" height="50" rx="4" fill="#161b22" stroke="#238636" stroke-width="1"/>
+    <text x="600" y="205" fill="#238636" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">ASYNC TASK</text>
+    <text x="600" y="220" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">Virtual Thread Wrapper</text>
+
+    <rect x="450" y="250" width="300" height="50" rx="4" fill="#161b22" stroke="#238636" stroke-width="1"/>
+    <text x="600" y="275" fill="#238636" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">AI RESPONSE PARSER</text>
+    <text x="600" y="290" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">JSON Sanitization</text>
+
+    <rect x="450" y="320" width="300" height="50" rx="4" fill="#161b22" stroke="#238636" stroke-width="1"/>
+    <text x="600" y="345" fill="#238636" font-family="monospace" font-size="12" text-anchor="middle" font-weight="bold">SCHEDULER + LOG</text>
+    <text x="600" y="360" fill="#8b949e" font-family="monospace" font-size="10" text-anchor="middle">Imported Utilities</text>
+
+</svg>

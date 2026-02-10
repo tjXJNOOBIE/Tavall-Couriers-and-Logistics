@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${title}">Shipping Labels</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+
+<body>
+
+<main th:class="${@flowCss.join('main-content fade-in')}">
+    <div th:class="${@flowCss.join('container')}">
+
+        <section th:class="${@flowCss.join('card')}">
+            <div th:class="${@flowCss.join('mt-2')}">
+                <div th:class="${@flowCss.join('form-group')}">
+                    <label th:class="${@flowCss.join('form-label')}">Selected Shipment</label>
+
+                </div>
+
+                <div th:if="${selected != null}">
+                    <div th:class="${@flowCss.join('label-popup-details-grid')}">
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">UUID</label>
+                            <div th:class="${@flowCss.join('form-input mono')}" th:text="${selected.uuid}"></div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">Tracking Number</label>
+                            <div th:class="${@flowCss.join('form-input mono')}" th:text="${selected.trackingNumber}"></div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">Recipient</label>
+                            <div th:class="${@flowCss.join('form-input')}" th:text="${selected.recipientName}"></div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">Phone</label>
+                            <div th:class="${@flowCss.join('form-input mono')}" th:text="${selected.phoneNumber}"></div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">Address</label>
+                            <div th:class="${@flowCss.join('form-input')}" th:text="${selected.address}"></div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">City / State / Zip</label>
+                            <div th:class="${@flowCss.join('form-input')}"
+                                 th:text="${selected.city + ', ' + selected.state + ' ' + selected.zipCode}">
+                            </div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">Country</label>
+                            <div th:class="${@flowCss.join('form-input')}" th:text="${selected.country}"></div>
+                        </div>
+                        <div th:class="${@flowCss.join('form-group')}">
+                            <label th:class="${@flowCss.join('form-label')}">Priority</label>
+                            <div th:class="${@flowCss.join('form-input mono')}" th:text="${selected.priority}"></div>
+                        </div>
+                    <div th:class="${@flowCss.join('form-group')}">
+                        <label th:class="${@flowCss.join('form-label')}">Deliver By</label>
+                        <div th:class="${@flowCss.join('form-input mono')}"
+                             th:text="${selected.deliverBy != null ? 'DEADLINE: ' + #temporals.format(selected.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                    </div>
+                    <div th:class="${@flowCss.join('form-group')}">
+                        <label th:class="${@flowCss.join('form-label')}">Delivery Notes</label>
+                        <div th:class="${@flowCss.join('form-input text-slate-700')}">
+                            <span th:if="${selected != null and deliveryNotes != null}"
+                                  th:text="${deliveryNotes}">Notes will appear here.</span>
+                            <span th:if="${selected != null and deliveryNotes == null}"
+                                  th:class="${@flowCss.join('text-slate-500')}">Waiting for data...</span>
+                        </div>
+                    </div>
+                    <div th:class="${@flowCss.join('form-group')}">
+                        <label th:class="${@flowCss.join('form-label')}">Delivery State</label>
+                        <div th:class="${@flowCss.join('form-input')}">
+                                <span th:class="${@flowCss.join('badge badge-neutral')}"
+                                      th:text="${selected.deliveryState != null ? selected.deliveryState.displayName() : 'N/A'}">STATE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:class="${@flowCss.join('label-popup-topbar')}">
+                <button th:class="${@flowCss.join('label-popup-close')}" type="button" id="embeddedBackBtn">Close</button>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+</body>
+<script>
+    (function () {
+        if (window.self === window.top) return;
+        document.body.classList.add("label-popup-embedded");
+        document.documentElement.classList.add("label-popup-embedded");
+        const closeBtn = document.getElementById("embeddedBackBtn");
+        if (!closeBtn) return;
+        closeBtn.addEventListener("click", () => {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: "labelModalClose" }, window.location.origin);
+                return;
+            }
+            window.history.back();
+        });
+        const postHeight = () => {
+            const height = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: "labelModalResize", height }, window.location.origin);
+        };
+        window.addEventListener("load", postHeight);
+        window.addEventListener("resize", postHeight);
+        setTimeout(postHeight, 0);
+    })();
+</script>
+</html>

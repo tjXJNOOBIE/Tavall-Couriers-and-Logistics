@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:class="${@footerCss.appFooter()}" th:fragment="footer">
+    <div th:class="${@backgroundCss.container()}">
+        <div th:class="${@flowCss.join('text-muted', @footerCss.footerNote())}">
+            &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Tavall Couriers
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
+

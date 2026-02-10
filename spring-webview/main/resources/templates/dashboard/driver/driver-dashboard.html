@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Driver Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-4xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6 flex-wrap gap-3')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800 mb-1')}">Driver Hub</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Signed in as <span th:text="${currentUserName}">Driver</span></p>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('flex flex-col items-end gap-2')}">
+                    <a th:class="${@dashboardTemplateCss.join('btn-primary shadow-sm hover-scale')}"
+                       th:href="@{/dashboard/driver/scan}"
+                       data-scan-popup="true">
+                        <i data-lucide="qr-code"></i>
+                        Scan Package
+                    </a>
+                    <a th:class="${@dashboardTemplateCss.join('btn-outline-large')}" th:href="@{/purchase}">
+                        Customer Demo Flow
+                    </a>
+                </div>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3')}">
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex items-center justify-between mb-3 flex-wrap gap-2')}">
+                        <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg flex items-center gap-2 text-slate-800')}">
+                            <i data-lucide="qr-code" th:class="${@dashboardTemplateCss.join('text-slate-400')}"></i>
+                            Scan Package
+                        </h3>
+                        <span th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}">State</span>
+                    </div>
+                    <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mb-4')}">Scan a label QR to update delivery state.</p>
+                    <a th:class="${@dashboardTemplateCss.join('btn-primary gap-2 hover-scale')}"
+                       th:href="@{/dashboard/driver/scan}"
+                       data-scan-popup="true">
+                        <i data-lucide="scan" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
+                        Open Scanner
+                    </a>
+                </div>
+
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex items-center justify-between mb-3 flex-wrap gap-2')}">
+                        <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg flex items-center gap-2 text-slate-800')}">
+                            <i data-lucide="route" th:class="${@dashboardTemplateCss.join('text-slate-400')}"></i>
+                            Routes
+                        </h3>
+                        <span th:if="${usingRouteQueue}" th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}"
+                              th:text="${preScanRouteId != null ? 'Route ' + preScanRouteId : 'Active Route'}">Route</span>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('scan-queue-list')}">
+                        <div th:if="${#lists.isEmpty(preScanLabels) && !#lists.isEmpty(availableRoutes)}"
+                             th:class="${@dashboardTemplateCss.join('route-select-card')}">
+                            <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider')}">Select a Route</div>
+                            <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">Pick a route to load your pre-scan queue.</p>
+                            <form method="get" th:action="@{/dashboard/driver}" th:class="${@dashboardTemplateCss.join('route-select-form')}">
+                                <select name="routeId" th:class="${@dashboardTemplateCss.join('route-select-input')}">
+                                    <option value="">Choose a route</option>
+                                    <option th:each="route : ${availableRoutes}"
+                                            th:value="${route.routeId}"
+                                            th:text="${route.routeId}">Route</option>
+                                </select>
+                                <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="submit">Load Route</button>
+                            </form>
+                        </div>
+                        <div th:each="label : ${preScanLabels}" th:class="${@dashboardTemplateCss.join('scan-queue-card')}">
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-top')}">
+                                <span th:class="${@dashboardTemplateCss.join('scan-queue-status')}">READY</span>
+                                <a th:class="${@dashboardTemplateCss.join('scan-queue-link')}" th:href="@{/dashboard/driver/scan}" data-scan-popup="true">Scan</a>
+                            </div>
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-title')}" th:text="${label.trackingNumber}"></div>
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-sub')}" th:text="${label.recipientName}"></div>
+                            <div th:class="${@dashboardTemplateCss.join('scan-queue-sub')}"
+                                 th:text="${label.city + (label.state != null ? ', ' + label.state : '')}"></div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(availableRoutes)}" th:class="${@dashboardTemplateCss.join('text-sm text-center text-slate-500 mt-4')}">
+                            Routes must be created through a merchant account.
+                            <div th:class="${@dashboardTemplateCss.join('mt-2')}">
+                                <a th:class="${@dashboardTemplateCss.join('text-blue-500 font-semibold text-nowrap')}" th:href="@{/dashboard/login}">
+                                    Sign-in as Merchant
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <div th:class="${@dashboardTemplateCss.join('flex items-center justify-between mb-3 flex-wrap gap-2')}">
+                        <h3 th:class="${@dashboardTemplateCss.join('font-bold text-lg flex items-center gap-2 text-slate-800')}">
+                            <i data-lucide="tag" th:class="${@dashboardTemplateCss.join('text-slate-400')}"></i>
+                            New Label
+                        </h3>
+                        <span th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-400 uppercase')}">Create</span>
+                    </div>
+                    <p th:class="${@dashboardTemplateCss.join('text-sm text-slate-500 mb-2')}">Label creation are only for Merchants.</p>
+                    <form method="post" th:action="@{/dashboard/logout}" th:class="${@dashboardTemplateCss.join('mt-1')}">
+                        <input type="hidden" th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button th:class="${@dashboardTemplateCss.join('text-xs font-semibold text-blue-500 hover:underline')}"
+                                type="submit">
+                            Go to Merchant Dashboard
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
+    window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+    window.APP.endpoints.driverStateBase = /*[[@{/dashboard/driver/state}]]*/ "/dashboard/driver/state";
+</script>
+<script defer src="/js/scan-popup.js"></script>
+<script>
+    lucide.createIcons();
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("stateModal");
+        const frame = document.getElementById("stateModalFrame");
+        const backdrop = document.getElementById("stateModalBackdrop");
+        const stateBase = window.APP && window.APP.endpoints && window.APP.endpoints.driverStateBase
+            ? window.APP.endpoints.driverStateBase
+            : "/dashboard/driver/state";
+        const TRANSITION_MS = 220;
+
+        if (!modal || !frame) return;
+
+        function openState(uuid) {
+            if (!uuid) return;
+            const target = `${stateBase}?uuid=${encodeURIComponent(uuid)}`;
+            frame.src = target;
+            modal.removeAttribute("hidden");
+            document.body.classList.add("scan-modal-open");
+            requestAnimationFrame(() => modal.classList.add("open"));
+        }
+
+        function closeState() {
+            modal.classList.remove("open");
+            document.body.classList.remove("scan-modal-open");
+            setTimeout(() => {
+                frame.src = "about:blank";
+                modal.setAttribute("hidden", "hidden");
+            }, TRANSITION_MS);
+        }
+
+        if (backdrop) {
+            backdrop.addEventListener("click", closeState);
+        }
+
+        window.addEventListener("message", (event) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data && event.data.type === "driverScanFound" && event.data.uuid) {
+                setTimeout(() => openState(event.data.uuid), TRANSITION_MS);
+            }
+            if (event.data && event.data.type === "stateModalClose") {
+                closeState();
+            }
+            if (event.data && event.data.type === "stateModalResize") {
+                const height = Number(event.data.height) || 0;
+                if (height > 0) {
+                    const maxHeight = Math.floor(window.innerHeight * 0.92);
+                    const target = Math.min(height, maxHeight);
+                    frame.style.height = `${target}px`;
+                }
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
+                closeState();
+            }
+        });
+    });
+</script>
+
+<div th:replace="~{constants/camera-modal :: cameraModal('scanModal','scanModalFrame','scanModalClose','scanModalBackdrop')}"></div>
+
+<div id="stateModal" th:class="${@dashboardTemplateCss.join('scan-modal state-popup-modal')}" hidden>
+    <div id="stateModalBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel state-popup-panel tavall-popup-panel')}">
+        <iframe id="stateModalFrame"
+                th:class="${@dashboardTemplateCss.join('scan-modal-frame state-popup-frame')}"
+                title="State change"
+                loading="lazy"></iframe>
+    </div>
+</div>
+</body>
+</html>

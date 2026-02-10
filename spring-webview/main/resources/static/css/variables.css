@@ -1,0 +1,31 @@
+:root {
+    /* Color Palette (Slate-ish) */
+    --bg-body: #f8fafc;
+    --bg-surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --text-inverse: #f8fafc;
+
+    /* Brand Colors */
+    --primary: #0f172a;      /* Slate 900 */
+    --primary-hover: #1e293b;
+    --accent: #3b82f6;       /* Blue 500 */
+    --accent-hover: #2563eb;
+    --alt-button: #3b82f6;
+    --alt-button-hover: #2563eb;
+    --brand-gold: #fbbf24;
+    --danger: #ef4444;
+    --success: #22c55e;
+
+    /* UI Variables */
+    --border-color: #e2e8f0;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+    /* Layout */
+    --nav-height: 4rem;
+    --container-width: 1200px;
+    --sidebar-width: 280px;
+}

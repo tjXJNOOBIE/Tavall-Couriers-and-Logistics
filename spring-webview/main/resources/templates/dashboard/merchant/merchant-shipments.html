@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Shipment Library</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-4xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}" th:text="${title}">Shipment Library</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Review, edit, and open label PDFs.</p>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('flex gap-2')}">
+                    <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard/merchant}">Back to Hub</a>
+                    <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard/merchant/scan}" data-scan-popup="true">POD Scan</a>
+                </div>
+            </div>
+
+            <div th:if="${updateStatus != null}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-4')}" th:text="${updateStatus}">
+                Shipment updated.
+            </div>
+            <div th:if="${updateError != null}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-4')}" th:text="${updateError}">
+                Update failed.
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('mt-6 mb-6')}">
+                <h3 th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-400 uppercase mb-4 tracking-wider')}">Operations</h3>
+                <div th:class="${@dashboardTemplateCss.join('ops-grid')}">
+                    <a th:class="${@dashboardTemplateCss.join('ops-card hover-scale')}"
+                       th:href="@{/dashboard/merchant/shipments/view}">
+                        <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                            <i data-lucide="archive" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                            <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}" th:text="${#lists.size(labels)}">0</span>
+                        </div>
+                        <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">View Shipments</h3>
+                        <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Browse the full shipment list.</p>
+                    </a>
+
+                    <a th:class="${@dashboardTemplateCss.join('ops-card ops-card-alt hover-scale')}"
+                       href="#"
+                       data-shipment-create-open="true">
+                        <div th:class="${@dashboardTemplateCss.join('ops-card-header')}">
+                            <i data-lucide="package-plus" th:class="${@dashboardTemplateCss.join('ops-card-icon')}"></i>
+                            <span th:class="${@dashboardTemplateCss.join('ops-card-badge')}">NEW</span>
+                        </div>
+                        <h3 th:class="${@dashboardTemplateCss.join('ops-card-title')}">Create Shipment</h3>
+                        <p th:class="${@dashboardTemplateCss.join('ops-card-desc')}">Choose intake scan or manual label.</p>
+                    </a>
+                </div>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-500')}">
+                    Use the View Shipments page to browse and manage the full list.
+                </div>
+                <a th:class="${@dashboardTemplateCss.join('btn-primary mt-4 inline-flex')}"
+                   th:href="@{/dashboard/merchant/shipments/view}">
+                    Open Shipment List
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
+    window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+</script>
+<script defer src="/js/label-popup.js"></script>
+<script defer src="/js/scan-popup.js"></script>
+<script>
+    lucide.createIcons();
+    document.addEventListener("DOMContentLoaded", () => {
+        const modal = document.getElementById("shipmentCreateModal");
+        const backdrop = document.getElementById("shipmentCreateBackdrop");
+        const openBtn = document.querySelector("[data-shipment-create-open]");
+        const closeBtn = document.getElementById("shipmentCreateClose");
+        const actionButtons = modal ? modal.querySelectorAll("[data-shipment-create-action]") : [];
+        if (!modal || !openBtn) return;
+
+        const openModal = () => {
+            modal.removeAttribute("hidden");
+            document.body.classList.add("scan-modal-open");
+            requestAnimationFrame(() => modal.classList.add("open"));
+        };
+
+        const closeModal = (preserveBody) => {
+            modal.classList.remove("open");
+            if (!preserveBody) {
+                document.body.classList.remove("scan-modal-open");
+            }
+            setTimeout(() => {
+                modal.setAttribute("hidden", "hidden");
+            }, 220);
+        };
+
+        openBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            openModal();
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener("click", () => closeModal(false));
+        }
+        if (backdrop) {
+            backdrop.addEventListener("click", () => closeModal(false));
+        }
+
+        actionButtons.forEach((btn) => {
+            btn.addEventListener("click", () => closeModal(true));
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.hasAttribute("hidden")) {
+                closeModal(false);
+            }
+        });
+    });
+</script>
+
+<div th:replace="~{constants/camera-modal :: cameraModal('scanModal','scanModalFrame','scanModalClose','scanModalBackdrop')}"></div>
+
+<div id="labelModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden>
+    <div id="labelModalBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel label-popup-panel tavall-popup-panel')}">
+        <iframe id="labelModalFrame"
+                th:class="${@dashboardTemplateCss.join('scan-modal-frame label-popup-frame')}"
+                title="Label details"
+                loading="lazy"></iframe>
+    </div>
+</div>
+
+<div id="shipmentCreateModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden>
+    <div id="shipmentCreateBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel tavall-popup-panel')}">
+        <div th:class="${@dashboardTemplateCss.join('space-y-3')}">
+            <div th:class="${@dashboardTemplateCss.join('text-sm text-slate-600')}">Choose how you want to create this shipment.</div>
+            <div th:class="${@dashboardTemplateCss.join('grid gap-2')}">
+                <a th:class="${@dashboardTemplateCss.join('btn-primary gap-2 justify-center')}"
+                   th:href="@{/dashboard/merchant/scan}"
+                   data-scan-popup="true"
+                   data-shipment-create-action="true">
+                    <i data-lucide="scan" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
+                    Open Intake Scanner
+                </a>
+                <a th:class="${@dashboardTemplateCss.join('btn-secondary gap-2 justify-center')}"
+                   th:href="@{/dashboard/merchant/create-shipment}"
+                   data-label-popup="true"
+                   data-shipment-create-action="true">
+                    <i data-lucide="edit-3" th:class="${@dashboardTemplateCss.join('w-4 h-4')}"></i>
+                    Create Label Manually
+                </a>
+            </div>
+            <div th:class="${@dashboardTemplateCss.join('flex justify-end')}">
+                <button th:class="${@dashboardTemplateCss.join('btn-secondary')}" type="button" id="shipmentCreateClose">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

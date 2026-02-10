@@ -1,0 +1,26 @@
+/* --- Home Page --- */
+.home-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    --alt-button: var(--accent);
+    --alt-button-hover: var(--accent-hover);
+}
+
+.home-actions .btn-primary,
+.home-actions .btn-secondary {
+    width: 100%;
+    min-height: 3.1rem;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+    .home-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+.home-shell .app-footer .footer-note {
+    text-align: center;
+}

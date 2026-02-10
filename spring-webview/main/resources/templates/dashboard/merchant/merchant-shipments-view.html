@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Shipments</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-5xl mx-auto fade-in')}">
+            <div th:class="${@dashboardTemplateCss.join('flex justify-between items-end mb-6 flex-wrap gap-3')}">
+                <div>
+                    <h1 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Shipments</h1>
+                    <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Browse shipment labels and open details.</p>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('flex gap-2')}">
+                    <a th:class="${@dashboardTemplateCss.join('btn-outline-small')}" th:href="@{/dashboard/merchant/shipments}">Back to Library</a>
+                    <a th:class="${@dashboardTemplateCss.join('btn-primary')}" th:href="@{/dashboard/merchant/create-shipment}" data-label-popup="true">Create Shipment</a>
+                </div>
+            </div>
+
+            <div th:class="${@dashboardTemplateCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                <div th:if="${!#lists.isEmpty(labels)}" th:class="${@dashboardTemplateCss.join('space-y-3')}">
+                    <div th:each="label : ${labels}" th:class="${@dashboardTemplateCss.join('p-4 bg-slate-50 border border-slate-200 rounded-xl')}">
+                        <div th:class="${@dashboardTemplateCss.join('flex justify-between items-start gap-3')}">
+                            <div>
+                                <div th:class="${@dashboardTemplateCss.join('text-xs font-bold text-slate-500')}"
+                                     th:text="${label.deliveryState != null ? label.deliveryState.displayName() : 'N/A'}"></div>
+                                <div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-700 mt-1')}" th:text="${label.trackingNumber}"></div>
+                                <div th:class="${@dashboardTemplateCss.join('text-xs text-slate-500 mt-1')}" th:text="${label.recipientName}"></div>
+                                <div th:class="${@dashboardTemplateCss.join('text-xs text-slate-400')}" th:text="${label.city + ', ' + label.state}"></div>
+                                <div th:class="${@dashboardTemplateCss.join('text-xs text-slate-500 mt-1')}"
+                                     th:text="${label.deliverBy != null ? 'DEADLINE: ' + #temporals.format(label.deliverBy, 'MM/dd/yyyy hh:mm a') : 'DEADLINE: N/A'}"></div>
+                            </div>
+                            <div th:class="${@dashboardTemplateCss.join('route-actions')}">
+                                <a th:class="${@dashboardTemplateCss.join('btn-primary route-action')}"
+                                   th:href="@{/shipping-labels/{uuid}(uuid=${label.uuid})}"
+                                   data-label-popup="true">Open Details</a>
+                                <a th:class="${@dashboardTemplateCss.join('btn-secondary route-action')}"
+                                   th:if="${label.trackingNumber != null}"
+                                   th:href="@{/tracking/{trackingNumber}(trackingNumber=${label.trackingNumber})}">Track</a>
+                                <a th:class="${@dashboardTemplateCss.join('btn-secondary route-action')}"
+                                   th:href="@{/shipping-labels/{uuid}/pdf(uuid=${label.uuid})}"
+                                   target="_blank"
+                                   rel="noopener">View PDF</a>
+                                <form method="post" th:action="@{/internal/api/v1/merchant/shipments/delete}">
+                                    <input type="hidden" th:if="${_csrf != null}"
+                                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                    <input type="hidden" name="uuid" th:value="${label.uuid}"/>
+                                    <button th:class="${@dashboardTemplateCss.join('btn-secondary route-action')}" type="submit">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script defer src="/js/label-popup.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+
+<div id="labelModal" th:class="${@dashboardTemplateCss.join('scan-modal label-popup-modal')}" hidden>
+    <div id="labelModalBackdrop" th:class="${@dashboardTemplateCss.join('scan-modal-backdrop')}"></div>
+    <div th:class="${@dashboardTemplateCss.join('scan-modal-panel label-popup-panel tavall-popup-panel')}">
+        <iframe id="labelModalFrame"
+                th:class="${@dashboardTemplateCss.join('scan-modal-frame label-popup-frame')}"
+                title="Label details"
+                loading="lazy"></iframe>
+    </div>
+</div>
+</body>
+</html>

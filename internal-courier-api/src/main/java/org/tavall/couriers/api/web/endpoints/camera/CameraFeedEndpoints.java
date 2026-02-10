@@ -1,0 +1,38 @@
+package org.tavall.couriers.api.web.endpoints.camera;
+
+
+import org.tavall.couriers.api.web.endpoints.AppEndpoint;
+
+public enum CameraFeedEndpoints implements AppEndpoint {
+    SCAN_PACKAGE("/internal/api/v1/scan", "POST"),
+    CONFIRM_ROUTE("/internal/api/v1/route/confirm", "POST"),
+    INTAKE_STATUS("/internal/api/v1/stream/intake/status", "GET"),
+    STREAM_FRAME("/internal/api/v1/stream/frame", "POST"),
+    CLOSE_SESSION("/internal/api/v1/stream/session/close", "POST");
+    public static final String INTAKE_STATUS_PATH = "/internal/api/v1/stream/intake/status";
+    public static final String STREAM_FRAME_PATH = "/internal/api/v1/stream/frame";
+    public static final String CLOSE_SESSION_PATH = "/internal/api/v1/stream/session/close";
+    private final String endpoint;
+    private final String method;
+
+
+    CameraFeedEndpoints(String endpoint, String method) {
+
+        this.endpoint = endpoint;
+        this.method = method;
+    }
+
+
+    @Override
+    public String endpoint() {
+
+        return endpoint;
+    }
+
+
+    @Override
+    public String method() {
+
+        return method;
+    }
+}

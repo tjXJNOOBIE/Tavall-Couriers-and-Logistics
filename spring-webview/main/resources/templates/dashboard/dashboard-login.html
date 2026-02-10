@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Dashboard Login</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header('Tavall Couriers', 'GUEST')}"></header>
+
+<main th:class="${@dashboardTemplateCss.join('main-content fade-in')}">
+    <div th:class="${@dashboardTemplateCss.join('container')}">
+        <div th:class="${@dashboardTemplateCss.join('max-w-md mx-auto mt-10 bg-white p-8 rounded-2xl shadow-xl fade-in border border-slate-100')}">
+            <div th:class="${@dashboardTemplateCss.join('text-center mb-8')}">
+                <div th:class="${@dashboardTemplateCss.join('text-sm font-bold text-slate-400 uppercase mb-2')}">Tavall Couriers</div>
+                <div th:class="${@dashboardTemplateCss.join('bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4')}">
+                    <i data-lucide="shield-check" th:class="${@dashboardTemplateCss.join('text-blue-600 w-8 h-8')}"></i>
+                </div>
+                <h2 th:class="${@dashboardTemplateCss.join('text-2xl font-bold text-slate-800')}">Secure Login</h2>
+                <p th:class="${@dashboardTemplateCss.join('text-slate-500 text-sm')}">Access the Tavall Logistics Network</p>
+            </div>
+
+            <div th:if="${param.error}" th:class="${@dashboardTemplateCss.join('alert alert-danger mb-2')}">
+                Invalid username or password.
+            </div>
+            <div th:if="${param.logout}" th:class="${@dashboardTemplateCss.join('alert alert-success mb-2')}">
+                Logged out.
+            </div>
+
+            <form id="login-form" th:action="@{/dashboard/login}" method="post" th:class="${@dashboardTemplateCss.join('space-y-4')}">
+                <input type="hidden" th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div>
+                    <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}" for="username">Username</label>
+                    <input type="text" id="username" name="username"
+                           th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition')}"
+                           placeholder="Enter username" autocomplete="username" required>
+                </div>
+                <div>
+                    <label th:class="${@dashboardTemplateCss.join('block text-xs font-bold text-slate-500 uppercase mb-1')}" for="password">Password</label>
+                    <input type="password" id="password" name="password"
+                           th:class="${@dashboardTemplateCss.join('w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition')}"
+                           placeholder="Enter password" autocomplete="current-password" required>
+                </div>
+
+                <button type="submit"
+                        th:class="${@dashboardTemplateCss.join('btn-primary w-full mt-2')}">
+                    Login
+                </button>
+
+                <div th:class="${@dashboardTemplateCss.join('relative py-4')}">
+                    <div th:class="${@dashboardTemplateCss.join('absolute inset-0 flex items-center')}">
+                        <div th:class="${@dashboardTemplateCss.join('w-full border-t border-slate-200')}"></div>
+                    </div>
+                    <div th:class="${@dashboardTemplateCss.join('relative flex justify-center')}">
+                        <span th:class="${@dashboardTemplateCss.join('bg-white px-2 text-xs text-slate-400 uppercase')}">Or use demo credentials</span>
+                    </div>
+                </div>
+
+                <div th:class="${@dashboardTemplateCss.join('grid grid-cols-3 gap-2')}">
+                    <button th:each="demo : ${demoCredentials}"
+                            th:class="${@dashboardTemplateCss.join('p-2 border border-slate-200 rounded hover:bg-slate-50 text-xs font-medium text-slate-600 transition demo-login cursor-pointer')}"
+                            type="button"
+                            th:attr="data-username=${demo.username},data-password=${demo.password}">
+                        <span th:text="${demo.label}">Demo</span>
+                    </button>
+                </div>
+                <div th:class="${@dashboardTemplateCss.join('mt-6 text-center')}">
+                    <a th:href="@{/tracking}"
+                       th:class="${@dashboardTemplateCss.join('text-blue-500 hover:text-blue-700 text-sm font-medium')}">
+                        Track a shipment instead?
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.dashboardLogin = /*[[@{/dashboard/login}]]*/ "/dashboard/login";
+</script>
+<script defer src="/js/dashboard/dashboard-login.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

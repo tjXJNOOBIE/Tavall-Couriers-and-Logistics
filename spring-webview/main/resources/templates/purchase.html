@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">Customer Demo</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<header th:replace="~{constants/header :: header(${headerUserName}, ${headerUserRole})}"></header>
+
+<main th:class="${@flowCss.join('main-content fade-in')}">
+    <div th:class="${@flowCss.join('container')}">
+        <div th:class="${@flowCss.join('max-w-4xl mx-auto fade-in')}">
+            <div th:class="${@flowCss.join('flex justify-between items-end mb-6 flex-wrap gap-3')}">
+                <div>
+                    <h1 th:class="${@flowCss.join('text-2xl font-bold text-slate-800')}">Customer Print Demo</h1>
+                    <p th:class="${@flowCss.join('text-slate-500 text-sm')}">Simulate a customer purchase and create a print-on-demand document.</p>
+                </div>
+                <a th:class="${@flowCss.join('btn-outline-small')}" th:href="@{/dashboard}">Back to Dashboard</a>
+            </div>
+
+            <div th:class="${@flowCss.join('grid grid-cols-1 gap-6 lg:grid-cols-2')}">
+                <div th:class="${@flowCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <div th:class="${@flowCss.join('flex items-center justify-between mb-4 gap-2 flex-wrap')}">
+                        <h3 th:class="${@flowCss.join('font-bold text-lg text-slate-800')}">Customer Purchase</h3>
+                        <div th:class="${@flowCss.join('flex gap-2')}">
+                            <button th:class="${@flowCss.join('btn-outline-small')}" type="button" id="mockPurchaseBtn">Add mock data</button>
+                            <button th:class="${@flowCss.join('btn-outline-small')}" type="button" id="geminiPurchaseBtn">Add Gemini 3 address</button>
+                        </div>
+                    </div>
+                    <div th:if="${addressError != null}" th:class="${@flowCss.join('alert alert-danger mb-4')}">
+                        <span th:text="${addressError}">Address could not be verified.</span>
+                    </div>
+                    <form method="post" th:action="@{/purchase}" th:class="${@flowCss.join('space-y-4')}">
+                        <input type="hidden" th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <div>
+                            <label th:class="${@flowCss.join('form-label')}">Customer Name</label>
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="customerName" placeholder="Alex Johnson" th:value="${customerName}" required>
+                        </div>
+                        <div>
+                            <label th:class="${@flowCss.join('form-label')}">Phone</label>
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="customerPhone" placeholder="(555) 010-2026" th:value="${customerPhone}">
+                        </div>
+                        <div>
+                            <label th:class="${@flowCss.join('form-label')}">Street Address</label>
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="address" placeholder="123 Market St" th:value="${address}" required>
+                        </div>
+                        <div th:class="${@flowCss.join('grid grid-cols-1 gap-3 md:grid-cols-3')}">
+                            <div>
+                                <label th:class="${@flowCss.join('form-label')}">City</label>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="city" placeholder="San Jose" th:value="${city}" required>
+                            </div>
+                            <div>
+                                <label th:class="${@flowCss.join('form-label')}">State</label>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="state" placeholder="CA" th:value="${state}" required>
+                            </div>
+                            <div>
+                                <label th:class="${@flowCss.join('form-label')}">Zip</label>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="zip" placeholder="95112" th:value="${zip}" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label th:class="${@flowCss.join('form-label')}">Country</label>
+                            <input th:class="${@flowCss.join('form-input')}" type="text" name="country" placeholder="USA" th:value="${country}">
+                        </div>
+                        <div th:class="${@flowCss.join('grid grid-cols-1 gap-3 md:grid-cols-2')}">
+                            <div>
+                                <label th:class="${@flowCss.join('form-label')}">Item</label>
+                                <input th:class="${@flowCss.join('form-input')}" type="text" name="itemName" placeholder="Merch Pack" th:value="${itemName}" required>
+                            </div>
+                            <div>
+                                <label th:class="${@flowCss.join('form-label')}">Quantity</label>
+                                <input th:class="${@flowCss.join('form-input')}" type="number" name="quantity" min="1" th:value="${quantity != null ? quantity : 1}">
+                            </div>
+                        </div>
+                        <div>
+                            <label th:class="${@flowCss.join('form-label')}">Deliver By (optional)</label>
+                            <input th:class="${@flowCss.join('form-input')}" type="datetime-local" name="deliverBy" th:value="${deliverBy}">
+                        </div>
+                        <button th:class="${@flowCss.join('btn-primary w-full')}" type="submit">
+                            Generate Print Document
+                        </button>
+                    </form>
+                </div>
+
+                <div th:class="${@flowCss.join('bg-white p-6 rounded-2xl shadow-sm border border-slate-100')}">
+                    <h3 th:class="${@flowCss.join('font-bold text-lg mb-4 text-slate-800')}">Print-On-Demand Document</h3>
+                    <div th:if="${createdLabel != null}" th:class="${@flowCss.join('space-y-4')}">
+                        <div th:class="${@flowCss.join('bg-slate-50 border border-slate-200 rounded-xl p-4')}">
+                            <div th:class="${@flowCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider mb-2')}">Order Summary</div>
+                            <div th:class="${@flowCss.join('text-sm text-slate-600')}">Item: <span th:class="${@flowCss.join('font-bold text-slate-800')}" th:text="${itemName}">Item</span></div>
+                            <div th:class="${@flowCss.join('text-sm text-slate-600 mt-1')}">Quantity: <span th:class="${@flowCss.join('font-bold text-slate-800')}" th:text="${quantity}">1</span></div>
+                            <div th:class="${@flowCss.join('text-sm text-slate-600 mt-1')}">Submitted: <span th:class="${@flowCss.join('font-bold text-slate-800 mono')}"
+                                th:text="${submittedAt != null ? #temporals.format(submittedAt, 'MM/dd/yyyy hh:mm a') : 'Waiting for data...'}">Waiting</span></div>
+                        </div>
+
+                        <div th:class="${@flowCss.join('bg-white border border-slate-200 rounded-xl p-4')}">
+                            <div th:class="${@flowCss.join('text-xs font-bold text-slate-400 uppercase tracking-wider mb-2')}">Shipping Document</div>
+                            <div th:class="${@flowCss.join('text-sm font-bold text-slate-800')}" th:text="${createdLabel.recipientName}">Recipient</div>
+                            <div th:class="${@flowCss.join('text-sm text-slate-600')}" th:text="${createdLabel.address}">Address</div>
+                            <div th:class="${@flowCss.join('text-sm text-slate-600')}"
+                                 th:text="${createdLabel.city + ', ' + createdLabel.state + ' ' + createdLabel.zipCode}">City</div>
+                            <div th:class="${@flowCss.join('text-sm text-slate-600 mt-2')}">
+                                Tracking: <span th:class="${@flowCss.join('mono font-bold text-slate-800')}" th:text="${createdLabel.trackingNumber}">TRACK</span>
+                            </div>
+                        </div>
+
+                        <div th:class="${@flowCss.join('grid grid-cols-1 gap-3 md:grid-cols-2')}">
+                            <a th:class="${@flowCss.join('btn-primary w-full')}"
+                               th:href="@{/dashboard/merchant/scan}"
+                               data-scan-popup="true">
+                                Open Intake Scanner
+                            </a>
+                            <a th:class="${@flowCss.join('btn-secondary w-full')}" th:href="@{/purchase}">Restart Demo</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    window.APP = window.APP || {};
+    window.APP.endpoints = window.APP.endpoints || {};
+    window.APP.endpoints.merchantScanBase = /*[[@{/dashboard/merchant/scan}]]*/ "/dashboard/merchant/scan";
+    window.APP.endpoints.driverScanBase = /*[[@{/dashboard/driver/scan}]]*/ "/dashboard/driver/scan";
+</script>
+<script defer src="/js/scan-popup.js"></script>
+<script>
+    lucide.createIcons();
+(function () {
+    const defaults = {
+        customerName: "Google HQ Demo",
+        customerPhone: "(650) 253-0000",
+        address: "1600 Amphitheatre Parkway",
+        city: "Mountain View",
+        state: "CA",
+        zip: "94043",
+        country: "USA",
+        itemName: "Cloud Starter Pack",
+        quantity: "1"
+    };
+    const geminiDefaults = {
+        customerName: "Gemini 3 Demo",
+        customerPhone: "(212) 565-0000",
+        address: "111 8th Ave",
+        city: "New York",
+        state: "NY",
+        zip: "10011",
+        country: "USA",
+        itemName: "Gemini 3 Kit",
+        quantity: "1"
+    };
+
+    const fillIfEmpty = (values) => {
+        Object.keys(values).forEach((key) => {
+            const input = document.querySelector(`[name="${key}"]`);
+            if (!input || String(input.value || "").trim().length) return;
+            input.value = values[key];
+        });
+    };
+
+    fillIfEmpty(defaults);
+
+    const button = document.getElementById("mockPurchaseBtn");
+    if (button) {
+        button.addEventListener("click", () => fillIfEmpty(defaults));
+    }
+    const geminiButton = document.getElementById("geminiPurchaseBtn");
+    if (geminiButton) {
+        geminiButton.addEventListener("click", () => fillIfEmpty(geminiDefaults));
+    }
+
+    const safe = (value) => {
+        if (!value) return "Waiting for data...";
+        const trimmed = String(value).trim();
+        return trimmed.length ? trimmed : "Waiting for data...";
+    };
+
+    const formatDateTime = (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+    };
+
+    const row = (label, value) => `<div class="row"><span class="label">${label}</span><span class="value">${safe(value)}</span></div>`;
+
+    const form = document.querySelector("form[method=\"post\"][action=\"/purchase\"]");
+    if (!form) return;
+
+    form.addEventListener("submit", () => {
+        const data = {
+            customerName: form.querySelector("[name=\"customerName\"]")?.value,
+            customerPhone: form.querySelector("[name=\"customerPhone\"]")?.value,
+            address: form.querySelector("[name=\"address\"]")?.value,
+            city: form.querySelector("[name=\"city\"]")?.value,
+            state: form.querySelector("[name=\"state\"]")?.value,
+            zip: form.querySelector("[name=\"zip\"]")?.value,
+            country: form.querySelector("[name=\"country\"]")?.value,
+            itemName: form.querySelector("[name=\"itemName\"]")?.value,
+            quantity: form.querySelector("[name=\"quantity\"]")?.value,
+            deliverBy: formatDateTime(form.querySelector("[name=\"deliverBy\"]")?.value)
+        };
+        const deadlineValue = data.deliverBy ? data.deliverBy : "N/A";
+
+        const printWindow = window.open("", "_blank", "width=820,height=900");
+        if (!printWindow) return;
+        const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scan This Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 32px; color: #0f172a; }
+    h1 { font-size: 24px; margin-bottom: 18px; }
+    h2 { font-size: 16px; margin: 24px 0 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; }
+    .card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 18px; }
+    .row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; }
+    .label { font-weight: 700; color: #64748b; min-width: 120px; }
+    .value { color: #0f172a; text-align: right; flex: 1; }
+  </style>
+</head>
+  <body>
+  <h1>Scan This Page</h1>
+  <div class="card">
+    <h2>Customer</h2>
+    ${row("Name", data.customerName)}
+    ${row("Phone", data.customerPhone)}
+  </div>
+  <div class="card">
+    <h2>Shipping</h2>
+    ${row("Address", data.address)}
+    ${row("City", data.city)}
+    ${row("State", data.state)}
+    ${row("Zip", data.zip)}
+    ${row("Country", data.country)}
+    ${row("Deadline", deadlineValue)}
+  </div>
+  <div class="card">
+    <h2>Order</h2>
+    ${row("Item", data.itemName)}
+    ${row("Quantity", data.quantity)}
+  </div>
+</body>
+</html>`;
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+    });
+})();
+</script>
+
+<div th:replace="~{constants/camera-modal :: cameraModal('scanModal','scanModalFrame','scanModalClose','scanModalBackdrop')}"></div>
+</body>
+</html>
