@@ -1,8 +1,10 @@
 # README
 
-!!!!!! MY GIT BROKE 30 MINUTES BEFORE DEADLINE, THERE ARE OVER 200 COMMITS on the master brancch, this should be up to date with this one !!!!!!
+⚠️ JUDGES: VIEW COMMIT HISTORY HERE ⚠️
+> **Note:** Due to a git configuration error during the hackathon crunch,> [CLICK HERE TO VIEW PROJECT HISTORY](https://github.com/YOUR_USER/YOUR_REPO/commits/master)
+> all development history (200+ commits) is on the `master` branch.
+> [CLICK HERE TO VIEW PROJECT HISTORY](https://github.com/tjXJNOOBIE/Tavall-Couriers-and-Logistics/tree/master)
 
-PROJECT REPO MAY NOT BE UP TO DATE, I DIDN'T HAVE TIME TO FIX GIT!
 
 ## Table of Contents
 
@@ -207,5 +209,19 @@ Response: UserDTO
 - **DRIVER**: Scan, update payload, update delivery status, view assigned routes
 - **VIEWER**: Read-only access
 
-## TODO
-* Fix maven pom structure
+## License
+
+**Copyright (c) 2026 Taheesh (TJ) Valentine**
+
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
+
+**You are free to:**
+* **View** and **Run** the code for educational or evaluation purposes.
+* **Edit** and **Modify** the code for personal experiments.
+* **Share** the code with others (non-commercially).
+
+**You may NOT:**
+* Use this project for any **commercial purpose** (making money, business use, etc.).
+* Sell or license this code to others.
+
+For the full legal text, please view the [LICENSE](LICENSE) file in this repository.
